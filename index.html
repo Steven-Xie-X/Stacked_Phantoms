@@ -67,6 +67,7 @@
   }
   .mode-label .hint {
     font-size: 10px; font-weight: 500; color: #94a3b8;
+    transition: color .15s;
   }
   .switch {
     position: relative;
@@ -84,6 +85,9 @@
   }
   .switch[aria-pressed="true"] {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
+  }
+  .switch[aria-pressed="true"].invert-on {
+    background: linear-gradient(135deg, #f97316, #ea580c);
   }
   .switch:disabled {
     opacity: .4;
@@ -342,6 +346,14 @@
     <span id="progress">已放置 0 / 16</span>
   </div>
 
+  <!-- 黑白颠倒开关 -->
+  <div class="mode-row">
+    <span class="mode-label">黑白颠倒 <span class="hint" id="invertHint">正常显示</span></span>
+    <button id="invertSwitch" class="switch invert-on" role="switch" aria-pressed="false" aria-label="黑白颠倒开关">
+      <span class="switch-knob"></span>
+    </button>
+  </div>
+
   <!-- 数字模式开关 -->
   <div class="mode-row">
     <span class="mode-label">数字显示 <span class="hint" id="modeHint">无数字</span></span>
@@ -375,7 +387,7 @@
     <span class="progress-label" id="progressLabel">0%</span>
   </div>
 
-  <!-- 数字匹配度进度条（数字显示开启时可见） -->
+  <!-- 数字匹配度进度条 -->
   <div class="progress-row" id="numberProgressRow" style="display:none;">
     <span class="progress-name">数字匹配度</span>
     <div class="progress-track">
@@ -392,6 +404,7 @@
   <div class="tip" id="tipBox">
     <span class="tip-line"><b>操作方式：</b>拖动 → 碎片可在操作盘面和碎片池之间交替移动，也能在操作盘面内任意移动 · 单击碎片顺时针方向旋转90° · 右键单击碎片（触屏：一指按住，另一指点击）逆时针旋转90° · 连续双击碎片左右镜像</span>
     <span class="tip-line"><b>叠加规则：</b>同一格被覆盖奇数次为黑、偶数次为白</span>
+    <span class="tip-line" style="color:#ea580c;font-weight:600;">黑白颠倒：开启后目标图案的黑白显示会反转（仅视觉效果，不影响实际判定）。</span>
     <span class="tip-line" style="color:#7c3aed;font-weight:600;">参考答案：由于不是唯一解，答案仅供参考。所有碎片都是先旋转对应次数，再考虑是否镜像。</span>
     <span class="tip-line" style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示）。</span>
     <span class="tip-line" style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span>
@@ -435,6 +448,7 @@
   let currentSeed = null;
   let digitalMode = false;
   let colorMode = false;
+  let invertMode = false;
   let pending = null;
   let drag = null;
 
@@ -471,6 +485,8 @@
   const colorHint     = document.getElementById('colorHint');
   const targetSwitch  = document.getElementById('targetSwitch');
   const targetHint    = document.getElementById('targetHint');
+  const invertSwitch  = document.getElementById('invertSwitch');
+  const invertHint    = document.getElementById('invertHint');
 
   /* ========================================================
      尺寸计算
@@ -487,16 +503,10 @@
     poolEl.style.gridTemplateColumns = 'repeat(4, ' + POOL_SLOT + 'px)';
   }
 
-  /* ========================================================
-     颜色工具
-     ======================================================== */
   function getPieceColor(id) {
     return PIECE_COLORS[id % PIECE_COLORS.length];
   }
 
-  /* ========================================================
-     随机数
-     ======================================================== */
   function mulberry32(a) {
     return function () {
       a |= 0; a = a + 0x6D2B79F5 | 0;
@@ -506,9 +516,6 @@
     };
   }
 
-  /* ========================================================
-     随机形状（3~5 格，四连通）
-     ======================================================== */
   function randomShape(rng) {
     const size = 3 + Math.floor(rng() * 3);
     const cells = [[0, 0]];
@@ -531,9 +538,6 @@
       .sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   }
 
-  /* ========================================================
-     形状变换工具
-     ======================================================== */
   function normalize(cells) {
     const minR = Math.min(...cells.map(c => c[0]));
     const minC = Math.min(...cells.map(c => c[1]));
@@ -577,9 +581,6 @@
     };
   }
 
-  /* ========================================================
-     叠加计算
-     ======================================================== */
   function computeGrid(list) {
     const g = Array.from({ length: N }, () => new Array(N).fill(0));
     for (const p of list) {
@@ -769,9 +770,6 @@
     renderAll();
   }
 
-  /* ========================================================
-     构建盘面骨架
-     ======================================================== */
   function buildBoard() {
     boardEl.innerHTML = '';
     boardEl.style.width  = (N * BOARD_CELL) + 'px';
@@ -800,9 +798,6 @@
     boardEl.appendChild(numbersLayer);
   }
 
-  /* ========================================================
-     渲染
-     ======================================================== */
   function renderAll() {
     renderPool();
     renderPiecesLayer();
@@ -825,11 +820,23 @@
     colorSwitch.setAttribute('aria-pressed', String(colorMode));
     colorHint.textContent = colorMode ? '彩色' : '黑白';
 
+    // 目标图案提示文字：根据「是否显示目标」以及「黑白是否颠倒」组合
     targetSwitch.setAttribute('aria-pressed', String(showingTarget));
-    targetHint.textContent = showingTarget ? '已显示目标图案' : '打开来查看目标图案';
+    if (!showingTarget) {
+      targetHint.textContent = '打开来查看目标图案';
+      targetHint.style.color = '';
+    } else if (invertMode) {
+      targetHint.textContent = '目标图案的黑白颜色已反转';
+      targetHint.style.color = '#ea580c';   // 与颠倒开关主题色一致
+    } else {
+      targetHint.textContent = '已显示目标图案';
+      targetHint.style.color = '';
+    }
     targetSwitch.disabled = answerMode;
 
-    // 数字匹配度进度条：只在数字显示开启时可见
+    invertSwitch.setAttribute('aria-pressed', String(invertMode));
+    invertHint.textContent = invertMode ? '已颠倒' : '正常显示';
+
     numberProgressRow.style.display = digitalMode ? 'flex' : 'none';
   }
 
@@ -853,16 +860,19 @@
     }
 
     const isPlayerMode = !showingTarget && !answerMode;
+    // 目标图案显示（含参考答案模式）时，若开启黑白颠倒则视觉效果反转
+    const displayInverted = !isPlayerMode && invertMode;
 
     for (let r = 0; r < N; r++) {
       for (let c = 0; c < N; c++) {
         const el = cellEls[r * N + c];
         if (!el) continue;
-        const black = !!grid[r][c];
+        const actualBlack = !!grid[r][c];
+        const displayBlack = displayInverted ? !actualBlack : actualBlack;
         let bg;
 
         if (!isPlayerMode) {
-          bg = black ? BLACK_FILL : WHITE_FILL;
+          bg = displayBlack ? BLACK_FILL : WHITE_FILL;
         } else {
           const covering = [];
           for (const p of pieces) {
@@ -891,13 +901,14 @@
               bg = 'linear-gradient(90deg, ' + stops.join(', ') + ')';
             }
           } else {
-            bg = black ? BLACK_FILL : WHITE_FILL;
+            bg = actualBlack ? BLACK_FILL : WHITE_FILL;
           }
         }
 
         el.style.background = bg;
-        el.classList.toggle('black', black);
-        el.classList.toggle('white', !black);
+        // 类同步为"显示状态"，保证数字图层对比度判断正确
+        el.classList.toggle('black', displayBlack);
+        el.classList.toggle('white', !displayBlack);
       }
     }
 
@@ -941,6 +952,7 @@
 
         const cellEl = cellEls[r * N + c];
         const isColored = colorMode && !showingTarget && !answerMode;
+        // cellEl 的类已同步为"显示状态"，包含黑白颠倒的反转
         if ((cellEl && cellEl.classList.contains('black')) || isColored) {
           d.classList.add('on-black');
         } else {
@@ -954,11 +966,8 @@
     numbersLayer.appendChild(frag);
   }
 
-  /**
-   * 同时更新黑白匹配度和数字匹配度进度条
-   */
   function updateMatchBars(blackGrid) {
-    // 黑白匹配度
+    // 黑白匹配度（基于实际数据，不受颠倒开关影响）
     let matched = 0;
     if (targetGrid && blackGrid) {
       for (let r = 0; r < N; r++) {
@@ -976,7 +985,7 @@
     progressFill.classList.toggle('full', full);
     progressLabel.classList.toggle('full', full);
 
-    // 数字匹配度（只在数字显示开启时更新，但无论如何都计算，以保证切换时立即正确）
+    // 数字匹配度
     if (digitalMode) {
       let numGrid;
       if (answerMode) {
@@ -1150,9 +1159,6 @@
     }
   }
 
-  /* ========================================================
-     指针交互
-     ======================================================== */
   function onPiecePointerDown(ev, piece, el, source) {
     if (showingTarget || answerMode || solved || !targetGrid) return;
     if (ev.button !== 0 && ev.button !== 2) return;
@@ -1331,9 +1337,6 @@
     }
   }
 
-  /* ========================================================
-     参考答案模式
-     ======================================================== */
   function toggleAnswerMode() {
     if (!targetGrid) return;
     cancelPendingTap();
@@ -1366,9 +1369,6 @@
     }
   }
 
-  /* ========================================================
-     重置
-     ======================================================== */
   function resetBoard() {
     if (drag || answerMode || !targetGrid) return;
     cancelPendingTap();
@@ -1389,14 +1389,10 @@
     renderAll();
   }
 
-  /* ========================================================
-     胜利判定
-     ======================================================== */
   function checkWin() {
     if (solved || !targetGrid || answerMode) return;
     if (pieces.some(p => !p.placed)) return;
 
-    // 1) 黑白必须完全一致
     const g = computeGrid(pieces);
     for (let r = 0; r < N; r++) {
       for (let c = 0; c < N; c++) {
@@ -1404,7 +1400,6 @@
       }
     }
 
-    // 2) 数字显示开启时，数字也必须完全匹配
     if (digitalMode) {
       const pNum = computeNumberGridPlayer();
       const tNum = computeNumberGridAnswer(answerPlacements.length);
@@ -1420,9 +1415,6 @@
     setTimeout(() => messageEl.classList.remove('show'), 2600);
   }
 
-  /* ========================================================
-     按钮事件
-     ======================================================== */
   btnRandom.addEventListener('click', () => {
     const seed = Math.floor(Math.random() * 100000) + 1;
     generateChallenge(seed);
@@ -1444,11 +1436,17 @@
   boardEl.addEventListener('click', onBoardClick);
   boardEl.addEventListener('contextmenu', onBoardContextMenu);
 
+  // 黑白颠倒开关
+  invertSwitch.addEventListener('click', () => {
+    invertMode = !invertMode;
+    updateModeUI();
+    updateBoardView();
+  });
+
   digitSwitch.addEventListener('click', () => {
     digitalMode = !digitalMode;
     updateModeUI();
     renderPool();
-    // 更新盘面、数字图层、两条进度条
     updateBoardView();
   });
 
@@ -1469,7 +1467,6 @@
     updateModeUI();
   });
 
-  // 窗口尺寸变化
   let resizeTimer = null;
   window.addEventListener('resize', () => {
     if (resizeTimer) clearTimeout(resizeTimer);
@@ -1484,9 +1481,6 @@
     }, 160);
   });
 
-  /* ========================================================
-     启动
-     ======================================================== */
   function init() {
     computeSizes();
     buildBoard();
