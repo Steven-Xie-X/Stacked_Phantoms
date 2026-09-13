@@ -27,7 +27,6 @@
     text-shadow: 0 2px 0 rgba(255,255,255,.9);
   }
 
-  /* ---------- 顶部按钮：居中排列 ---------- */
   .controls {
     display: flex; flex-wrap: wrap; gap: 8px;
     justify-content: center;
@@ -105,8 +104,17 @@
 
   /* ---------- 进度条 ---------- */
   .progress-row {
-    display: flex; align-items: center; gap: 9px;
-    margin: 0 0 10px; padding: 0 2px;
+    display: flex; align-items: center; gap: 8px;
+    margin: 0 0 8px; padding: 0 2px;
+  }
+  .progress-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    width: 62px;
+    flex-shrink: 0;
+    text-align: left;
+    letter-spacing: .5px;
   }
   .progress-track {
     flex: 1; height: 10px; border-radius: 999px;
@@ -121,16 +129,24 @@
   .progress-fill.full {
     background: linear-gradient(90deg, #34d399, #16a34a);
   }
+  .progress-fill.number-fill {
+    background: linear-gradient(90deg, #a78bfa, #7c3aed);
+  }
+  .progress-fill.number-fill.full {
+    background: linear-gradient(90deg, #34d399, #16a34a);
+  }
   .progress-label {
     font-size: 12px; font-weight: 700; color: #2563eb;
     min-width: 40px; text-align: right;
     font-variant-numeric: tabular-nums;
   }
   .progress-label.full { color: #16a34a; }
+  .progress-label.number-label { color: #7c3aed; }
+  .progress-label.number-label.full { color: #16a34a; }
 
   /* ---------- 棋盘 ---------- */
   #board {
-    position: relative; margin: 0 auto 16px;
+    position: relative; margin: 4px auto 16px;
     background: #fff; border-radius: 8px;
     box-shadow: 0 0 0 2px #94a3b8, 0 10px 26px rgba(15,23,42,.10);
     touch-action: none; overflow: hidden;
@@ -158,7 +174,6 @@
   }
   .board-piece:hover .bcell { background: rgba(37,99,235,.25); }
 
-  /* ---------- 数字图层 ---------- */
   #numbersLayer {
     position: absolute; inset: 0; pointer-events: none; z-index: 20;
   }
@@ -190,7 +205,6 @@
        0 0 5px rgba(0,0,0,.8);
   }
 
-  /* ---------- 答案演示轮廓 ---------- */
   .answer-piece {
     position: absolute;
     pointer-events: none;
@@ -208,7 +222,6 @@
     z-index: 5;
   }
 
-  /* ---------- 碎片池 ---------- */
   .pool-head {
     font-size: 12px; color: #64748b; margin: 0 0 6px 2px; letter-spacing: 1px;
   }
@@ -278,7 +291,6 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
-  /* ---------- 拖拽幽灵 ---------- */
   .ghost {
     position: fixed; pointer-events: none; z-index: 9999;
     opacity: .88;
@@ -302,7 +314,6 @@
     color: #b45309; font-weight: 700;
   }
 
-  /* ---------- 成功提示 ---------- */
   .message {
     position: fixed; left: 50%; top: 38%;
     transform: translate(-50%, -50%) scale(.75);
@@ -355,12 +366,22 @@
     </button>
   </div>
 
-  <!-- 实时匹配进度条 -->
+  <!-- 黑白匹配度进度条 -->
   <div class="progress-row">
+    <span class="progress-name">黑白匹配度</span>
     <div class="progress-track">
       <div class="progress-fill" id="progressFill"></div>
     </div>
     <span class="progress-label" id="progressLabel">0%</span>
+  </div>
+
+  <!-- 数字匹配度进度条（数字显示开启时可见） -->
+  <div class="progress-row" id="numberProgressRow" style="display:none;">
+    <span class="progress-name">数字匹配度</span>
+    <div class="progress-track">
+      <div class="progress-fill number-fill" id="numberProgressFill"></div>
+    </div>
+    <span class="progress-label number-label" id="numberProgressLabel">0%</span>
   </div>
 
   <div id="board"></div>
@@ -369,12 +390,12 @@
   <div id="pool" class="pool"></div>
 
   <div class="tip" id="tipBox">
-    <span class="tip-line"><b>操作方式：</b>拖动 → 碎片可在操作盘面和碎片池之间交替移动，也能在操作盘面内任意移动；单击碎片 → 顺时针方向旋转90°；右键单击碎片(触屏：一指按住，另一指点击) → 逆时针旋转90°；连续双击 → 碎片左右镜像</span>
+    <span class="tip-line"><b>操作方式：</b>拖动 → 碎片可在操作盘面和碎片池之间交替移动，也能在操作盘面内任意移动 · 单击碎片顺时针方向旋转90° · 右键单击碎片（触屏：一指按住，另一指点击）逆时针旋转90° · 连续双击碎片左右镜像</span>
     <span class="tip-line"><b>叠加规则：</b>同一格被覆盖奇数次为黑、偶数次为白</span>
     <span class="tip-line" style="color:#7c3aed;font-weight:600;">参考答案：由于不是唯一解，答案仅供参考。所有碎片都是先旋转对应次数，再考虑是否镜像。</span>
-    <span class="tip-line" style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示，数字不影响胜负）。</span>
+    <span class="tip-line" style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示）。</span>
     <span class="tip-line" style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span>
-    <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片。</span>
+    <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片；若开启数字显示，数字也必须完全匹配。</span>
   </div>
 </div>
 
@@ -413,7 +434,6 @@
   let solved = false;
   let currentSeed = null;
   let digitalMode = false;
-  // 颜色显示默认为关闭
   let colorMode = false;
   let pending = null;
   let drag = null;
@@ -421,7 +441,6 @@
   let tapTimer = null;
   let pendingRotatePiece = null;
 
-  // 多指手势：当前在屏幕上按下的 pointerId 集合
   const activePointerIds = new Set();
 
   let cellEls = [];
@@ -438,6 +457,9 @@
   const progressEl    = document.getElementById('progress');
   const progressFill  = document.getElementById('progressFill');
   const progressLabel = document.getElementById('progressLabel');
+  const numberProgressRow   = document.getElementById('numberProgressRow');
+  const numberProgressFill  = document.getElementById('numberProgressFill');
+  const numberProgressLabel = document.getElementById('numberProgressLabel');
   const btnRandom     = document.getElementById('btnRandom');
   const btnSpecify    = document.getElementById('btnSpecify');
   const btnReset      = document.getElementById('btnReset');
@@ -806,6 +828,9 @@
     targetSwitch.setAttribute('aria-pressed', String(showingTarget));
     targetHint.textContent = showingTarget ? '已显示目标图案' : '打开来查看目标图案';
     targetSwitch.disabled = answerMode;
+
+    // 数字匹配度进度条：只在数字显示开启时可见
+    numberProgressRow.style.display = digitalMode ? 'flex' : 'none';
   }
 
   function updateButtonStates() {
@@ -876,7 +901,7 @@
       }
     }
 
-    updateMatchBar(matchGrid);
+    updateMatchBars(matchGrid);
     updateNumbersLayer();
   }
 
@@ -929,12 +954,16 @@
     numbersLayer.appendChild(frag);
   }
 
-  function updateMatchBar(grid) {
+  /**
+   * 同时更新黑白匹配度和数字匹配度进度条
+   */
+  function updateMatchBars(blackGrid) {
+    // 黑白匹配度
     let matched = 0;
-    if (targetGrid && grid) {
+    if (targetGrid && blackGrid) {
       for (let r = 0; r < N; r++) {
         for (let c = 0; c < N; c++) {
-          if (grid[r][c] === targetGrid[r][c]) matched++;
+          if (blackGrid[r][c] === targetGrid[r][c]) matched++;
         }
       }
     }
@@ -946,6 +975,34 @@
     const full = (pct === 100);
     progressFill.classList.toggle('full', full);
     progressLabel.classList.toggle('full', full);
+
+    // 数字匹配度（只在数字显示开启时更新，但无论如何都计算，以保证切换时立即正确）
+    if (digitalMode) {
+      let numGrid;
+      if (answerMode) {
+        numGrid = computeNumberGridAnswer(answerIndex);
+      } else {
+        numGrid = computeNumberGridPlayer();
+      }
+      const targetNum = computeNumberGridAnswer(answerPlacements.length);
+
+      let numMatched = 0;
+      if (targetGrid) {
+        for (let r = 0; r < N; r++) {
+          for (let c = 0; c < N; c++) {
+            if (numGrid[r][c] === targetNum[r][c]) numMatched++;
+          }
+        }
+      }
+      const numPct = targetGrid ? Math.round(numMatched / (N * N) * 100) : 0;
+
+      numberProgressFill.style.width = numPct + '%';
+      numberProgressLabel.textContent = numPct + '%';
+
+      const numFull = (numPct === 100);
+      numberProgressFill.classList.toggle('full', numFull);
+      numberProgressLabel.classList.toggle('full', numFull);
+    }
   }
 
   function updateProgressText() {
@@ -985,7 +1042,6 @@
       el.dataset.ox = ox;
       el.dataset.oy = oy;
 
-      // 颜色关闭时，碎片池中碎片也显示为黑色
       const pieceColor = colorMode ? getPieceColor(p.id) : BLACK_FILL;
 
       for (const [r, c] of cells) {
@@ -1102,7 +1158,6 @@
     if (ev.button !== 0 && ev.button !== 2) return;
     ev.preventDefault();
 
-    // 鼠标右键 → 逆时针
     if (ev.button === 2) {
       cancelPendingTap();
       abortDrag();
@@ -1111,7 +1166,6 @@
       return;
     }
 
-    // 已经有其他手指按住 → 视为"一指触屏，另一指点击" → 逆时针
     if (activePointerIds.size > 0) {
       cancelPendingTap();
       abortDrag();
@@ -1342,10 +1396,22 @@
     if (solved || !targetGrid || answerMode) return;
     if (pieces.some(p => !p.placed)) return;
 
+    // 1) 黑白必须完全一致
     const g = computeGrid(pieces);
     for (let r = 0; r < N; r++) {
       for (let c = 0; c < N; c++) {
         if (g[r][c] !== targetGrid[r][c]) return;
+      }
+    }
+
+    // 2) 数字显示开启时，数字也必须完全匹配
+    if (digitalMode) {
+      const pNum = computeNumberGridPlayer();
+      const tNum = computeNumberGridAnswer(answerPlacements.length);
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+          if (pNum[r][c] !== tNum[r][c]) return;
+        }
       }
     }
 
@@ -1382,7 +1448,8 @@
     digitalMode = !digitalMode;
     updateModeUI();
     renderPool();
-    updateNumbersLayer();
+    // 更新盘面、数字图层、两条进度条
+    updateBoardView();
   });
 
   colorSwitch.addEventListener('click', () => {
@@ -1390,7 +1457,6 @@
     updateModeUI();
     renderPool();
     updateBoardView();
-    updateNumbersLayer();
   });
 
   targetSwitch.addEventListener('click', () => {
