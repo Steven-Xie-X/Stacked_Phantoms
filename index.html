@@ -27,10 +27,10 @@
     text-shadow: 0 2px 0 rgba(255,255,255,.9);
   }
 
-  /* ---------- 顶部按钮：居中排列，两侧间距一致 ---------- */
+  /* ---------- 顶部按钮：居中排列 ---------- */
   .controls {
     display: flex; flex-wrap: wrap; gap: 8px;
-    justify-content: center;        /* 居中对齐 */
+    justify-content: center;
     margin-bottom: 10px;
   }
   .btn {
@@ -208,7 +208,7 @@
     z-index: 5;
   }
 
-  /* ---------- 碎片池：每行 4 个，整齐排列 ---------- */
+  /* ---------- 碎片池 ---------- */
   .pool-head {
     font-size: 12px; color: #64748b; margin: 0 0 6px 2px; letter-spacing: 1px;
   }
@@ -286,11 +286,17 @@
   }
 
   .tip {
-    margin-top: 14px; font-size: 12px; line-height: 1.7;
+    margin-top: 14px; font-size: 12px; line-height: 1.75;
     color: #64748b; background: #fff; border-radius: 10px;
     padding: 10px 12px; border: 1px solid #e2e8f0;
   }
   .tip b { color: #334155; }
+  .tip .tip-line {
+    display: block;
+  }
+  .tip .tip-line + .tip-line {
+    margin-top: 3px;
+  }
   .tip .win-rule {
     display: block; margin-top: 4px;
     color: #b45309; font-weight: 700;
@@ -335,8 +341,8 @@
 
   <!-- 颜色模式开关 -->
   <div class="mode-row">
-    <span class="mode-label">颜色显示 <span class="hint" id="colorHint">彩色</span></span>
-    <button id="colorSwitch" class="switch" role="switch" aria-pressed="true" aria-label="颜色显示开关">
+    <span class="mode-label">颜色显示 <span class="hint" id="colorHint">黑白</span></span>
+    <button id="colorSwitch" class="switch" role="switch" aria-pressed="false" aria-label="颜色显示开关">
       <span class="switch-knob"></span>
     </button>
   </div>
@@ -363,12 +369,11 @@
   <div id="pool" class="pool"></div>
 
   <div class="tip" id="tipBox">
-    把碎片拖到上方盘面（也可拖回碎片池）· 同一格被覆盖<b>奇数次为黑</b>、<b>偶数次为白</b><br>
-    <b>单击碎片顺时针方向旋转90°</b> · <b>连续双击</b>碎片左右镜像（桌面端也可右键单击镜像）·
-    <b>碎片池与盘面均可操作</b><br>
-    <span style="color:#7c3aed;font-weight:600;">参考答案：由于不是唯一解，答案仅供参考。所有碎片都是先旋转对应次数，再考虑是否镜像。</span><br>
-    <span style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示，数字不影响胜负）。</span><br>
-    <span style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span><br>
+    <span class="tip-line"><b>操作方式：</b>拖动 → 碎片可在操作盘面和碎片池之间交替移动，也能在操作盘面内任意移动；单击碎片 → 顺时针方向旋转90°；右键单击碎片(触屏：一指按住，另一指点击) → 逆时针旋转90°；连续双击 → 碎片左右镜像</span>
+    <span class="tip-line"><b>叠加规则：</b>同一格被覆盖奇数次为黑、偶数次为白</span>
+    <span class="tip-line" style="color:#7c3aed;font-weight:600;">参考答案：由于不是唯一解，答案仅供参考。所有碎片都是先旋转对应次数，再考虑是否镜像。</span>
+    <span class="tip-line" style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示，数字不影响胜负）。</span>
+    <span class="tip-line" style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span>
     <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片。</span>
   </div>
 </div>
@@ -408,12 +413,16 @@
   let solved = false;
   let currentSeed = null;
   let digitalMode = false;
-  let colorMode = true;
+  // 颜色显示默认为关闭
+  let colorMode = false;
   let pending = null;
   let drag = null;
 
   let tapTimer = null;
   let pendingRotatePiece = null;
+
+  // 多指手势：当前在屏幕上按下的 pointerId 集合
+  const activePointerIds = new Set();
 
   let cellEls = [];
   let piecesLayer = null;
@@ -516,6 +525,11 @@
     return normalize(cells.map(([r, c]) => [c, maxR - r]));
   }
 
+  function rotateCCW(cells) {
+    const maxC = Math.max(...cells.map(c => c[1]));
+    return normalize(cells.map(([r, c]) => [maxC - c, r]));
+  }
+
   function mirror(cells) {
     const maxC = Math.max(...cells.map(c => c[1]));
     return normalize(cells.map(([r, c]) => [r, maxC - c]));
@@ -597,7 +611,7 @@
   }
 
   /* ========================================================
-     单击 / 双击 判定
+     单击 / 双击 / 逆时针 判定
      ======================================================== */
   function cancelPendingTap() {
     if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; }
@@ -607,7 +621,9 @@
   function applyPieceTransform(piece, type) {
     if (type === 'rotate') {
       piece.cells = rotate90(piece.cells);
-    } else {
+    } else if (type === 'rotateCCW') {
+      piece.cells = rotateCCW(piece.cells);
+    } else if (type === 'mirror') {
       piece.cells = mirror(piece.cells);
     }
     const s = shapeSize(piece.cells);
@@ -637,7 +653,7 @@
   function handlePieceClick(piece, button) {
     if (button === 2) {
       cancelPendingTap();
-      applyPieceTransform(piece, 'mirror');
+      applyPieceTransform(piece, 'rotateCCW');
       return;
     }
 
@@ -659,11 +675,23 @@
     }, TAP_DELAY);
   }
 
+  function abortDrag() {
+    if (!drag) return;
+    const { piece, ghost, wasPlaced, prevRow, prevCol } = drag;
+    ghost.remove();
+    document.body.style.cursor = '';
+    piece.placed = wasPlaced;
+    piece.row = prevRow;
+    piece.col = prevCol;
+    drag = null;
+  }
+
   /* ========================================================
      生成挑战
      ======================================================== */
   function generateChallenge(seed) {
     cancelPendingTap();
+    activePointerIds.clear();
     const rng = mulberry32(seed);
     const list = [];
     const placements = [];
@@ -957,6 +985,7 @@
       el.dataset.ox = ox;
       el.dataset.oy = oy;
 
+      // 颜色关闭时，碎片池中碎片也显示为黑色
       const pieceColor = colorMode ? getPieceColor(p.id) : BLACK_FILL;
 
       for (const [r, c] of cells) {
@@ -1073,12 +1102,33 @@
     if (ev.button !== 0 && ev.button !== 2) return;
     ev.preventDefault();
 
+    // 鼠标右键 → 逆时针
+    if (ev.button === 2) {
+      cancelPendingTap();
+      abortDrag();
+      pending = null;
+      applyPieceTransform(piece, 'rotateCCW');
+      return;
+    }
+
+    // 已经有其他手指按住 → 视为"一指触屏，另一指点击" → 逆时针
+    if (activePointerIds.size > 0) {
+      cancelPendingTap();
+      abortDrag();
+      pending = null;
+      applyPieceTransform(piece, 'rotateCCW');
+      return;
+    }
+
+    activePointerIds.add(ev.pointerId);
+
     pending = {
       piece, el, source,
       startX: ev.clientX,
       startY: ev.clientY,
       button: ev.button,
-      moved: false
+      moved: false,
+      pointerId: ev.pointerId
     };
 
     window.addEventListener('pointermove', onPointerMove);
@@ -1093,6 +1143,7 @@
       return;
     }
     if (!pending) return;
+    if (e.pointerId !== pending.pointerId) return;
     const dx = e.clientX - pending.startX;
     const dy = e.clientY - pending.startY;
     const threshold = pending.source === 'pool' ? 100 : 49;
@@ -1172,6 +1223,8 @@
     window.removeEventListener('pointerup', onPointerUp);
     window.removeEventListener('pointercancel', onPointerUp);
 
+    activePointerIds.delete(e.pointerId);
+
     if (drag) {
       const { piece, ghost, fx, fy, w, h, wasPlaced, prevRow, prevCol } = drag;
       ghost.remove();
@@ -1215,6 +1268,7 @@
       checkWin();
 
     } else if (pending) {
+      if (e.pointerId !== pending.pointerId) return;
       const { piece, button, moved } = pending;
       if (!moved) {
         handlePieceClick(piece, button);
@@ -1229,6 +1283,8 @@
   function toggleAnswerMode() {
     if (!targetGrid) return;
     cancelPendingTap();
+    abortDrag();
+    activePointerIds.clear();
 
     answerMode = !answerMode;
 
@@ -1262,6 +1318,7 @@
   function resetBoard() {
     if (drag || answerMode || !targetGrid) return;
     cancelPendingTap();
+    activePointerIds.clear();
 
     for (const p of pieces) {
       p.placed = false;
@@ -1336,7 +1393,6 @@
     updateNumbersLayer();
   });
 
-  // 目标图案开关
   targetSwitch.addEventListener('click', () => {
     if (!targetGrid || answerMode) return;
     cancelPendingTap();
@@ -1347,7 +1403,7 @@
     updateModeUI();
   });
 
-  // 窗口尺寸变化时重新计算并重绘
+  // 窗口尺寸变化
   let resizeTimer = null;
   window.addEventListener('resize', () => {
     if (resizeTimer) clearTimeout(resizeTimer);
