@@ -27,10 +27,15 @@
     text-shadow: 0 2px 0 rgba(255,255,255,.9);
   }
 
+  /* ============ 顶部工具栏（单行排列） ============ */
   .controls {
-    display: flex; flex-wrap: wrap; gap: 8px;
+    display: flex;
+    flex-wrap: nowrap;
     justify-content: center;
+    align-items: center;
+    gap: 5px;
     margin-bottom: 10px;
+    padding: 0 2px;
   }
   .btn {
     padding: 8px 12px; border-radius: 9px; font-size: 13px; font-weight: 700;
@@ -39,7 +44,8 @@
     transition: all .15s ease; font-family: inherit;
     box-shadow: 0 1px 2px rgba(15,23,42,.05);
     display: inline-flex; align-items: center; justify-content: center;
-    gap: 5px;
+    gap: 4px;
+    white-space: nowrap;
   }
   .btn:hover { background: #f1f5f9; transform: translateY(-1px); }
   .btn:active { transform: translateY(0); }
@@ -51,18 +57,18 @@
     background: #fff;
     color: #1e293b;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 12px;
     border: 1px solid #cbd5e1;
-    height: 40px;
-    padding: 0 14px;
+    height: 38px;
+    padding: 0 10px;
     box-sizing: border-box;
     box-shadow: 0 1px 2px rgba(15,23,42,.05);
-    transition: all .15s ease;
-    gap: 6px;
+    gap: 4px;
+    flex-shrink: 0;
   }
   .controls .btn:hover { background: #f8fafc; transform: translateY(-1px); }
   .controls .btn:active { transform: translateY(0); }
-  .controls .btn.icon-btn { width: 40px; padding: 0; }
+  .controls .btn.icon-btn { width: 38px; padding: 0; }
   .controls .btn.answer.active {
     background: #fef3c7;
     border-color: #f59e0b;
@@ -74,7 +80,19 @@
     filter: drop-shadow(0 0 5px rgba(245,158,11,.85));
   }
   .controls .btn:disabled { opacity: .4; }
-  .controls .btn svg { width: 20px; height: 20px; display: block; flex-shrink: 0; }
+  .controls .btn svg { width: 18px; height: 18px; display: block; flex-shrink: 0; }
+
+  /* 小屏进一步缩小 */
+  @media (max-width: 420px) {
+    .controls { gap: 4px; }
+    .controls .btn { font-size: 11px; padding: 0 8px; height: 36px; }
+    .controls .btn.icon-btn { width: 34px; }
+    .controls .btn svg { width: 16px; height: 16px; }
+  }
+  @media (max-width: 360px) {
+    .controls .btn { font-size: 10px; padding: 0 6px; height: 34px; }
+    .controls .btn.icon-btn { width: 32px; }
+  }
 
   /* 用户状态行 */
   .user-row {
@@ -112,10 +130,10 @@
   .board-tools {
     display: flex;
     justify-content: center;
-    gap: 14px;
+    gap: 12px;
     margin: 4px 0 8px;
   }
-  .board-tools .btn { padding: 8px 14px; }
+  .board-tools .btn { padding: 8px 12px; }
 
   .meta {
     display: flex; justify-content: space-between; align-items: center;
@@ -333,6 +351,19 @@
   }
   .message.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
+  .toast {
+    position: fixed; left: 50%; bottom: 40px;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(15,23,42,.9); color: #fff;
+    padding: 10px 20px; border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    opacity: 0; pointer-events: none;
+    transition: all .25s;
+    z-index: 10002;
+    box-shadow: 0 8px 24px rgba(15,23,42,.3);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
   /* 模态框 */
   .modal-mask {
     position: fixed; inset: 0;
@@ -397,7 +428,7 @@
     padding: 24px 0; font-size: 13px;
   }
 
-  /* 排行榜标签页 */
+  /* 排行榜 */
   .rank-tabs {
     display: flex; gap: 6px; margin-bottom: 12px;
   }
@@ -532,7 +563,7 @@
     <span class="progress-label number-label" id="numberProgressLabel">0%</span>
   </div>
 
-  <!-- 盘面工具行 -->
+  <!-- 盘面工具行：重置 / 撤回 / 前进 / 上传 -->
   <div class="board-tools">
     <button id="btnReset" class="btn ghost-btn icon-btn" title="重置盘面">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -552,6 +583,13 @@
         <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
       </svg>
     </button>
+    <button id="btnUpload" class="btn ghost-btn icon-btn" title="上传成绩" disabled>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 16V4"/>
+        <path d="M6 10l6-6 6 6"/>
+        <path d="M4 20h16"/>
+      </svg>
+    </button>
   </div>
 
   <div id="board"></div>
@@ -561,6 +599,7 @@
 </div>
 
 <div id="message" class="message">🎉 作答成功！</div>
+<div id="toast" class="toast"></div>
 
 <!-- 指定编号输入框 -->
 <div id="inputModal" class="modal-mask">
@@ -638,235 +677,48 @@
 </div>
 
 <script type="module">
-  /* ==================== Supabase 初始化 ==================== */
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-  // ⚠️ 请替换为你的 Supabase 项目信息
+  /* ============================================================
+     第一步：动态加载 Supabase（即使失败也不影响游戏运行）
+     ============================================================ */
   const SUPABASE_URL = 'https://ajhksehpyofzeiirgilk.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqaGtzZWhweW9memVpaXJnaWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0ODE5MjgsImV4cCI6MjEwNTA1NzkyOH0.LQ17_lxAP0COx1hcs5MNGlnRbu73hbLSJ2cAUkuiGE8';
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  window.supabase = supabase;
-
+  let supabase = null;
+  let supabaseReady = false;
   let currentUser = null;
 
-  /* ==================== 认证 UI 更新 ==================== */
-  const userStatus = document.getElementById('userStatus');
-  const btnLogin   = document.getElementById('btnLogin');
-  const btnRegister = document.getElementById('btnRegister');
-  const btnLogout  = document.getElementById('btnLogout');
+  const supabasePromise = import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm')
+    .then(mod => {
+      supabase = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      window.supabase = supabase;
+      supabaseReady = true;
 
-  function updateUserUI() {
-    if (currentUser) {
-      const name = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
-      userStatus.textContent = name;
-      userStatus.classList.add('username');
-      btnLogin.style.display = 'none';
-      btnRegister.style.display = 'none';
-      btnLogout.style.display = 'inline-block';
-    } else {
-      userStatus.textContent = '未登录';
-      userStatus.classList.remove('username');
-      btnLogin.style.display = 'inline-block';
-      btnRegister.style.display = 'inline-block';
-      btnLogout.style.display = 'none';
-    }
-  }
-
-  supabase.auth.onAuthStateChange((event, session) => {
-    currentUser = session ? session.user : null;
-    updateUserUI();
-  });
-
-  (async () => {
-    try {
-      const { data } = await supabase.auth.getUser();
-      currentUser = data.user || null;
-      updateUserUI();
-    } catch (e) { /* ignore */ }
-  })();
-
-  /* ==================== 认证模态框 ==================== */
-  const authModal = document.getElementById('authModal');
-  const authTitle = document.getElementById('authTitle');
-  const authEmail = document.getElementById('authEmail');
-  const authPassword = document.getElementById('authPassword');
-  const authUsername = document.getElementById('authUsername');
-  const authCancel = document.getElementById('authCancel');
-  const authSubmit = document.getElementById('authSubmit');
-  const authSwitch = document.getElementById('authSwitch');
-
-  let authMode = 'login';
-
-  function showAuthModal(mode) {
-    authMode = mode;
-    authTitle.textContent = mode === 'login' ? '登录' : '注册';
-    authSubmit.textContent = mode === 'login' ? '登录' : '注册';
-    authUsername.style.display = mode === 'register' ? 'block' : 'none';
-    authSwitch.textContent = mode === 'login' ? '没有账号？去注册' : '已有账号？去登录';
-    authEmail.value = '';
-    authPassword.value = '';
-    authUsername.value = '';
-    authModal.classList.add('show');
-  }
-
-  btnLogin.addEventListener('click', () => showAuthModal('login'));
-  btnRegister.addEventListener('click', () => showAuthModal('register'));
-  btnLogout.addEventListener('click', async () => {
-    await supabase.auth.signOut();
-  });
-
-  authSwitch.addEventListener('click', () => {
-    showAuthModal(authMode === 'login' ? 'register' : 'login');
-  });
-  authCancel.addEventListener('click', () => authModal.classList.remove('show'));
-  authSubmit.addEventListener('click', async () => {
-    const email = authEmail.value.trim();
-    const password = authPassword.value;
-    const username = authUsername.value.trim();
-    if (!email || !password) { alert('请填写邮箱和密码'); return; }
-    if (authMode === 'register' && !username) { alert('请填写用户名'); return; }
-
-    authSubmit.disabled = true;
-    try {
-      if (authMode === 'login') {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email, password,
-          options: { data: { username } }
-        });
-        if (error) throw error;
-        if (data.user) {
-          await supabase.from('profiles').insert({
-            id: data.user.id,
-            username: username,
-            best_time_bw: null,
-            best_time_num: null,
-            total_wins: 0
-          });
+      // 监听认证状态
+      supabase.auth.onAuthStateChange((event, session) => {
+        currentUser = session ? session.user : null;
+        updateUserUI();
+        updateUploadButton();
+        if (currentUser) {
+          // 登录后尝试重传本地未上传的成绩
+          setTimeout(retryOfflineUploads, 500);
         }
-      }
-      authModal.classList.remove('show');
-    } catch (e) {
-      alert(e.message || '操作失败');
-    } finally {
-      authSubmit.disabled = false;
-    }
-  });
-
-  /* ==================== 排行榜 ==================== */
-  const leaderboardModal = document.getElementById('leaderboardModal');
-  const leaderboardClose = document.getElementById('leaderboardClose');
-  const rankList = document.getElementById('rankList');
-  const rankTabs = document.querySelectorAll('.rank-tab');
-  let currentRankTab = 'bw';
-
-  function formatDuration(seconds) {
-    const s = Math.max(0, Math.floor(seconds));
-    const d = Math.floor(s / 86400);
-    const h = Math.floor((s % 86400) / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    let parts = [];
-    if (d > 0) parts.push(d + 'd');
-    if (h > 0) parts.push(h + 'h');
-    if (m > 0) parts.push(m + 'm');
-    parts.push(sec + 's');
-    return parts.join(' ');
-  }
-
-  async function loadRanking(tab) {
-    rankList.innerHTML = '<div class="rank-empty">加载中...</div>';
-    try {
-      let query = supabase.from('profiles').select('username, best_time_bw, best_time_num, total_wins');
-      if (tab === 'bw') {
-        query = query.not('best_time_bw', 'is', null).order('best_time_bw', { ascending: true }).limit(100);
-      } else if (tab === 'num') {
-        query = query.not('best_time_num', 'is', null).order('best_time_num', { ascending: true }).limit(100);
-      } else {
-        query = query.gt('total_wins', 0).order('total_wins', { ascending: false }).limit(100);
-      }
-      const { data, error } = await query;
-      if (error) throw error;
-      if (!data || data.length === 0) {
-        rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
-        return;
-      }
-      let html = '';
-      data.forEach((item, index) => {
-        let scoreText = '';
-        if (tab === 'bw') scoreText = item.best_time_bw != null ? formatDuration(item.best_time_bw) : '—';
-        else if (tab === 'num') scoreText = item.best_time_num != null ? formatDuration(item.best_time_num) : '—';
-        else scoreText = (item.total_wins || 0) + ' 关';
-        html += `<div class="rank-item">
-          <span class="rank-no">${index + 1}</span>
-          <span class="rank-name">${item.username || '匿名'}</span>
-          <span class="rank-score">${scoreText}</span>
-        </div>`;
       });
-      rankList.innerHTML = html;
-    } catch (e) {
-      console.error(e);
-      rankList.innerHTML = '<div class="rank-empty">加载失败</div>';
-    }
-  }
 
-  document.getElementById('btnLeaderboard').addEventListener('click', () => {
-    leaderboardModal.classList.add('show');
-    loadRanking(currentRankTab);
-  });
-  leaderboardClose.addEventListener('click', () => leaderboardModal.classList.remove('show'));
-  rankTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      rankTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentRankTab = tab.dataset.tab;
-      loadRanking(currentRankTab);
+      // 获取当前用户
+      return supabase.auth.getUser().then(({ data }) => {
+        currentUser = data.user || null;
+        updateUserUI();
+        updateUploadButton();
+      });
+    })
+    .catch(e => {
+      console.warn('Supabase 加载失败，游戏仍可离线游玩：', e);
+      supabaseReady = false;
     });
-  });
 
-  /* ==================== 成绩上传 ==================== */
-  async function uploadScore(elapsedSeconds, mode) {
-    if (!currentUser) return;
-    try {
-      const { data: profile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('best_time_bw, best_time_num, total_wins')
-        .eq('id', currentUser.id)
-        .single();
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        // 记录可能不存在，尝试创建
-        await supabase.from('profiles').insert({
-          id: currentUser.id,
-          username: (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email,
-          best_time_bw: mode === 'bw' ? elapsedSeconds : null,
-          best_time_num: mode === 'num' ? elapsedSeconds : null,
-          total_wins: 1
-        });
-        return;
-      }
-
-      let updateData = {};
-      if (mode === 'bw') {
-        if (profile.best_time_bw == null || elapsedSeconds < profile.best_time_bw) {
-          updateData.best_time_bw = elapsedSeconds;
-        }
-      } else {
-        if (profile.best_time_num == null || elapsedSeconds < profile.best_time_num) {
-          updateData.best_time_num = elapsedSeconds;
-        }
-      }
-      updateData.total_wins = (profile.total_wins || 0) + 1;
-
-      await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
-    } catch (e) {
-      console.error('上传成绩失败', e);
-    }
-  }
-
-  /* ==================== 游戏主逻辑 ==================== */
+  /* ============================================================
+     第二步：游戏主逻辑（独立运行，不依赖 Supabase）
+     ============================================================ */
   const N = 8;
   const PIECE_COUNT = 16;
   const TAP_DELAY = 280;
@@ -875,8 +727,8 @@
   const WHITE_FILL = '#ffffff';
   const MAX_UNDO = 50;
 
-  const STORAGE_SUCCESS = 'sm_success_v2';
-  const STORAGE_PROGRESS = 'sm_progress_v2';
+  const STORAGE_SUCCESS = 'sm_success_v3';
+  const STORAGE_PROGRESS = 'sm_progress_v3';
 
   let BOARD_CELL = 44;
   let POOL_SLOT = 78;
@@ -899,6 +751,7 @@
   let currentSeed = null;
   let isRandomChallenge = false;
   let challengeStartTime = null;
+  let solvedElapsed = null;
   let timerInterval = null;
   let digitalMode = false;
   let colorMode = false;
@@ -932,14 +785,17 @@
   const numberProgressFill  = document.getElementById('numberProgressFill');
   const numberProgressLabel = document.getElementById('numberProgressLabel');
   const btnHelp       = document.getElementById('btnHelp');
+  const btnLeaderboard = document.getElementById('btnLeaderboard');
   const btnRandom     = document.getElementById('btnRandom');
   const btnSpecify    = document.getElementById('btnSpecify');
   const btnReset      = document.getElementById('btnReset');
   const btnAnswer     = document.getElementById('btnAnswer');
   const btnUndo       = document.getElementById('btnUndo');
   const btnRedo       = document.getElementById('btnRedo');
+  const btnUpload     = document.getElementById('btnUpload');
   const btnHistory    = document.getElementById('btnHistory');
   const messageEl     = document.getElementById('message');
+  const toastEl       = document.getElementById('toast');
   const digitSwitch   = document.getElementById('digitSwitch');
   const modeHint      = document.getElementById('modeHint');
   const colorSwitch   = document.getElementById('colorSwitch');
@@ -960,7 +816,27 @@
   const timerRow      = document.getElementById('timerRow');
   const timerDisplay  = document.getElementById('timerDisplay');
 
-  /* ==================== 工具函数 ==================== */
+  const userStatus = document.getElementById('userStatus');
+  const btnLogin   = document.getElementById('btnLogin');
+  const btnRegister = document.getElementById('btnRegister');
+  const btnLogout  = document.getElementById('btnLogout');
+
+  const authModal = document.getElementById('authModal');
+  const authTitle = document.getElementById('authTitle');
+  const authEmail = document.getElementById('authEmail');
+  const authPassword = document.getElementById('authPassword');
+  const authUsername = document.getElementById('authUsername');
+  const authCancel = document.getElementById('authCancel');
+  const authSubmit = document.getElementById('authSubmit');
+  const authSwitch = document.getElementById('authSwitch');
+
+  const leaderboardModal = document.getElementById('leaderboardModal');
+  const leaderboardClose = document.getElementById('leaderboardClose');
+  const rankList = document.getElementById('rankList');
+  const rankTabs = document.querySelectorAll('.rank-tab');
+  let currentRankTab = 'bw';
+
+  /* ============ 工具函数 ============ */
   function hexToRgba(hex, alpha) {
     const h = hex.replace('#', '');
     const r = parseInt(h.slice(0, 2), 16);
@@ -976,6 +852,12 @@
            ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
   }
   function modeLabel(mode) { return mode === 'num' ? '有数字' : '无数字'; }
+
+  function showToast(msg, duration) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), duration || 2000);
+  }
 
   function formatTimer(seconds) {
     const s = Math.max(0, Math.floor(seconds));
@@ -994,17 +876,13 @@
   function startTimer() {
     stopTimer();
     challengeStartTime = Date.now();
+    solvedElapsed = null;
     timerRow.style.display = 'flex';
     updateTimerDisplay();
     timerInterval = setInterval(updateTimerDisplay, 1000);
   }
   function stopTimer() {
     if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-  }
-  function resetTimer() {
-    stopTimer();
-    challengeStartTime = null;
-    timerRow.style.display = 'none';
   }
   function updateTimerDisplay() {
     if (!challengeStartTime) { timerDisplay.textContent = '0s'; return; }
@@ -1024,7 +902,31 @@
     poolEl.style.gridTemplateColumns = 'repeat(4, ' + POOL_SLOT + 'px)';
   }
 
-  /* ==================== 历史记录与进度 ==================== */
+  /* ============ 用户 UI ============ */
+  function updateUserUI() {
+    if (currentUser) {
+      const name = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
+      userStatus.textContent = name;
+      userStatus.classList.add('username');
+      btnLogin.style.display = 'none';
+      btnRegister.style.display = 'none';
+      btnLogout.style.display = 'inline-block';
+    } else {
+      userStatus.textContent = supabaseReady ? '未登录' : '离线模式';
+      userStatus.classList.remove('username');
+      btnLogin.style.display = supabaseReady ? 'inline-block' : 'none';
+      btnRegister.style.display = supabaseReady ? 'inline-block' : 'none';
+      btnLogout.style.display = 'none';
+    }
+  }
+
+  /* ============ 上传按钮状态 ============ */
+  function updateUploadButton() {
+    const canUpload = supabaseReady && currentUser && solved && isRandomChallenge;
+    btnUpload.disabled = !canUpload;
+  }
+
+  /* ============ 历史记录 / 进度 ============ */
   function getSuccessList() {
     try {
       const raw = localStorage.getItem(STORAGE_SUCCESS);
@@ -1036,12 +938,30 @@
   function saveSuccessList(list) {
     try { localStorage.setItem(STORAGE_SUCCESS, JSON.stringify(list)); } catch (e) {}
   }
-  function recordSuccess(seed, mode) {
+  function recordSuccess(seed, mode, isRandom, elapsed) {
     const list = getSuccessList();
-    if (list.some(s => s.seed === seed && s.mode === mode)) return;
-    list.push({ seed: seed, mode: mode, time: Date.now() });
+    // 同 seed + mode 已存在则更新为更短用时/已上传状态
+    const existing = list.find(s => s.seed === seed && s.mode === mode);
+    if (existing) {
+      if (elapsed < existing.elapsed) existing.elapsed = elapsed;
+      existing.time = Date.now();
+      existing.isRandom = isRandom;
+      if (!isRandom) existing.uploaded = true; // 指定编号不需要上传
+    } else {
+      list.push({
+        seed, mode, isRandom, elapsed,
+        time: Date.now(),
+        uploaded: !isRandom  // 指定的视为已上传
+      });
+    }
     saveSuccessList(list);
   }
+  function markUploaded(seed, mode) {
+    const list = getSuccessList();
+    const item = list.find(s => s.seed === seed && s.mode === mode);
+    if (item) { item.uploaded = true; saveSuccessList(list); }
+  }
+
   function getProgressData() {
     try {
       const raw = localStorage.getItem(STORAGE_PROGRESS);
@@ -1069,6 +989,8 @@
         color: colorMode,
         isRandom: isRandomChallenge,
         startTime: challengeStartTime,
+        solved: solved,
+        solvedElapsed: solvedElapsed,
         pieces: pieces.map(p => ({
           cells: p.cells.map(c => [c[0], c[1]]),
           h: p.h, w: p.w,
@@ -1087,6 +1009,8 @@
           color: colorMode,
           isRandom: isRandomChallenge,
           startTime: challengeStartTime,
+          solved: solved,
+          solvedElapsed: solvedElapsed,
           pieces: pieces.map(p => ({
             cells: p.cells.map(c => [c[0], c[1]]),
             h: p.h, w: p.w,
@@ -1128,11 +1052,17 @@
       redoStack = sanitizeSnapshot(data.redoStack).slice(-MAX_UNDO);
 
       // 恢复计时
-      if (data.startTime) {
+      if (data.startTime && !data.solved) {
         challengeStartTime = data.startTime;
         timerRow.style.display = 'flex';
         updateTimerDisplay();
         timerInterval = setInterval(updateTimerDisplay, 1000);
+      } else if (data.solved) {
+        solved = true;
+        solvedElapsed = data.solvedElapsed || 0;
+        challengeStartTime = data.startTime;
+        timerRow.style.display = 'flex';
+        timerDisplay.textContent = formatTimer(solvedElapsed);
       }
 
       renderAll();
@@ -1156,7 +1086,7 @@
     return seed;
   }
 
-  /* ==================== 随机数与形状 ==================== */
+  /* ============ 随机数与形状 ============ */
   function mulberry32(a) {
     return function () {
       a |= 0; a = a + 0x6D2B79F5 | 0;
@@ -1221,7 +1151,7 @@
     };
   }
 
-  /* ==================== 叠加计算 ==================== */
+  /* ============ 叠加计算 ============ */
   function computeGrid(list) {
     const g = Array.from({ length: N }, () => new Array(N).fill(0));
     for (const p of list) {
@@ -1271,7 +1201,7 @@
     return g;
   }
 
-  /* ==================== 撤回 / 前进 ==================== */
+  /* ============ 撤回 / 前进 ============ */
   function snapshotPieces() {
     return pieces.map(p => ({
       cells: p.cells.map(c => [c[0], c[1]]),
@@ -1334,7 +1264,7 @@
     btnRedo.disabled = (redoStack.length === 0) || answerMode;
   }
 
-  /* ==================== 单击 / 双击 / 逆时针 ==================== */
+  /* ============ 单击 / 双击 / 逆时针 ============ */
   function cancelPendingTap() {
     if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; }
     pendingRotatePiece = null;
@@ -1401,7 +1331,7 @@
     drag = null;
   }
 
-  /* ==================== 生成挑战 ==================== */
+  /* ============ 生成挑战 ============ */
   function generateChallenge(seed, skipSave, isRandom) {
     cancelPendingTap();
     resetAnswerTapState();
@@ -1450,12 +1380,12 @@
     currentSeed = seed;
     isRandomChallenge = !!isRandom;
     solved = false;
+    solvedElapsed = null;
     showingTarget = false;
     answerMode = false;
     answerIndex = 0;
     messageEl.classList.remove('show');
 
-    // 随机关卡不显示编号，指定编号显示
     if (isRandom) {
       seedShow.textContent = '？？？';
     } else {
@@ -1463,15 +1393,15 @@
     }
 
     renderAll();
+    updateUploadButton();
 
-    // 启动计时（新关卡）
     if (!skipSave) {
       startTimer();
       scheduleSaveProgress();
     }
   }
 
-  /* ==================== 棋盘构建 ==================== */
+  /* ============ 棋盘构建 ============ */
   function buildBoard() {
     boardEl.innerHTML = '';
     boardEl.style.width  = (N * BOARD_CELL) + 'px';
@@ -1500,7 +1430,7 @@
     boardEl.appendChild(numbersLayer);
   }
 
-  /* ==================== 渲染 ==================== */
+  /* ============ 渲染 ============ */
   function renderAll() {
     renderPool();
     renderPiecesLayer();
@@ -1530,6 +1460,7 @@
 
     updateUndoButton();
     updateRedoButton();
+    updateUploadButton();
   }
 
   function updateButtonStates() {
@@ -1846,7 +1777,7 @@
     }
   }
 
-  /* ==================== 指针交互 ==================== */
+  /* ============ 指针交互 ============ */
   function onPiecePointerDown(ev, piece, el, source) {
     if (showingTarget || answerMode || !targetGrid) return;
     if (ev.button !== 0 && ev.button !== 2) return;
@@ -2018,7 +1949,7 @@
     }
   }
 
-  /* ==================== 参考答案模式 ==================== */
+  /* ============ 参考答案 ============ */
   function resetAnswerTapState() {
     if (answerSingleTapTimer) {
       clearTimeout(answerSingleTapTimer);
@@ -2076,7 +2007,7 @@
     renderAll();
   }
 
-  /* ==================== 重置 ==================== */
+  /* ============ 重置 ============ */
   function resetBoard() {
     if (drag || answerMode || !targetGrid) return;
     cancelPendingTap();
@@ -2094,6 +2025,7 @@
       p.w = s.w;
     }
     solved = false;
+    solvedElapsed = null;
     messageEl.classList.remove('show');
 
     pushUndoSnapshot(snap);
@@ -2101,7 +2033,7 @@
     scheduleSaveProgress();
   }
 
-  /* ==================== 胜利判定 ==================== */
+  /* ============ 胜利判定 ============ */
   function checkWin() {
     if (!targetGrid || answerMode) return;
 
@@ -2131,29 +2063,30 @@
         messageEl.classList.add('show');
         setTimeout(() => messageEl.classList.remove('show'), 2600);
 
-        // 通关！显示随机生成的编号
         if (isRandomChallenge) {
           seedShow.textContent = currentSeed;
         }
 
-        // 停止计时
         stopTimer();
-        const elapsed = challengeStartTime ? Math.floor((Date.now() - challengeStartTime) / 1000) : 0;
+        solvedElapsed = challengeStartTime ? Math.floor((Date.now() - challengeStartTime) / 1000) : 0;
 
         const mode = digitalMode ? 'num' : 'bw';
-        recordSuccess(currentSeed, mode);
+        recordSuccess(currentSeed, mode, isRandomChallenge, solvedElapsed);
 
-        // 上传成绩（仅随机生成的关卡且已登录）
-        if (isRandomChallenge && currentUser) {
-          uploadScore(elapsed, mode);
+        if (isRandomChallenge && supabaseReady && currentUser) {
+          uploadScore(currentSeed, mode, solvedElapsed, true);
         }
+
+        updateUploadButton();
+        scheduleSaveProgress();
       }
     } else {
       solved = false;
+      updateUploadButton();
     }
   }
 
-  /* ==================== 输入框 ==================== */
+  /* ============ 输入框 ============ */
   function showInputModal(defaultValue) {
     return new Promise(resolve => {
       seedInput.value = defaultValue || '';
@@ -2182,7 +2115,7 @@
     });
   }
 
-  /* ==================== 历史记录 ==================== */
+  /* ============ 历史记录显示 ============ */
   function renderHistory() {
     const successes = getSuccessList();
     const progress = getProgressData();
@@ -2192,12 +2125,20 @@
       items.push({
         seed: progress.seed,
         mode: progress.mode,
+        isRandom: progress.isRandom !== false,
         time: progress.saved,
         ongoing: true
       });
     }
     successes.slice().sort((a, b) => (b.time || 0) - (a.time || 0)).forEach(s => {
-      items.push({ seed: s.seed, mode: s.mode, time: s.time, ongoing: false });
+      items.push({
+        seed: s.seed,
+        mode: s.mode,
+        isRandom: s.isRandom !== false,
+        time: s.time,
+        ongoing: false,
+        uploaded: s.uploaded
+      });
     });
 
     if (items.length === 0) {
@@ -2207,18 +2148,22 @@
 
     historyList.innerHTML = items.map(it => {
       const modeText = modeLabel(it.mode);
+      const typeText = it.isRandom ? '随机' : '指定';
       const timeText = it.time ? formatDate(it.time) : '—';
       const tag = it.ongoing
         ? '<span class="history-tag ongoing">进行中</span>'
         : '<span class="history-tag success">成功</span>';
+      const uploadMark = (!it.ongoing && it.uploaded === false)
+        ? ' <span style="color:#dc2626;font-size:10px;">未上传</span>'
+        : '';
       return '<div class="history-item">' +
         '<div class="history-row1">' +
           '<span class="history-seed">#' + it.seed + '</span>' +
           tag +
         '</div>' +
         '<div class="history-row2">' +
-          '<span>模式：' + modeText + '</span>' +
-          '<span>' + timeText + '</span>' +
+          '<span>模式：' + modeText + ' | ' + typeText + '</span>' +
+          '<span>' + timeText + uploadMark + '</span>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -2228,7 +2173,77 @@
   function openRules() { rulesModal.classList.add('show'); }
   function closeRules() { rulesModal.classList.remove('show'); }
 
-  /* ==================== 按钮事件 ==================== */
+  /* ============ Supabase 相关操作 ============ */
+  async function uploadScore(seed, mode, elapsed, markLocal) {
+    if (!supabaseReady || !supabase || !currentUser) {
+      if (markLocal) markUploaded(seed, mode);
+      return false;
+    }
+    try {
+      const { data: profile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('best_time_bw, best_time_num, total_wins')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+      let updateData = {};
+      if (mode === 'bw') {
+        if (!profile || profile.best_time_bw == null || elapsed < profile.best_time_bw) {
+          updateData.best_time_bw = elapsed;
+        }
+      } else {
+        if (!profile || profile.best_time_num == null || elapsed < profile.best_time_num) {
+          updateData.best_time_num = elapsed;
+        }
+      }
+      updateData.total_wins = ((profile && profile.total_wins) || 0) + 1;
+      updateData.updated_at = new Date().toISOString();
+
+      let error;
+      if (profile) {
+        const res = await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('profiles').insert({
+          id: currentUser.id,
+          username: (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email,
+          ...updateData
+        });
+        error = res.error;
+      }
+      if (error) throw error;
+
+      if (markLocal) markUploaded(seed, mode);
+      return true;
+    } catch (e) {
+      console.error('上传失败', e);
+      return false;
+    }
+  }
+
+  // 页面加载/登录后：扫描本地未上传的随机关卡成绩并尝试上传
+  async function retryOfflineUploads() {
+    if (!supabaseReady || !currentUser) return;
+    const list = getSuccessList();
+    const pending = list.filter(s => s.isRandom && !s.uploaded);
+    if (pending.length === 0) return;
+
+    let successCount = 0;
+    for (const item of pending) {
+      const ok = await uploadScore(item.seed, item.mode, item.elapsed, false);
+      if (ok) {
+        markUploaded(item.seed, item.mode);
+        successCount++;
+      }
+    }
+    if (successCount > 0) {
+      showToast('成功上传 ' + successCount + ' 条离线成绩');
+    }
+  }
+
+  /* ============ 按钮事件 ============ */
   btnHelp.addEventListener('click', openRules);
   rulesClose.addEventListener('click', closeRules);
   rulesModal.addEventListener('click', (e) => { if (e.target === rulesModal) closeRules(); });
@@ -2250,9 +2265,24 @@
 
   btnReset.addEventListener('click', resetBoard);
   btnAnswer.addEventListener('click', toggleAnswerMode);
-
   btnUndo.addEventListener('click', () => { if (answerMode) return; popUndo(); });
   btnRedo.addEventListener('click', () => { if (answerMode) return; popRedo(); });
+
+  btnUpload.addEventListener('click', async () => {
+    if (!supabaseReady) { alert('离线模式，无法上传'); return; }
+    if (!currentUser) { alert('请先登录账号'); return; }
+    if (!solved) { alert('请先完成挑战'); return; }
+    if (!isRandomChallenge) { alert('指定编号的关卡不能上传成绩'); return; }
+    if (solvedElapsed == null) { alert('无法获取用时'); return; }
+
+    const mode = digitalMode ? 'num' : 'bw';
+    const ok = await uploadScore(currentSeed, mode, solvedElapsed, true);
+    if (ok) {
+      showToast('成绩上传成功！');
+    } else {
+      showToast('上传失败，请检查网络');
+    }
+  });
 
   btnHistory.addEventListener('click', openHistory);
   historyClose.addEventListener('click', closeHistory);
@@ -2298,7 +2328,141 @@
     updateModeUI();
   });
 
-  /* ==================== 窗口尺寸 ==================== */
+  /* ============ 认证相关 ============ */
+  let authMode = 'login';
+
+  function showAuthModal(mode) {
+    if (!supabaseReady) { alert('离线模式，无法登录'); return; }
+    authMode = mode;
+    authTitle.textContent = mode === 'login' ? '登录' : '注册';
+    authSubmit.textContent = mode === 'login' ? '登录' : '注册';
+    authUsername.style.display = mode === 'register' ? 'block' : 'none';
+    authSwitch.textContent = mode === 'login' ? '没有账号？去注册' : '已有账号？去登录';
+    authEmail.value = '';
+    authPassword.value = '';
+    authUsername.value = '';
+    authModal.classList.add('show');
+  }
+
+  btnLogin.addEventListener('click', () => showAuthModal('login'));
+  btnRegister.addEventListener('click', () => showAuthModal('register'));
+  btnLogout.addEventListener('click', async () => {
+    if (supabaseReady && supabase) {
+      await supabase.auth.signOut();
+    }
+  });
+  authSwitch.addEventListener('click', () => {
+    showAuthModal(authMode === 'login' ? 'register' : 'login');
+  });
+  authCancel.addEventListener('click', () => authModal.classList.remove('show'));
+  authSubmit.addEventListener('click', async () => {
+    if (!supabaseReady) { alert('离线模式'); return; }
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    const username = authUsername.value.trim();
+    if (!email || !password) { alert('请填写邮箱和密码'); return; }
+    if (authMode === 'register' && !username) { alert('请填写用户名'); return; }
+
+    authSubmit.disabled = true;
+    try {
+      if (authMode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email, password,
+          options: { data: { username } }
+        });
+        if (error) throw error;
+        if (data.user) {
+          await supabase.from('profiles').insert({
+            id: data.user.id,
+            username: username,
+            best_time_bw: null,
+            best_time_num: null,
+            total_wins: 0
+          });
+        }
+      }
+      authModal.classList.remove('show');
+      showToast(authMode === 'login' ? '登录成功' : '注册成功');
+    } catch (e) {
+      alert(e.message || '操作失败');
+    } finally {
+      authSubmit.disabled = false;
+    }
+  });
+
+  /* ============ 排行榜 ============ */
+  function formatDuration(seconds) {
+    const s = Math.max(0, Math.floor(seconds));
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    let parts = [];
+    if (d > 0) parts.push(d + 'd');
+    if (h > 0) parts.push(h + 'h');
+    if (m > 0) parts.push(m + 'm');
+    parts.push(sec + 's');
+    return parts.join(' ');
+  }
+
+  async function loadRanking(tab) {
+    if (!supabaseReady) {
+      rankList.innerHTML = '<div class="rank-empty">离线模式，无法加载</div>';
+      return;
+    }
+    rankList.innerHTML = '<div class="rank-empty">加载中...</div>';
+    try {
+      let query = supabase.from('profiles').select('username, best_time_bw, best_time_num, total_wins');
+      if (tab === 'bw') {
+        query = query.not('best_time_bw', 'is', null).order('best_time_bw', { ascending: true }).limit(100);
+      } else if (tab === 'num') {
+        query = query.not('best_time_num', 'is', null).order('best_time_num', { ascending: true }).limit(100);
+      } else {
+        query = query.gt('total_wins', 0).order('total_wins', { ascending: false }).limit(100);
+      }
+      const { data, error } = await query;
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
+        return;
+      }
+      let html = '';
+      data.forEach((item, index) => {
+        let scoreText = '';
+        if (tab === 'bw') scoreText = item.best_time_bw != null ? formatDuration(item.best_time_bw) : '—';
+        else if (tab === 'num') scoreText = item.best_time_num != null ? formatDuration(item.best_time_num) : '—';
+        else scoreText = (item.total_wins || 0) + ' 关';
+        html += `<div class="rank-item">
+          <span class="rank-no">${index + 1}</span>
+          <span class="rank-name">${item.username || '匿名'}</span>
+          <span class="rank-score">${scoreText}</span>
+        </div>`;
+      });
+      rankList.innerHTML = html;
+    } catch (e) {
+      console.error(e);
+      rankList.innerHTML = '<div class="rank-empty">加载失败</div>';
+    }
+  }
+
+  btnLeaderboard.addEventListener('click', () => {
+    leaderboardModal.classList.add('show');
+    loadRanking(currentRankTab);
+  });
+  leaderboardClose.addEventListener('click', () => leaderboardModal.classList.remove('show'));
+  rankTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      rankTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentRankTab = tab.dataset.tab;
+      loadRanking(currentRankTab);
+    });
+  });
+
+  /* ============ 窗口尺寸 ============ */
   let resizeTimer = null;
   window.addEventListener('resize', () => {
     if (resizeTimer) clearTimeout(resizeTimer);
@@ -2313,11 +2477,13 @@
     }, 160);
   });
 
-  /* ==================== 启动 ==================== */
+  /* ============ 启动 ============ */
   function init() {
     computeSizes();
     buildBoard();
     renderAll();
+    updateUserUI();
+    updateUploadButton();
 
     poolEl.addEventListener('contextmenu', e => e.preventDefault());
 
@@ -2330,6 +2496,16 @@
   }
 
   init();
+
+  // Supabase 就绪后，扫描离线历史并重试上传
+  supabasePromise.then(() => {
+    if (supabaseReady) {
+      // 等待登录状态稳定后重试
+      setTimeout(() => {
+        if (currentUser) retryOfflineUploads();
+      }, 1500);
+    }
+  }).catch(() => {});
 </script>
 </body>
 </html>
