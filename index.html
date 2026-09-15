@@ -44,22 +44,10 @@
   .btn:hover { background: #f1f5f9; transform: translateY(-1px); }
   .btn:active { transform: translateY(0); }
   .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-  .btn.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
-  .btn.primary:hover { background: #1d4ed8; }
-  .btn.ghost-btn { background: #fff; color: #475569; }
-  .btn.ghost-btn:hover { background: #f1f5f9; color: #1e293b; }
-  .btn.answer { background: #f59e0b; border-color: #f59e0b; color: #fff; }
-  .btn.answer:hover { background: #d97706; }
-  .btn.answer.active { background: #b45309; border-color: #b45309; }
   .btn.icon-btn { padding: 8px 10px; }
   .btn.icon-btn svg { display: block; }
 
-  /* ---------- 顶部工具行：5 个按钮统一为白底黑字加粗 ---------- */
-  .controls .btn,
-  .controls .btn.primary,
-  .controls .btn.ghost-btn,
-  .controls .btn.answer,
-  .controls .btn.icon-btn {
+  .controls .btn {
     background: #fff;
     color: #1e293b;
     font-weight: 700;
@@ -72,43 +60,62 @@
     transition: all .15s ease;
     gap: 6px;
   }
-  .controls .btn:hover {
-    background: #f8fafc;
-    transform: translateY(-1px);
-  }
-  .controls .btn:active {
-    transform: translateY(0);
-  }
-  .controls .btn.icon-btn {
-    width: 40px;
-    padding: 0;
-  }
+  .controls .btn:hover { background: #f8fafc; transform: translateY(-1px); }
+  .controls .btn:active { transform: translateY(0); }
+  .controls .btn.icon-btn { width: 40px; padding: 0; }
   .controls .btn.answer.active {
     background: #fef3c7;
     border-color: #f59e0b;
     color: #b45309;
-    box-shadow: 0 0 0 2px rgba(245,158,11,.25);
+    box-shadow: 0 0 0 2px rgba(245,158,11,.28), 0 4px 12px rgba(245,158,11,.28);
   }
-  .controls .btn:disabled {
-    opacity: .4;
+  .controls .btn.answer.active svg {
+    stroke: #d97706;
+    filter: drop-shadow(0 0 5px rgba(245,158,11,.85));
   }
-  .controls .btn svg {
-    width: 20px;
-    height: 20px;
-    display: block;
-    flex-shrink: 0;
-  }
+  .controls .btn:disabled { opacity: .4; }
+  .controls .btn svg { width: 20px; height: 20px; display: block; flex-shrink: 0; }
 
-  /* ---------- 盘面上方的工具按钮行（居中） ---------- */
+  /* 用户状态行 */
+  .user-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #64748b;
+    min-height: 22px;
+  }
+  .user-row .username {
+    font-weight: 700;
+    color: #1e293b;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .user-row .link-btn {
+    background: none;
+    border: none;
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: inherit;
+  }
+  .user-row .link-btn:hover { background: #eff6ff; }
+
+  /* 盘面工具行 */
   .board-tools {
     display: flex;
     justify-content: center;
     gap: 14px;
     margin: 4px 0 8px;
   }
-  .board-tools .btn {
-    padding: 8px 14px;
-  }
+  .board-tools .btn { padding: 8px 14px; }
 
   .meta {
     display: flex; justify-content: space-between; align-items: center;
@@ -116,7 +123,26 @@
   }
   .meta b { color: #2563eb; font-size: 13px; }
 
-  /* ---------- 模式开关 ---------- */
+  /* 计时器 */
+  .timer-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #2563eb;
+    letter-spacing: 0.5px;
+  }
+  .timer-row span {
+    background: #eff6ff;
+    padding: 3px 14px;
+    border-radius: 20px;
+    border: 1px solid #bfdbfe;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 模式开关 */
   .mode-row {
     display: flex; align-items: center; justify-content: space-between;
     margin: 0 0 8px; padding: 0 2px;
@@ -126,9 +152,7 @@
     font-weight: 600; letter-spacing: 1px;
     display: flex; align-items: center; gap: 6px;
   }
-  .mode-label .hint {
-    font-size: 10px; font-weight: 500; color: #94a3b8;
-  }
+  .mode-label .hint { font-size: 10px; font-weight: 500; color: #94a3b8; }
   .switch {
     position: relative;
     width: 50px; height: 28px;
@@ -143,39 +167,26 @@
     -webkit-tap-highlight-color: transparent;
     flex-shrink: 0;
   }
-  .switch[aria-pressed="true"] {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-  }
-  .switch:disabled {
-    opacity: .4;
-    cursor: not-allowed;
-  }
+  .switch[aria-pressed="true"] { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .switch:disabled { opacity: .4; cursor: not-allowed; }
   .switch-knob {
-    position: absolute;
-    top: 3px; left: 3px;
+    position: absolute; top: 3px; left: 3px;
     width: 22px; height: 22px;
     border-radius: 50%;
     background: #fff;
     box-shadow: 0 2px 4px rgba(15,23,42,.25), 0 0 0 1px rgba(15,23,42,.05);
     transition: left .22s cubic-bezier(.4,0,.2,1);
   }
-  .switch[aria-pressed="true"] .switch-knob {
-    left: 25px;
-  }
+  .switch[aria-pressed="true"] .switch-knob { left: 25px; }
 
-  /* ---------- 进度条（字体与「数字显示」统一：12px / 600 / letter-spacing 1px） ---------- */
+  /* 进度条 */
   .progress-row {
     display: flex; align-items: center; gap: 8px;
     margin: 0 0 8px; padding: 0 2px;
   }
   .progress-name {
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
-    letter-spacing: 1px;
-    width: 78px;
-    flex-shrink: 0;
-    text-align: left;
+    font-size: 12px; font-weight: 600; color: #64748b;
+    letter-spacing: 1px; width: 78px; flex-shrink: 0; text-align: left;
   }
   .progress-track {
     flex: 1; height: 10px; border-radius: 999px;
@@ -187,26 +198,19 @@
     background: linear-gradient(90deg, #60a5fa, #2563eb);
     transition: width .22s ease, background .22s ease;
   }
-  .progress-fill.full {
-    background: linear-gradient(90deg, #34d399, #16a34a);
-  }
-  .progress-fill.number-fill {
-    background: linear-gradient(90deg, #a78bfa, #7c3aed);
-  }
-  .progress-fill.number-fill.full {
-    background: linear-gradient(90deg, #34d399, #16a34a);
-  }
+  .progress-fill.full { background: linear-gradient(90deg, #34d399, #16a34a); }
+  .progress-fill.number-fill { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
+  .progress-fill.number-fill.full { background: linear-gradient(90deg, #34d399, #16a34a); }
   .progress-label {
     font-size: 12px; font-weight: 700; color: #2563eb;
     min-width: 40px; text-align: right;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: .5px;
+    font-variant-numeric: tabular-nums; letter-spacing: .5px;
   }
   .progress-label.full { color: #16a34a; }
   .progress-label.number-label { color: #7c3aed; }
   .progress-label.number-label.full { color: #16a34a; }
 
-  /* ---------- 棋盘 ---------- */
+  /* 棋盘 */
   #board {
     position: relative; margin: 0 auto 16px;
     background: #fff; border-radius: 8px;
@@ -242,41 +246,22 @@
   .num-cell {
     position: absolute;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 800;
-    font-family: inherit;
-    pointer-events: none;
-    line-height: 1;
-    letter-spacing: 0;
+    font-weight: 800; font-family: inherit; pointer-events: none;
+    line-height: 1; letter-spacing: 0;
   }
   .num-cell.on-white {
     color: #0f172a;
-    text-shadow:
-      -1px -1px 0 rgba(255,255,255,.95),
-       1px -1px 0 rgba(255,255,255,.95),
-      -1px  1px 0 rgba(255,255,255,.95),
-       1px  1px 0 rgba(255,255,255,.95),
-       0 0 5px rgba(255,255,255,.9);
+    text-shadow: -1px -1px 0 rgba(255,255,255,.95), 1px -1px 0 rgba(255,255,255,.95), -1px 1px 0 rgba(255,255,255,.95), 1px 1px 0 rgba(255,255,255,.95), 0 0 5px rgba(255,255,255,.9);
   }
   .num-cell.on-black {
     color: #f8fafc;
-    text-shadow:
-      -1px -1px 0 rgba(0,0,0,.9),
-       1px -1px 0 rgba(0,0,0,.9),
-      -1px  1px 0 rgba(0,0,0,.9),
-       1px  1px 0 rgba(0,0,0,.9),
-       0 0 5px rgba(0,0,0,.8);
+    text-shadow: -1px -1px 0 rgba(0,0,0,.9), 1px -1px 0 rgba(0,0,0,.9), -1px 1px 0 rgba(0,0,0,.9), 1px 1px 0 rgba(0,0,0,.9), 0 0 5px rgba(0,0,0,.8);
   }
 
-  .answer-piece {
-    position: absolute;
-    pointer-events: none;
-  }
+  .answer-piece { position: absolute; pointer-events: none; }
   .answer-cell {
-    position: absolute;
-    border: 2px solid rgba(245, 158, 11, 0.75);
-    border-radius: 4px;
-    box-sizing: border-box;
-    pointer-events: none;
+    position: absolute; border: 2px solid rgba(245, 158, 11, 0.75);
+    border-radius: 4px; box-sizing: border-box; pointer-events: none;
     transition: background-color .15s, border-color .15s;
   }
   .answer-cell.latest {
@@ -285,66 +270,44 @@
     z-index: 5;
   }
 
-  .pool-head {
-    font-size: 12px; color: #64748b; margin: 0 0 6px 2px; letter-spacing: 1px;
-  }
+  .pool-head { font-size: 12px; color: #64748b; margin: 0 0 6px 2px; letter-spacing: 1px; }
   .pool {
-    display: grid;
-    justify-content: space-between;
-    row-gap: 12px;
-    padding: 10px;
-    background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px;
-    min-height: 98px; transition: opacity .2s;
+    display: grid; justify-content: space-between; row-gap: 12px;
+    padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1;
+    border-radius: 12px; min-height: 98px; transition: opacity .2s;
   }
   .pool.dim { opacity: .4; }
   .pool:empty::after {
-    content: '碎片已全部用尽'; margin: auto;
-    font-size: 13px; color: #94a3b8;
-    grid-column: 1 / -1;
+    content: '碎片已全部用尽'; margin: auto; font-size: 13px;
+    color: #94a3b8; grid-column: 1 / -1;
   }
   .pool-item {
     display: flex; flex-direction: column; align-items: center; gap: 3px;
-    transition: opacity .2s;
-    width: var(--pool-slot, 78px);
+    transition: opacity .2s; width: var(--pool-slot, 78px);
   }
   .pool-item.ans-done { opacity: .3; }
   .pool-slot {
-    width: var(--pool-slot, 78px);
-    height: var(--pool-slot, 78px);
-    border-radius: 9px;
-    background: #fff; border: 1px solid #e2e8f0;
+    width: var(--pool-slot, 78px); height: var(--pool-slot, 78px);
+    border-radius: 9px; background: #fff; border: 1px solid #e2e8f0;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 1px 3px rgba(15,23,42,.05);
-    position: relative;
+    box-shadow: 0 1px 3px rgba(15,23,42,.05); position: relative;
   }
   .pool-piece {
     position: relative; cursor: pointer; touch-action: none;
-    width: var(--pool-slot, 78px);
-    height: var(--pool-slot, 78px);
+    width: var(--pool-slot, 78px); height: var(--pool-slot, 78px);
   }
   .pool-piece:active { cursor: grabbing; }
   .pcell {
     position: absolute; border-radius: 2px;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.4);
-    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); pointer-events: none;
   }
   .pool-digit {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    font-size: 15px;
-    font-weight: 800;
-    color: #fff;
-    background: #dc2626;
-    min-width: 22px; height: 22px;
-    line-height: 22px;
-    text-align: center;
-    padding: 0 4px;
-    border-radius: 11px;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 5px rgba(220,38,38,.45);
-    pointer-events: none;
-    z-index: 3;
-    font-family: inherit;
+    position: absolute; transform: translate(-50%, -50%);
+    font-size: 15px; font-weight: 800; color: #fff; background: #dc2626;
+    min-width: 22px; height: 22px; line-height: 22px; text-align: center;
+    padding: 0 4px; border-radius: 11px; border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(220,38,38,.45); pointer-events: none;
+    z-index: 3; font-family: inherit;
   }
   .pool-tag {
     font-size: 9px; font-weight: 700; line-height: 1.3;
@@ -356,8 +319,7 @@
 
   .ghost {
     position: fixed; pointer-events: none; z-index: 9999;
-    opacity: .88;
-    filter: drop-shadow(0 8px 14px rgba(15,23,42,.35));
+    opacity: .88; filter: drop-shadow(0 8px 14px rgba(15,23,42,.35));
   }
 
   .message {
@@ -371,22 +333,17 @@
   }
   .message.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-  /* ---------- 模态框 ---------- */
+  /* 模态框 */
   .modal-mask {
     position: fixed; inset: 0;
     background: rgba(15,23,42,.45);
-    display: none;
-    align-items: center; justify-content: center;
-    z-index: 10001;
-    padding: 20px;
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 10001; padding: 20px;
+    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
   }
   .modal-mask.show { display: flex; }
   .modal-box {
-    background: #fff;
-    border-radius: 14px;
-    padding: 18px;
+    background: #fff; border-radius: 14px; padding: 18px;
     width: 100%; max-width: 340px;
     box-shadow: 0 20px 50px rgba(15,23,42,.3);
     animation: modalIn .22s cubic-bezier(.2,.9,.3,1.3);
@@ -397,39 +354,25 @@
   }
   .modal-title {
     font-size: 15px; font-weight: 700;
-    margin-bottom: 12px; color: #1e3a8a;
-    letter-spacing: 1px;
+    margin-bottom: 12px; color: #1e3a8a; letter-spacing: 1px;
   }
   .modal-input {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 15px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-family: inherit;
-    outline: none;
-    margin-bottom: 14px;
-    background: #f8fafc;
-    color: #1e293b;
+    width: 100%; padding: 10px 12px; font-size: 15px;
+    border: 1px solid #cbd5e1; border-radius: 8px;
+    font-family: inherit; outline: none; margin-bottom: 12px;
+    background: #f8fafc; color: #1e293b;
   }
   .modal-input:focus { border-color: #2563eb; background: #fff; }
-  .modal-actions {
-    display: flex; gap: 8px; justify-content: flex-end;
-  }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
   .history-list {
-    max-height: 55vh;
-    overflow-y: auto;
-    margin-bottom: 12px;
-    padding-right: 4px;
+    max-height: 55vh; overflow-y: auto;
+    margin-bottom: 12px; padding-right: 4px;
     -webkit-overflow-scrolling: touch;
   }
   .history-item {
-    padding: 10px 12px;
-    border-radius: 9px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 8px;
-    font-size: 12px;
+    padding: 10px 12px; border-radius: 9px;
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    margin-bottom: 8px; font-size: 12px;
   }
   .history-row1 {
     display: flex; justify-content: space-between; align-items: center;
@@ -437,48 +380,64 @@
   }
   .history-seed {
     font-weight: 700; color: #1e3a8a;
-    font-size: 13px;
-    letter-spacing: .5px;
+    font-size: 13px; letter-spacing: .5px;
   }
   .history-tag {
     font-size: 10px; font-weight: 700;
-    padding: 2px 7px; border-radius: 6px;
-    letter-spacing: .5px;
+    padding: 2px 7px; border-radius: 6px; letter-spacing: .5px;
   }
   .history-tag.success { background: #dcfce7; color: #16a34a; }
   .history-tag.ongoing { background: #fef3c7; color: #d97706; }
   .history-row2 {
     display: flex; justify-content: space-between;
-    color: #64748b;
-    font-size: 11px;
+    color: #64748b; font-size: 11px;
   }
   .history-empty {
     text-align: center; color: #94a3b8;
     padding: 24px 0; font-size: 13px;
   }
 
-  /* ---------- 规则模态框 ---------- */
-  .rules-content {
-    max-height: 60vh;
-    overflow-y: auto;
-    font-size: 12px;
-    line-height: 1.8;
-    color: #475569;
-    padding-right: 4px;
+  /* 排行榜标签页 */
+  .rank-tabs {
+    display: flex; gap: 6px; margin-bottom: 12px;
+  }
+  .rank-tab {
+    flex: 1; padding: 6px 0; border-radius: 8px;
+    border: 1px solid #cbd5e1; background: #fff;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: all .15s; font-family: inherit;
+  }
+  .rank-tab.active {
+    background: #2563eb; color: #fff; border-color: #2563eb;
+  }
+  .rank-list {
+    max-height: 45vh; overflow-y: auto; margin-bottom: 12px;
     -webkit-overflow-scrolling: touch;
   }
-  .rules-content .tip-line {
-    display: block;
+  .rank-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; border-radius: 8px;
+    border-bottom: 1px solid #f1f5f9; font-size: 13px;
   }
-  .rules-content .tip-line + .tip-line {
-    margin-top: 4px;
+  .rank-item:nth-child(odd) { background: #f8fafc; }
+  .rank-no { width: 32px; font-weight: 700; color: #64748b; text-align: center; }
+  .rank-name { flex: 1; font-weight: 600; color: #1e293b; margin: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rank-score { font-weight: 700; color: #2563eb; font-variant-numeric: tabular-nums; }
+  .rank-empty { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 13px; }
+
+  .rules-content {
+    max-height: 60vh; overflow-y: auto;
+    font-size: 12px; line-height: 1.8;
+    color: #475569; padding-right: 4px;
+    -webkit-overflow-scrolling: touch;
   }
+  .rules-content .tip-line { display: block; }
+  .rules-content .tip-line + .tip-line { margin-top: 4px; }
   .rules-content b { color: #334155; }
   .rules-content .win-rule {
     display: block; margin-top: 6px;
     color: #b45309; font-weight: 700;
-    padding-top: 6px;
-    border-top: 1px dashed #e2e8f0;
+    padding-top: 6px; border-top: 1px dashed #e2e8f0;
   }
 </style>
 </head>
@@ -486,13 +445,20 @@
 <div class="wrap">
   <h1>旋镜叠影</h1>
 
-  <!-- 顶部工具行：问号 / 随机生成 / 指定编号 / 历史记录 / 灯泡 -->
+  <!-- 顶部工具行 -->
   <div class="controls">
     <button id="btnHelp" class="btn icon-btn" title="规则说明">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/>
         <path d="M9.1 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
         <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </button>
+    <button id="btnLeaderboard" class="btn icon-btn" title="排行榜">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20V10"/>
+        <path d="M18 20V4"/>
+        <path d="M6 20v-4"/>
       </svg>
     </button>
     <button id="btnRandom" class="btn">随机生成</button>
@@ -503,7 +469,7 @@
         <polyline points="12 7 12 12 15.5 14"/>
       </svg>
     </button>
-    <button id="btnAnswer" class="btn icon-btn" title="参考答案">
+    <button id="btnAnswer" class="btn icon-btn answer" title="参考答案">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 18h6"/>
         <path d="M10 22h4"/>
@@ -512,28 +478,37 @@
     </button>
   </div>
 
+  <!-- 用户状态行 -->
+  <div class="user-row" id="userRow">
+    <span id="userStatus">未登录</span>
+    <button id="btnLogin" class="link-btn">登录</button>
+    <button id="btnRegister" class="link-btn">注册</button>
+    <button id="btnLogout" class="link-btn" style="display:none;">退出</button>
+  </div>
+
   <div class="meta">
     <span>挑战编号：<b id="seedShow">—</b></span>
     <span id="progress">已放置 0 / 16</span>
   </div>
 
-  <!-- 数字模式开关 -->
+  <!-- 计时器 -->
+  <div class="timer-row" id="timerRow" style="display:none;">
+    <span id="timerDisplay">0s</span>
+  </div>
+
+  <!-- 模式开关 -->
   <div class="mode-row">
     <span class="mode-label">数字显示 <span class="hint" id="modeHint">无数字</span></span>
     <button id="digitSwitch" class="switch" role="switch" aria-pressed="false" aria-label="数字显示开关">
       <span class="switch-knob"></span>
     </button>
   </div>
-
-  <!-- 颜色模式开关 -->
   <div class="mode-row">
     <span class="mode-label">颜色显示 <span class="hint" id="colorHint">黑白</span></span>
     <button id="colorSwitch" class="switch" role="switch" aria-pressed="false" aria-label="颜色显示开关">
       <span class="switch-knob"></span>
     </button>
   </div>
-
-  <!-- 目标图案开关 -->
   <div class="mode-row">
     <span class="mode-label">目标图案 <span class="hint" id="targetHint">打开来查看目标图案</span></span>
     <button id="targetSwitch" class="switch" role="switch" aria-pressed="false" aria-label="目标图案开关">
@@ -541,7 +516,7 @@
     </button>
   </div>
 
-  <!-- 黑白匹配度进度条 -->
+  <!-- 进度条 -->
   <div class="progress-row">
     <span class="progress-name">黑白匹配度</span>
     <div class="progress-track">
@@ -549,8 +524,6 @@
     </div>
     <span class="progress-label" id="progressLabel">0%</span>
   </div>
-
-  <!-- 数字匹配度进度条（数字显示开启时可见） -->
   <div class="progress-row" id="numberProgressRow" style="display:none;">
     <span class="progress-name">数字匹配度</span>
     <div class="progress-track">
@@ -559,7 +532,7 @@
     <span class="progress-label number-label" id="numberProgressLabel">0%</span>
   </div>
 
-  <!-- 盘面工具行：重置 / 撤回 / 前进（居中） -->
+  <!-- 盘面工具行 -->
   <div class="board-tools">
     <button id="btnReset" class="btn ghost-btn icon-btn" title="重置盘面">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -620,7 +593,7 @@
     <div class="rules-content">
       <span class="tip-line"><b>操作方式：</b>拖动 → 碎片可在操作盘面和碎片池之间交替移动，也能在操作盘面内任意移动 · 单击碎片顺时针方向旋转90° · 右键单击碎片（触屏：一指按住，另一指点击）逆时针旋转90° · 连续双击碎片左右镜像</span>
       <span class="tip-line"><b>叠加规则：</b>同一格被覆盖奇数次为黑、偶数次为白</span>
-      <span class="tip-line" style="color:#b45309;font-weight:600;">参考答案：由于不是唯一解，答案仅供参考。所有碎片都是先旋转对应次数，再考虑是否镜像。单击盘面放置下一块，双击盘面撤回至上一步。</span>
+      <span class="tip-line" style="color:#b45309;font-weight:600;">参考答案：由于不是唯一解，答案仅供参考。所有碎片都是先旋转对应次数，再考虑是否镜像。单击盘面放置下一块，双击或右键盘面撤回至上一步。</span>
       <span class="tip-line" style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示）。</span>
       <span class="tip-line" style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span>
       <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片；若开启数字显示，数字也必须完全匹配。</span>
@@ -631,13 +604,269 @@
   </div>
 </div>
 
-<script>
-(function () {
-  'use strict';
+<!-- 登录 / 注册 -->
+<div id="authModal" class="modal-mask">
+  <div class="modal-box">
+    <div class="modal-title" id="authTitle">登录</div>
+    <input type="email" class="modal-input" id="authEmail" placeholder="邮箱" autocomplete="email">
+    <input type="password" class="modal-input" id="authPassword" placeholder="密码" autocomplete="current-password">
+    <input type="text" class="modal-input" id="authUsername" placeholder="用户名（注册时填写）" style="display:none;">
+    <div class="modal-actions">
+      <button class="btn" id="authCancel">取消</button>
+      <button class="btn primary" id="authSubmit">登录</button>
+    </div>
+    <div style="text-align:center;margin-top:10px;">
+      <button class="link-btn" id="authSwitch" style="font-size:12px;">没有账号？去注册</button>
+    </div>
+  </div>
+</div>
 
-  /* ========================================================
-     常量与全局状态
-     ======================================================== */
+<!-- 排行榜 -->
+<div id="leaderboardModal" class="modal-mask">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-title">排行榜</div>
+    <div class="rank-tabs">
+      <button class="rank-tab active" data-tab="bw">无数字</button>
+      <button class="rank-tab" data-tab="num">有数字</button>
+      <button class="rank-tab" data-tab="total">总关卡数</button>
+    </div>
+    <div class="rank-list" id="rankList"></div>
+    <div class="modal-actions">
+      <button class="btn primary" id="leaderboardClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  /* ==================== Supabase 初始化 ==================== */
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  // ⚠️ 请替换为你的 Supabase 项目信息
+  const SUPABASE_URL = 'https://ajhksehpyofzeiirgilk.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqaGtzZWhweW9memVpaXJnaWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0ODE5MjgsImV4cCI6MjEwNTA1NzkyOH0.LQ17_lxAP0COx1hcs5MNGlnRbu73hbLSJ2cAUkuiGE8';
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.supabase = supabase;
+
+  let currentUser = null;
+
+  /* ==================== 认证 UI 更新 ==================== */
+  const userStatus = document.getElementById('userStatus');
+  const btnLogin   = document.getElementById('btnLogin');
+  const btnRegister = document.getElementById('btnRegister');
+  const btnLogout  = document.getElementById('btnLogout');
+
+  function updateUserUI() {
+    if (currentUser) {
+      const name = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
+      userStatus.textContent = name;
+      userStatus.classList.add('username');
+      btnLogin.style.display = 'none';
+      btnRegister.style.display = 'none';
+      btnLogout.style.display = 'inline-block';
+    } else {
+      userStatus.textContent = '未登录';
+      userStatus.classList.remove('username');
+      btnLogin.style.display = 'inline-block';
+      btnRegister.style.display = 'inline-block';
+      btnLogout.style.display = 'none';
+    }
+  }
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    currentUser = session ? session.user : null;
+    updateUserUI();
+  });
+
+  (async () => {
+    try {
+      const { data } = await supabase.auth.getUser();
+      currentUser = data.user || null;
+      updateUserUI();
+    } catch (e) { /* ignore */ }
+  })();
+
+  /* ==================== 认证模态框 ==================== */
+  const authModal = document.getElementById('authModal');
+  const authTitle = document.getElementById('authTitle');
+  const authEmail = document.getElementById('authEmail');
+  const authPassword = document.getElementById('authPassword');
+  const authUsername = document.getElementById('authUsername');
+  const authCancel = document.getElementById('authCancel');
+  const authSubmit = document.getElementById('authSubmit');
+  const authSwitch = document.getElementById('authSwitch');
+
+  let authMode = 'login';
+
+  function showAuthModal(mode) {
+    authMode = mode;
+    authTitle.textContent = mode === 'login' ? '登录' : '注册';
+    authSubmit.textContent = mode === 'login' ? '登录' : '注册';
+    authUsername.style.display = mode === 'register' ? 'block' : 'none';
+    authSwitch.textContent = mode === 'login' ? '没有账号？去注册' : '已有账号？去登录';
+    authEmail.value = '';
+    authPassword.value = '';
+    authUsername.value = '';
+    authModal.classList.add('show');
+  }
+
+  btnLogin.addEventListener('click', () => showAuthModal('login'));
+  btnRegister.addEventListener('click', () => showAuthModal('register'));
+  btnLogout.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+  });
+
+  authSwitch.addEventListener('click', () => {
+    showAuthModal(authMode === 'login' ? 'register' : 'login');
+  });
+  authCancel.addEventListener('click', () => authModal.classList.remove('show'));
+  authSubmit.addEventListener('click', async () => {
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    const username = authUsername.value.trim();
+    if (!email || !password) { alert('请填写邮箱和密码'); return; }
+    if (authMode === 'register' && !username) { alert('请填写用户名'); return; }
+
+    authSubmit.disabled = true;
+    try {
+      if (authMode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email, password,
+          options: { data: { username } }
+        });
+        if (error) throw error;
+        if (data.user) {
+          await supabase.from('profiles').insert({
+            id: data.user.id,
+            username: username,
+            best_time_bw: null,
+            best_time_num: null,
+            total_wins: 0
+          });
+        }
+      }
+      authModal.classList.remove('show');
+    } catch (e) {
+      alert(e.message || '操作失败');
+    } finally {
+      authSubmit.disabled = false;
+    }
+  });
+
+  /* ==================== 排行榜 ==================== */
+  const leaderboardModal = document.getElementById('leaderboardModal');
+  const leaderboardClose = document.getElementById('leaderboardClose');
+  const rankList = document.getElementById('rankList');
+  const rankTabs = document.querySelectorAll('.rank-tab');
+  let currentRankTab = 'bw';
+
+  function formatDuration(seconds) {
+    const s = Math.max(0, Math.floor(seconds));
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    let parts = [];
+    if (d > 0) parts.push(d + 'd');
+    if (h > 0) parts.push(h + 'h');
+    if (m > 0) parts.push(m + 'm');
+    parts.push(sec + 's');
+    return parts.join(' ');
+  }
+
+  async function loadRanking(tab) {
+    rankList.innerHTML = '<div class="rank-empty">加载中...</div>';
+    try {
+      let query = supabase.from('profiles').select('username, best_time_bw, best_time_num, total_wins');
+      if (tab === 'bw') {
+        query = query.not('best_time_bw', 'is', null).order('best_time_bw', { ascending: true }).limit(100);
+      } else if (tab === 'num') {
+        query = query.not('best_time_num', 'is', null).order('best_time_num', { ascending: true }).limit(100);
+      } else {
+        query = query.gt('total_wins', 0).order('total_wins', { ascending: false }).limit(100);
+      }
+      const { data, error } = await query;
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
+        return;
+      }
+      let html = '';
+      data.forEach((item, index) => {
+        let scoreText = '';
+        if (tab === 'bw') scoreText = item.best_time_bw != null ? formatDuration(item.best_time_bw) : '—';
+        else if (tab === 'num') scoreText = item.best_time_num != null ? formatDuration(item.best_time_num) : '—';
+        else scoreText = (item.total_wins || 0) + ' 关';
+        html += `<div class="rank-item">
+          <span class="rank-no">${index + 1}</span>
+          <span class="rank-name">${item.username || '匿名'}</span>
+          <span class="rank-score">${scoreText}</span>
+        </div>`;
+      });
+      rankList.innerHTML = html;
+    } catch (e) {
+      console.error(e);
+      rankList.innerHTML = '<div class="rank-empty">加载失败</div>';
+    }
+  }
+
+  document.getElementById('btnLeaderboard').addEventListener('click', () => {
+    leaderboardModal.classList.add('show');
+    loadRanking(currentRankTab);
+  });
+  leaderboardClose.addEventListener('click', () => leaderboardModal.classList.remove('show'));
+  rankTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      rankTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentRankTab = tab.dataset.tab;
+      loadRanking(currentRankTab);
+    });
+  });
+
+  /* ==================== 成绩上传 ==================== */
+  async function uploadScore(elapsedSeconds, mode) {
+    if (!currentUser) return;
+    try {
+      const { data: profile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('best_time_bw, best_time_num, total_wins')
+        .eq('id', currentUser.id)
+        .single();
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        // 记录可能不存在，尝试创建
+        await supabase.from('profiles').insert({
+          id: currentUser.id,
+          username: (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email,
+          best_time_bw: mode === 'bw' ? elapsedSeconds : null,
+          best_time_num: mode === 'num' ? elapsedSeconds : null,
+          total_wins: 1
+        });
+        return;
+      }
+
+      let updateData = {};
+      if (mode === 'bw') {
+        if (profile.best_time_bw == null || elapsedSeconds < profile.best_time_bw) {
+          updateData.best_time_bw = elapsedSeconds;
+        }
+      } else {
+        if (profile.best_time_num == null || elapsedSeconds < profile.best_time_num) {
+          updateData.best_time_num = elapsedSeconds;
+        }
+      }
+      updateData.total_wins = (profile.total_wins || 0) + 1;
+
+      await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
+    } catch (e) {
+      console.error('上传成绩失败', e);
+    }
+  }
+
+  /* ==================== 游戏主逻辑 ==================== */
   const N = 8;
   const PIECE_COUNT = 16;
   const TAP_DELAY = 280;
@@ -668,6 +897,9 @@
   let answerIndex = 0;
   let solved = false;
   let currentSeed = null;
+  let isRandomChallenge = false;
+  let challengeStartTime = null;
+  let timerInterval = null;
   let digitalMode = false;
   let colorMode = false;
   let pending = null;
@@ -688,9 +920,7 @@
   let piecesLayer = null;
   let numbersLayer = null;
 
-  /* ========================================================
-     DOM
-     ======================================================== */
+  /* DOM */
   const boardEl       = document.getElementById('board');
   const poolEl        = document.getElementById('pool');
   const poolHead      = document.getElementById('poolHead');
@@ -727,9 +957,10 @@
   const rulesModal    = document.getElementById('rulesModal');
   const rulesClose    = document.getElementById('rulesClose');
 
-  /* ========================================================
-     工具函数
-     ======================================================== */
+  const timerRow      = document.getElementById('timerRow');
+  const timerDisplay  = document.getElementById('timerDisplay');
+
+  /* ==================== 工具函数 ==================== */
   function hexToRgba(hex, alpha) {
     const h = hex.replace('#', '');
     const r = parseInt(h.slice(0, 2), 16);
@@ -737,20 +968,48 @@
     const b = parseInt(h.slice(4, 6), 16);
     return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
   }
-
-  function getPieceColor(id) {
-    return PIECE_COLORS[id % PIECE_COLORS.length];
-  }
-
+  function getPieceColor(id) { return PIECE_COLORS[id % PIECE_COLORS.length]; }
   function formatDate(ts) {
     const d = new Date(ts);
     const pad = n => String(n).padStart(2, '0');
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
            ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
   }
+  function modeLabel(mode) { return mode === 'num' ? '有数字' : '无数字'; }
 
-  function modeLabel(mode) {
-    return mode === 'num' ? '有数字' : '无数字';
+  function formatTimer(seconds) {
+    const s = Math.max(0, Math.floor(seconds));
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    let parts = [];
+    if (d > 0) parts.push(d + 'd');
+    if (h > 0) parts.push(h + 'h');
+    if (m > 0) parts.push(m + 'm');
+    parts.push(sec + 's');
+    return parts.join(' ');
+  }
+
+  function startTimer() {
+    stopTimer();
+    challengeStartTime = Date.now();
+    timerRow.style.display = 'flex';
+    updateTimerDisplay();
+    timerInterval = setInterval(updateTimerDisplay, 1000);
+  }
+  function stopTimer() {
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  }
+  function resetTimer() {
+    stopTimer();
+    challengeStartTime = null;
+    timerRow.style.display = 'none';
+  }
+  function updateTimerDisplay() {
+    if (!challengeStartTime) { timerDisplay.textContent = '0s'; return; }
+    const elapsed = (Date.now() - challengeStartTime) / 1000;
+    timerDisplay.textContent = formatTimer(elapsed);
   }
 
   function computeSizes() {
@@ -765,9 +1024,7 @@
     poolEl.style.gridTemplateColumns = 'repeat(4, ' + POOL_SLOT + 'px)';
   }
 
-  /* ========================================================
-     历史记录与进行中状态
-     ======================================================== */
+  /* ==================== 历史记录与进度 ==================== */
   function getSuccessList() {
     try {
       const raw = localStorage.getItem(STORAGE_SUCCESS);
@@ -776,18 +1033,15 @@
       return Array.isArray(list) ? list : [];
     } catch (e) { return []; }
   }
-
   function saveSuccessList(list) {
     try { localStorage.setItem(STORAGE_SUCCESS, JSON.stringify(list)); } catch (e) {}
   }
-
   function recordSuccess(seed, mode) {
     const list = getSuccessList();
     if (list.some(s => s.seed === seed && s.mode === mode)) return;
     list.push({ seed: seed, mode: mode, time: Date.now() });
     saveSuccessList(list);
   }
-
   function getProgressData() {
     try {
       const raw = localStorage.getItem(STORAGE_PROGRESS);
@@ -795,7 +1049,6 @@
       return JSON.parse(raw);
     } catch (e) { return null; }
   }
-
   function sanitizeSnapshot(snap) {
     if (!Array.isArray(snap)) return [];
     return snap.map(s => ({
@@ -806,16 +1059,16 @@
       col: s.col || 0
     }));
   }
-
   function saveProgress() {
     if (!currentSeed) return;
     if (answerMode) return;
-
     try {
       const data = {
         seed: currentSeed,
         mode: digitalMode ? 'num' : 'bw',
         color: colorMode,
+        isRandom: isRandomChallenge,
+        startTime: challengeStartTime,
         pieces: pieces.map(p => ({
           cells: p.cells.map(c => [c[0], c[1]]),
           h: p.h, w: p.w,
@@ -832,6 +1085,8 @@
           seed: currentSeed,
           mode: digitalMode ? 'num' : 'bw',
           color: colorMode,
+          isRandom: isRandomChallenge,
+          startTime: challengeStartTime,
           pieces: pieces.map(p => ({
             cells: p.cells.map(c => [c[0], c[1]]),
             h: p.h, w: p.w,
@@ -845,19 +1100,16 @@
       } catch (e2) {}
     }
   }
-
   let saveTimer = null;
   function scheduleSaveProgress() {
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(saveProgress, 250);
   }
-
   function loadProgress() {
     const data = getProgressData();
     if (!data || !data.seed) return false;
     try {
-      generateChallenge(data.seed, true);
-
+      generateChallenge(data.seed, true, data.isRandom !== false);
       if (data.pieces && data.pieces.length === pieces.length) {
         for (let i = 0; i < pieces.length; i++) {
           const s = data.pieces[i];
@@ -870,12 +1122,18 @@
           pieces[i].col = s.col || 0;
         }
       }
-
       digitalMode = data.mode === 'num';
       colorMode = !!data.color;
-
       undoStack = sanitizeSnapshot(data.undoStack).slice(-MAX_UNDO);
       redoStack = sanitizeSnapshot(data.redoStack).slice(-MAX_UNDO);
+
+      // 恢复计时
+      if (data.startTime) {
+        challengeStartTime = data.startTime;
+        timerRow.style.display = 'flex';
+        updateTimerDisplay();
+        timerInterval = setInterval(updateTimerDisplay, 1000);
+      }
 
       renderAll();
       return true;
@@ -888,12 +1146,9 @@
   function pickNewSeed() {
     const currentMode = digitalMode ? 'num' : 'bw';
     const solvedSeeds = new Set(
-      getSuccessList()
-        .filter(s => s.mode === currentMode)
-        .map(s => s.seed)
+      getSuccessList().filter(s => s.mode === currentMode).map(s => s.seed)
     );
-    let seed;
-    let attempts = 0;
+    let seed, attempts = 0;
     do {
       seed = Math.floor(Math.random() * 100000) + 1;
       attempts++;
@@ -901,9 +1156,7 @@
     return seed;
   }
 
-  /* ========================================================
-     随机数 & 形状
-     ======================================================== */
+  /* ==================== 随机数与形状 ==================== */
   function mulberry32(a) {
     return function () {
       a |= 0; a = a + 0x6D2B79F5 | 0;
@@ -912,13 +1165,11 @@
       return ((t ^ t >>> 14) >>> 0) / 4294967296;
     };
   }
-
   function randomShape(rng) {
     const size = 3 + Math.floor(rng() * 3);
     const cells = [[0, 0]];
     const set = new Set(['0,0']);
     const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
-
     let guard = 0;
     while (cells.length < size && guard++ < 500) {
       const base = cells[Math.floor(rng() * cells.length)];
@@ -927,14 +1178,11 @@
       const key = nr + ',' + nc;
       if (!set.has(key)) { set.add(key); cells.push([nr, nc]); }
     }
-
     const minR = Math.min(...cells.map(c => c[0]));
     const minC = Math.min(...cells.map(c => c[1]));
-    return cells
-      .map(([r, c]) => [r - minR, c - minC])
+    return cells.map(([r, c]) => [r - minR, c - minC])
       .sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   }
-
   function normalize(cells) {
     const minR = Math.min(...cells.map(c => c[0]));
     const minC = Math.min(...cells.map(c => c[1]));
@@ -942,22 +1190,18 @@
     nc.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
     return nc;
   }
-
   function rotate90(cells) {
     const maxR = Math.max(...cells.map(c => c[0]));
     return normalize(cells.map(([r, c]) => [c, maxR - r]));
   }
-
   function rotateCCW(cells) {
     const maxC = Math.max(...cells.map(c => c[1]));
     return normalize(cells.map(([r, c]) => [maxC - c, r]));
   }
-
   function mirror(cells) {
     const maxC = Math.max(...cells.map(c => c[1]));
     return normalize(cells.map(([r, c]) => [r, maxC - c]));
   }
-
   function applyTransform(baseCells, rot, flip) {
     let cells = baseCells.map(([r, c]) => [r, c]);
     for (let i = 0; i < rot; i++) {
@@ -970,7 +1214,6 @@
     }
     return normalize(cells);
   }
-
   function shapeSize(cells) {
     return {
       h: Math.max(...cells.map(c => c[0])) + 1,
@@ -978,9 +1221,7 @@
     };
   }
 
-  /* ========================================================
-     叠加计算
-     ======================================================== */
+  /* ==================== 叠加计算 ==================== */
   function computeGrid(list) {
     const g = Array.from({ length: N }, () => new Array(N).fill(0));
     for (const p of list) {
@@ -992,7 +1233,6 @@
     }
     return g;
   }
-
   function computeAnswerGrid(count) {
     const g = Array.from({ length: N }, () => new Array(N).fill(0));
     const lim = Math.min(count, answerPlacements.length);
@@ -1005,7 +1245,6 @@
     }
     return g;
   }
-
   function computeNumberGridPlayer() {
     const g = Array.from({ length: N }, () => new Array(N).fill(0));
     for (const p of pieces) {
@@ -1018,7 +1257,6 @@
     }
     return g;
   }
-
   function computeNumberGridAnswer(count) {
     const g = Array.from({ length: N }, () => new Array(N).fill(0));
     const lim = Math.min(count, answerPlacements.length);
@@ -1033,9 +1271,7 @@
     return g;
   }
 
-  /* ========================================================
-     撤回 / 前进 栈
-     ======================================================== */
+  /* ==================== 撤回 / 前进 ==================== */
   function snapshotPieces() {
     return pieces.map(p => ({
       cells: p.cells.map(c => [c[0], c[1]]),
@@ -1043,7 +1279,6 @@
       placed: p.placed, row: p.row, col: p.col
     }));
   }
-
   function applySnapshot(snap) {
     if (!Array.isArray(snap)) return;
     for (let i = 0; i < pieces.length; i++) {
@@ -1057,7 +1292,6 @@
       pieces[i].col = s.col || 0;
     }
   }
-
   function pushUndoSnapshot(snap) {
     undoStack.push(snap);
     if (undoStack.length > MAX_UNDO) undoStack.shift();
@@ -1065,7 +1299,6 @@
     updateUndoButton();
     updateRedoButton();
   }
-
   function popUndo() {
     if (!undoStack.length) return false;
     const currentSnap = snapshotPieces();
@@ -1080,7 +1313,6 @@
     scheduleSaveProgress();
     return true;
   }
-
   function popRedo() {
     if (!redoStack.length) return false;
     const currentSnap = snapshotPieces();
@@ -1095,33 +1327,24 @@
     scheduleSaveProgress();
     return true;
   }
-
   function updateUndoButton() {
     btnUndo.disabled = (undoStack.length === 0) || answerMode;
   }
-
   function updateRedoButton() {
     btnRedo.disabled = (redoStack.length === 0) || answerMode;
   }
 
-  /* ========================================================
-     单击 / 双击 / 逆时针 判定
-     ======================================================== */
+  /* ==================== 单击 / 双击 / 逆时针 ==================== */
   function cancelPendingTap() {
     if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; }
     pendingRotatePiece = null;
   }
-
   function applyPieceTransform(piece, type) {
     const snap = snapshotPieces();
+    if (type === 'rotate') piece.cells = rotate90(piece.cells);
+    else if (type === 'rotateCCW') piece.cells = rotateCCW(piece.cells);
+    else if (type === 'mirror') piece.cells = mirror(piece.cells);
 
-    if (type === 'rotate') {
-      piece.cells = rotate90(piece.cells);
-    } else if (type === 'rotateCCW') {
-      piece.cells = rotateCCW(piece.cells);
-    } else if (type === 'mirror') {
-      piece.cells = mirror(piece.cells);
-    }
     const s = shapeSize(piece.cells);
     piece.h = s.h;
     piece.w = s.w;
@@ -1137,33 +1360,27 @@
       renderPool();
       updateProgressText();
     }
-
     pushUndoSnapshot(snap);
     scheduleSaveProgress();
   }
-
   function flushPendingTap() {
     if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; }
     const p = pendingRotatePiece;
     pendingRotatePiece = null;
     if (p) applyPieceTransform(p, 'rotate');
   }
-
   function handlePieceClick(piece, button) {
     if (button === 2) {
       cancelPendingTap();
       applyPieceTransform(piece, 'rotateCCW');
       return;
     }
-
     if (pendingRotatePiece === piece) {
       cancelPendingTap();
       applyPieceTransform(piece, 'mirror');
       return;
     }
-
     if (pendingRotatePiece) flushPendingTap();
-
     pendingRotatePiece = piece;
     if (tapTimer) clearTimeout(tapTimer);
     tapTimer = setTimeout(() => {
@@ -1173,7 +1390,6 @@
       if (p) applyPieceTransform(p, 'rotate');
     }, TAP_DELAY);
   }
-
   function abortDrag() {
     if (!drag) return;
     const { piece, ghost, wasPlaced, prevRow, prevCol } = drag;
@@ -1185,10 +1401,8 @@
     drag = null;
   }
 
-  /* ========================================================
-     生成挑战
-     ======================================================== */
-  function generateChallenge(seed, skipSave) {
+  /* ==================== 生成挑战 ==================== */
+  function generateChallenge(seed, skipSave, isRandom) {
     cancelPendingTap();
     resetAnswerTapState();
     activePointerIds.clear();
@@ -1204,34 +1418,26 @@
     for (let i = 0; i < PIECE_COUNT; i++) {
       const baseCells = randomShape(rng);
       const s0 = shapeSize(baseCells);
-
       const rot = Math.floor(rng() * 4);
       const flip = rng() < 0.5;
       const targetCells = applyTransform(baseCells, rot, flip);
       const st = shapeSize(targetCells);
-
       const row = Math.floor(rng() * (N - st.h + 1));
       const col = Math.floor(rng() * (N - st.w + 1));
-
       const digit = Math.floor(rng() * 10);
 
       list.push({
         id: i,
         baseCells: baseCells.map(c => [...c]),
         cells: baseCells.map(c => [...c]),
-        h: s0.h,
-        w: s0.w,
-        placed: false,
-        row: 0,
-        col: 0,
+        h: s0.h, w: s0.w,
+        placed: false, row: 0, col: 0,
         digit: digit
       });
-
       placements.push({ cells: targetCells, row, col, rot, flip });
     }
 
     answerPlacements = placements;
-
     targetGrid = Array.from({ length: N }, () => new Array(N).fill(0));
     for (const p of placements) {
       for (const [r, c] of p.cells) {
@@ -1242,21 +1448,30 @@
 
     pieces = list;
     currentSeed = seed;
+    isRandomChallenge = !!isRandom;
     solved = false;
     showingTarget = false;
     answerMode = false;
     answerIndex = 0;
     messageEl.classList.remove('show');
-    seedShow.textContent = seed;
+
+    // 随机关卡不显示编号，指定编号显示
+    if (isRandom) {
+      seedShow.textContent = '？？？';
+    } else {
+      seedShow.textContent = seed;
+    }
 
     renderAll();
 
-    if (!skipSave) scheduleSaveProgress();
+    // 启动计时（新关卡）
+    if (!skipSave) {
+      startTimer();
+      scheduleSaveProgress();
+    }
   }
 
-  /* ========================================================
-     构建盘面骨架
-     ======================================================== */
+  /* ==================== 棋盘构建 ==================== */
   function buildBoard() {
     boardEl.innerHTML = '';
     boardEl.style.width  = (N * BOARD_CELL) + 'px';
@@ -1285,9 +1500,7 @@
     boardEl.appendChild(numbersLayer);
   }
 
-  /* ========================================================
-     渲染
-     ======================================================== */
+  /* ==================== 渲染 ==================== */
   function renderAll() {
     renderPool();
     renderPiecesLayer();
@@ -1329,7 +1542,6 @@
 
   function updateBoardView() {
     let grid, matchGrid;
-
     if (answerMode) {
       grid = computeAnswerGrid(answerIndex);
       matchGrid = grid;
@@ -1338,8 +1550,8 @@
       grid = (showingTarget && targetGrid) ? targetGrid : actual;
       matchGrid = actual;
     }
-
     const isPlayerMode = !showingTarget && !answerMode;
+    const useColorInAnswer = answerMode && colorMode;
 
     for (let r = 0; r < N; r++) {
       for (let c = 0; c < N; c++) {
@@ -1348,28 +1560,43 @@
         const black = !!grid[r][c];
         let bg;
 
-        if (!isPlayerMode) {
+        if (useColorInAnswer) {
+          const covering = [];
+          for (let i = 0; i < answerIndex; i++) {
+            const ap = answerPlacements[i];
+            let hit = false;
+            for (const [ar, ac] of ap.cells) {
+              if (ap.row + ar === r && ap.col + ac === c) { hit = true; break; }
+            }
+            if (hit) covering.push(i);
+          }
+          if (covering.length === 0) bg = WHITE_FILL;
+          else if (covering.length === 1) bg = getPieceColor(covering[0]);
+          else {
+            const n = covering.length;
+            const stops = covering.map((idx, i) => {
+              const start = (i / n * 360).toFixed(2);
+              const end = ((i + 1) / n * 360).toFixed(2);
+              return getPieceColor(idx) + ' ' + start + 'deg ' + end + 'deg';
+            });
+            bg = 'conic-gradient(' + stops.join(', ') + ')';
+          }
+        } else if (!isPlayerMode) {
           bg = black ? BLACK_FILL : WHITE_FILL;
         } else {
           const covering = [];
           for (const p of pieces) {
             if (!p.placed) continue;
             for (const [pr, pc] of p.cells) {
-              if (p.row + pr === r && p.col + pc === c) {
-                covering.push(p);
-                break;
-              }
+              if (p.row + pr === r && p.col + pc === c) { covering.push(p); break; }
             }
           }
-
-          if (covering.length === 0) {
-            bg = WHITE_FILL;
-          } else if (colorMode) {
+          if (covering.length === 0) bg = WHITE_FILL;
+          else if (colorMode) {
             covering.sort((a, b) => a.id - b.id);
             const colors = covering.map(p => getPieceColor(p.id));
-            if (colors.length === 1) {
-              bg = colors[0];
-            } else {
+            if (colors.length === 1) bg = colors[0];
+            else {
               const n = colors.length;
               const stops = colors.map((color, i) => {
                 const start = (i / n * 360).toFixed(2);
@@ -1395,20 +1622,12 @@
 
   function updateNumbersLayer() {
     if (!numbersLayer) return;
-
-    if (!digitalMode) {
-      numbersLayer.innerHTML = '';
-      return;
-    }
+    if (!digitalMode) { numbersLayer.innerHTML = ''; return; }
 
     let grid;
-    if (answerMode) {
-      grid = computeNumberGridAnswer(answerIndex);
-    } else if (showingTarget) {
-      grid = computeNumberGridAnswer(answerPlacements.length);
-    } else {
-      grid = computeNumberGridPlayer();
-    }
+    if (answerMode) grid = computeNumberGridAnswer(answerIndex);
+    else if (showingTarget) grid = computeNumberGridAnswer(answerPlacements.length);
+    else grid = computeNumberGridPlayer();
 
     const frag = document.createDocumentFragment();
     const fontSize = Math.max(9, Math.round(BOARD_CELL * 0.4)) + 'px';
@@ -1417,7 +1636,6 @@
       for (let c = 0; c < N; c++) {
         const val = grid[r][c];
         if (val === 0) continue;
-
         const d = document.createElement('div');
         d.className = 'num-cell';
         d.textContent = val;
@@ -1437,7 +1655,6 @@
         frag.appendChild(d);
       }
     }
-
     numbersLayer.innerHTML = '';
     numbersLayer.appendChild(frag);
   }
@@ -1452,21 +1669,16 @@
       }
     }
     const pct = targetGrid ? Math.round(matched / (N * N) * 100) : 0;
-
     progressFill.style.width = pct + '%';
     progressLabel.textContent = pct + '%';
-
     const full = (pct === 100);
     progressFill.classList.toggle('full', full);
     progressLabel.classList.toggle('full', full);
 
     if (digitalMode) {
       let numGrid;
-      if (answerMode) {
-        numGrid = computeNumberGridAnswer(answerIndex);
-      } else {
-        numGrid = computeNumberGridPlayer();
-      }
+      if (answerMode) numGrid = computeNumberGridAnswer(answerIndex);
+      else numGrid = computeNumberGridPlayer();
       const targetNum = computeNumberGridAnswer(answerPlacements.length);
 
       let numMatched = 0;
@@ -1478,10 +1690,8 @@
         }
       }
       const numPct = targetGrid ? Math.round(numMatched / (N * N) * 100) : 0;
-
       numberProgressFill.style.width = numPct + '%';
       numberProgressLabel.textContent = numPct + '%';
-
       const numFull = (numPct === 100);
       numberProgressFill.classList.toggle('full', numFull);
       numberProgressLabel.classList.toggle('full', numFull);
@@ -1499,7 +1709,6 @@
 
   function renderPool() {
     poolEl.innerHTML = '';
-
     for (const p of pieces) {
       if (!answerMode && p.placed) continue;
 
@@ -1520,7 +1729,7 @@
 
       const el = document.createElement('div');
       el.className = 'pool-piece';
-      el.style.width  = POOL_SLOT + 'px';
+      el.style.width = POOL_SLOT + 'px';
       el.style.height = POOL_SLOT + 'px';
       el.dataset.ox = ox;
       el.dataset.oy = oy;
@@ -1531,9 +1740,9 @@
         const d = document.createElement('div');
         d.className = 'pcell';
         d.style.background = pieceColor;
-        d.style.left   = (ox + c * POOL_CELL) + 'px';
-        d.style.top    = (oy + r * POOL_CELL) + 'px';
-        d.style.width  = POOL_CELL + 'px';
+        d.style.left = (ox + c * POOL_CELL) + 'px';
+        d.style.top = (oy + r * POOL_CELL) + 'px';
+        d.style.width = POOL_CELL + 'px';
         d.style.height = POOL_CELL + 'px';
         el.appendChild(d);
       }
@@ -1543,7 +1752,7 @@
         numEl.className = 'pool-digit';
         numEl.textContent = p.digit;
         numEl.style.left = (ox + pw / 2) + 'px';
-        numEl.style.top  = (oy + ph / 2) + 'px';
+        numEl.style.top = (oy + ph / 2) + 'px';
         el.appendChild(numEl);
       }
 
@@ -1559,11 +1768,7 @@
         const tag = document.createElement('div');
         tag.className = 'pool-tag';
         if (ap) {
-          const rotTxt = '旋转' + ap.rot + '次';
-          const flipTxt = ap.flip ? '有镜像' : '无镜像';
-          tag.textContent = rotTxt + '·' + flipTxt;
-          tag.title = '步骤：先顺时针旋转 ' + ap.rot + ' 次（' + (ap.rot * 90) + '°），'
-                    + (ap.flip ? '再进行左右镜像翻转' : '不进行镜像');
+          tag.textContent = '旋转' + ap.rot + '次·' + (ap.flip ? '有镜像' : '无镜像');
         } else {
           tag.textContent = '—';
         }
@@ -1600,7 +1805,7 @@
           d.className = 'answer-cell';
           if (isLatest) d.classList.add('latest');
           if (useColor) {
-            d.style.background = hexToRgba(pieceColor, 0.55);
+            d.style.background = 'transparent';
             d.style.borderColor = pieceColor;
           }
           d.style.left = (c * BOARD_CELL) + 'px';
@@ -1621,17 +1826,17 @@
 
       const el = document.createElement('div');
       el.className = 'board-piece';
-      el.style.left   = (p.col * BOARD_CELL) + 'px';
-      el.style.top    = (p.row * BOARD_CELL) + 'px';
-      el.style.width  = (p.w * BOARD_CELL) + 'px';
+      el.style.left = (p.col * BOARD_CELL) + 'px';
+      el.style.top = (p.row * BOARD_CELL) + 'px';
+      el.style.width = (p.w * BOARD_CELL) + 'px';
       el.style.height = (p.h * BOARD_CELL) + 'px';
 
       for (const [r, c] of p.cells) {
         const d = document.createElement('div');
         d.className = 'bcell';
-        d.style.left   = (c * BOARD_CELL) + 'px';
-        d.style.top    = (r * BOARD_CELL) + 'px';
-        d.style.width  = BOARD_CELL + 'px';
+        d.style.left = (c * BOARD_CELL) + 'px';
+        d.style.top = (r * BOARD_CELL) + 'px';
+        d.style.width = BOARD_CELL + 'px';
         d.style.height = BOARD_CELL + 'px';
         el.appendChild(d);
       }
@@ -1641,9 +1846,7 @@
     }
   }
 
-  /* ========================================================
-     指针交互
-     ======================================================== */
+  /* ==================== 指针交互 ==================== */
   function onPiecePointerDown(ev, piece, el, source) {
     if (showingTarget || answerMode || !targetGrid) return;
     if (ev.button !== 0 && ev.button !== 2) return;
@@ -1656,7 +1859,6 @@
       applyPieceTransform(piece, 'rotateCCW');
       return;
     }
-
     if (activePointerIds.size > 0) {
       cancelPendingTap();
       abortDrag();
@@ -1666,7 +1868,6 @@
     }
 
     activePointerIds.add(ev.pointerId);
-
     pending = {
       piece, el, source,
       startX: ev.clientX,
@@ -1675,18 +1876,13 @@
       moved: false,
       pointerId: ev.pointerId
     };
-
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
     window.addEventListener('pointercancel', onPointerUp);
   }
 
   function onPointerMove(e) {
-    if (drag) {
-      e.preventDefault();
-      moveGhost(e.clientX, e.clientY);
-      return;
-    }
+    if (drag) { e.preventDefault(); moveGhost(e.clientX, e.clientY); return; }
     if (!pending) return;
     if (e.pointerId !== pending.pointerId) return;
     const dx = e.clientX - pending.startX;
@@ -1700,11 +1896,9 @@
 
   function beginDrag(ev, piece, el, source) {
     if (drag) return;
-
     flushPendingTap();
 
     const dragSnapshot = snapshotPieces();
-
     const rect = el.getBoundingClientRect();
     let fx, fy;
 
@@ -1720,8 +1914,8 @@
       fx = Math.max(0, Math.min(1, fx));
       fy = Math.max(0, Math.min(1, fy));
     } else {
-      fx = rect.width  ? (ev.clientX - rect.left) / rect.width  : 0.5;
-      fy = rect.height ? (ev.clientY - rect.top)  / rect.height : 0.5;
+      fx = rect.width ? (ev.clientX - rect.left) / rect.width : 0.5;
+      fy = rect.height ? (ev.clientY - rect.top) / rect.height : 0.5;
     }
 
     const w = piece.w * BOARD_CELL;
@@ -1729,14 +1923,14 @@
 
     const ghost = document.createElement('div');
     ghost.className = 'ghost';
-    ghost.style.width  = w + 'px';
+    ghost.style.width = w + 'px';
     ghost.style.height = h + 'px';
     for (const [r, c] of piece.cells) {
       const d = document.createElement('div');
       d.className = 'bcell';
-      d.style.left   = (c * BOARD_CELL) + 'px';
-      d.style.top    = (r * BOARD_CELL) + 'px';
-      d.style.width  = BOARD_CELL + 'px';
+      d.style.left = (c * BOARD_CELL) + 'px';
+      d.style.top = (r * BOARD_CELL) + 'px';
+      d.style.width = BOARD_CELL + 'px';
       d.style.height = BOARD_CELL + 'px';
       ghost.appendChild(d);
     }
@@ -1745,7 +1939,6 @@
     const wasPlaced = piece.placed;
     const prevRow = piece.row;
     const prevCol = piece.col;
-
     if (piece.placed) piece.placed = false;
 
     drag = { piece, ghost, fx, fy, w, h, wasPlaced, prevRow, prevCol, source, dragSnapshot };
@@ -1762,14 +1955,13 @@
   function moveGhost(cx, cy) {
     if (!drag) return;
     drag.ghost.style.left = (cx - drag.fx * drag.w) + 'px';
-    drag.ghost.style.top  = (cy - drag.fy * drag.h) + 'px';
+    drag.ghost.style.top = (cy - drag.fy * drag.h) + 'px';
   }
 
   function onPointerUp(e) {
     window.removeEventListener('pointermove', onPointerMove);
     window.removeEventListener('pointerup', onPointerUp);
     window.removeEventListener('pointercancel', onPointerUp);
-
     activePointerIds.delete(e.pointerId);
 
     if (drag) {
@@ -1779,7 +1971,6 @@
 
       const gl = e.clientX - fx * w;
       const gt = e.clientY - fy * h;
-
       const bRect = boardEl.getBoundingClientRect();
       const pRect = poolEl.getBoundingClientRect();
       const cx = e.clientX, cy = e.clientY;
@@ -1788,16 +1979,14 @@
       const overBoard =
         (cx >= bRect.left && cx <= bRect.right && cy >= bRect.top && cy <= bRect.bottom) ||
         (centerX >= bRect.left && centerX <= bRect.right &&
-         centerY >= bRect.top  && centerY <= bRect.bottom);
-
+         centerY >= bRect.top && centerY <= bRect.bottom);
       const overPool =
         cx >= pRect.left && cx <= pRect.right && cy >= pRect.top && cy <= pRect.bottom;
 
       let changed = false;
-
       if (overBoard) {
         let col = Math.round((gl - bRect.left) / BOARD_CELL);
-        let row = Math.round((gt - bRect.top)  / BOARD_CELL);
+        let row = Math.round((gt - bRect.top) / BOARD_CELL);
         col = Math.max(0, Math.min(N - piece.w, col));
         row = Math.max(0, Math.min(N - piece.h, row));
         if (!piece.placed || piece.row !== row || piece.col !== col) changed = true;
@@ -1813,9 +2002,7 @@
         piece.col = prevCol;
       }
 
-      if (changed) {
-        pushUndoSnapshot(dragSnapshot);
-      }
+      if (changed) pushUndoSnapshot(dragSnapshot);
 
       drag = null;
       pending = null;
@@ -1826,16 +2013,12 @@
     } else if (pending) {
       if (e.pointerId !== pending.pointerId) return;
       const { piece, button, moved } = pending;
-      if (!moved) {
-        handlePieceClick(piece, button);
-      }
+      if (!moved) handlePieceClick(piece, button);
       pending = null;
     }
   }
 
-  /* ========================================================
-     参考答案模式：单击前进 / 双击撤回
-     ======================================================== */
+  /* ==================== 参考答案模式 ==================== */
   function resetAnswerTapState() {
     if (answerSingleTapTimer) {
       clearTimeout(answerSingleTapTimer);
@@ -1846,33 +2029,35 @@
 
   function onBoardPointerDown(e) {
     if (!answerMode) return;
-    if (e.button !== undefined && e.button !== 0) return;
     e.preventDefault();
 
-    const now = Date.now();
+    if (e.button === 2) {
+      if (answerSingleTapTimer) {
+        clearTimeout(answerSingleTapTimer);
+        answerSingleTapTimer = null;
+      }
+      answerLastTapTime = 0;
+      if (answerIndex > 0) { answerIndex--; renderAll(); }
+      return;
+    }
+    if (e.button !== undefined && e.button !== 0) return;
 
+    const now = Date.now();
     if (now - answerLastTapTime < ANSWER_DOUBLE_TAP_MS) {
       answerLastTapTime = 0;
       if (answerSingleTapTimer) {
         clearTimeout(answerSingleTapTimer);
         answerSingleTapTimer = null;
       }
-      if (answerIndex > 0) {
-        answerIndex--;
-        renderAll();
-      }
+      if (answerIndex > 0) { answerIndex--; renderAll(); }
       return;
     }
 
     answerLastTapTime = now;
-
     if (answerSingleTapTimer) clearTimeout(answerSingleTapTimer);
     answerSingleTapTimer = setTimeout(() => {
       answerSingleTapTimer = null;
-      if (answerIndex < answerPlacements.length) {
-        answerIndex++;
-        renderAll();
-      }
+      if (answerIndex < answerPlacements.length) { answerIndex++; renderAll(); }
     }, ANSWER_DOUBLE_TAP_MS);
   }
 
@@ -1884,18 +2069,14 @@
     resetAnswerTapState();
 
     answerMode = !answerMode;
-
     if (answerMode) {
       answerIndex = 0;
       showingTarget = false;
     }
-
     renderAll();
   }
 
-  /* ========================================================
-     重置
-     ======================================================== */
+  /* ==================== 重置 ==================== */
   function resetBoard() {
     if (drag || answerMode || !targetGrid) return;
     cancelPendingTap();
@@ -1903,7 +2084,6 @@
     resetAnswerTapState();
 
     const snap = snapshotPieces();
-
     for (const p of pieces) {
       p.placed = false;
       p.row = 0;
@@ -1921,16 +2101,11 @@
     scheduleSaveProgress();
   }
 
-  /* ========================================================
-     胜利判定
-     ======================================================== */
+  /* ==================== 胜利判定 ==================== */
   function checkWin() {
     if (!targetGrid || answerMode) return;
 
-    if (pieces.some(p => !p.placed)) {
-      solved = false;
-      return;
-    }
+    if (pieces.some(p => !p.placed)) { solved = false; return; }
 
     const g = computeGrid(pieces);
     let ok = true;
@@ -1955,17 +2130,30 @@
         solved = true;
         messageEl.classList.add('show');
         setTimeout(() => messageEl.classList.remove('show'), 2600);
+
+        // 通关！显示随机生成的编号
+        if (isRandomChallenge) {
+          seedShow.textContent = currentSeed;
+        }
+
+        // 停止计时
+        stopTimer();
+        const elapsed = challengeStartTime ? Math.floor((Date.now() - challengeStartTime) / 1000) : 0;
+
+        const mode = digitalMode ? 'num' : 'bw';
+        recordSuccess(currentSeed, mode);
+
+        // 上传成绩（仅随机生成的关卡且已登录）
+        if (isRandomChallenge && currentUser) {
+          uploadScore(elapsed, mode);
+        }
       }
-      const mode = digitalMode ? 'num' : 'bw';
-      recordSuccess(currentSeed, mode);
     } else {
       solved = false;
     }
   }
 
-  /* ========================================================
-     输入框 & 历史记录 & 规则
-     ======================================================== */
+  /* ==================== 输入框 ==================== */
   function showInputModal(defaultValue) {
     return new Promise(resolve => {
       seedInput.value = defaultValue || '';
@@ -1979,22 +2167,13 @@
         seedInput.removeEventListener('keydown', onKey);
         inputModal.removeEventListener('click', onMask);
       }
-      function onOk() {
-        const v = seedInput.value;
-        cleanup();
-        resolve(v);
-      }
-      function onCancel() {
-        cleanup();
-        resolve(null);
-      }
+      function onOk() { const v = seedInput.value; cleanup(); resolve(v); }
+      function onCancel() { cleanup(); resolve(null); }
       function onKey(ev) {
         if (ev.key === 'Enter') { ev.preventDefault(); onOk(); }
         else if (ev.key === 'Escape') { ev.preventDefault(); onCancel(); }
       }
-      function onMask(ev) {
-        if (ev.target === inputModal) onCancel();
-      }
+      function onMask(ev) { if (ev.target === inputModal) onCancel(); }
 
       seedOk.addEventListener('click', onOk);
       seedCancel.addEventListener('click', onCancel);
@@ -2003,6 +2182,7 @@
     });
   }
 
+  /* ==================== 历史记录 ==================== */
   function renderHistory() {
     const successes = getSuccessList();
     const progress = getProgressData();
@@ -2016,18 +2196,9 @@
         ongoing: true
       });
     }
-
-    successes
-      .slice()
-      .sort((a, b) => (b.time || 0) - (a.time || 0))
-      .forEach(s => {
-        items.push({
-          seed: s.seed,
-          mode: s.mode,
-          time: s.time,
-          ongoing: false
-        });
-      });
+    successes.slice().sort((a, b) => (b.time || 0) - (a.time || 0)).forEach(s => {
+      items.push({ seed: s.seed, mode: s.mode, time: s.time, ongoing: false });
+    });
 
     if (items.length === 0) {
       historyList.innerHTML = '<div class="history-empty">暂无记录</div>';
@@ -2052,73 +2223,48 @@
       '</div>';
     }).join('');
   }
+  function openHistory() { renderHistory(); historyModal.classList.add('show'); }
+  function closeHistory() { historyModal.classList.remove('show'); }
+  function openRules() { rulesModal.classList.add('show'); }
+  function closeRules() { rulesModal.classList.remove('show'); }
 
-  function openHistory() {
-    renderHistory();
-    historyModal.classList.add('show');
-  }
-
-  function closeHistory() {
-    historyModal.classList.remove('show');
-  }
-
-  function openRules() {
-    rulesModal.classList.add('show');
-  }
-  function closeRules() {
-    rulesModal.classList.remove('show');
-  }
-
-  /* ========================================================
-     按钮事件
-     ======================================================== */
+  /* ==================== 按钮事件 ==================== */
   btnHelp.addEventListener('click', openRules);
   rulesClose.addEventListener('click', closeRules);
-  rulesModal.addEventListener('click', (e) => {
-    if (e.target === rulesModal) closeRules();
-  });
+  rulesModal.addEventListener('click', (e) => { if (e.target === rulesModal) closeRules(); });
 
   btnRandom.addEventListener('click', () => {
-    generateChallenge(pickNewSeed());
+    generateChallenge(pickNewSeed(), false, true);
   });
 
   btnSpecify.addEventListener('click', async () => {
-    const input = await showInputModal(currentSeed || '');
+    const input = await showInputModal('');
     if (input === null) return;
     const n = Number(String(input).trim());
     if (!Number.isInteger(n) || n < 1 || n > 100000) {
-      window.alert('编号无效，请输入 1 ~ 100000 之间的整数。');
+      alert('编号无效，请输入 1 ~ 100000 之间的整数。');
       return;
     }
-    generateChallenge(n);
+    generateChallenge(n, false, false);
   });
 
   btnReset.addEventListener('click', resetBoard);
   btnAnswer.addEventListener('click', toggleAnswerMode);
 
-  btnUndo.addEventListener('click', () => {
-    if (answerMode) return;
-    popUndo();
-  });
-
-  btnRedo.addEventListener('click', () => {
-    if (answerMode) return;
-    popRedo();
-  });
+  btnUndo.addEventListener('click', () => { if (answerMode) return; popUndo(); });
+  btnRedo.addEventListener('click', () => { if (answerMode) return; popRedo(); });
 
   btnHistory.addEventListener('click', openHistory);
   historyClose.addEventListener('click', closeHistory);
   historyClear.addEventListener('click', () => {
-    if (!window.confirm('确定清空全部历史记录吗？')) return;
+    if (!confirm('确定清空全部历史记录吗？')) return;
     try {
       localStorage.removeItem(STORAGE_SUCCESS);
       localStorage.removeItem(STORAGE_PROGRESS);
     } catch (e) {}
     renderHistory();
   });
-  historyModal.addEventListener('click', (e) => {
-    if (e.target === historyModal) closeHistory();
-  });
+  historyModal.addEventListener('click', (e) => { if (e.target === historyModal) closeHistory(); });
 
   boardEl.addEventListener('pointerdown', onBoardPointerDown);
   boardEl.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -2147,15 +2293,12 @@
     if (!targetGrid || answerMode) return;
     cancelPendingTap();
     showingTarget = !showingTarget;
-
     updateBoardView();
     renderPiecesLayer();
     updateModeUI();
   });
 
-  /* ========================================================
-     窗口尺寸变化
-     ======================================================== */
+  /* ==================== 窗口尺寸 ==================== */
   let resizeTimer = null;
   window.addEventListener('resize', () => {
     if (resizeTimer) clearTimeout(resizeTimer);
@@ -2170,9 +2313,7 @@
     }, 160);
   });
 
-  /* ========================================================
-     启动
-     ======================================================== */
+  /* ==================== 启动 ==================== */
   function init() {
     computeSizes();
     buildBoard();
@@ -2181,7 +2322,7 @@
     poolEl.addEventListener('contextmenu', e => e.preventDefault());
 
     if (!loadProgress()) {
-      generateChallenge(pickNewSeed());
+      generateChallenge(pickNewSeed(), false, true);
     } else {
       updateUndoButton();
       updateRedoButton();
@@ -2189,7 +2330,6 @@
   }
 
   init();
-})();
 </script>
 </body>
 </html>
