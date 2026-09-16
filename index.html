@@ -22,30 +22,94 @@
   }
   .wrap { width: 100%; max-width: 400px; }
 
-  h1 {
+  #homeScreen { display: block; }
+  #homeScreen.hidden { display: none; }
+
+  .home-header { position: relative; margin-bottom: 20px; }
+  .home-header h1 {
     font-size: 21px; letter-spacing: 6px; text-align: center;
-    margin: 0 0 14px; color: #1e3a8a;
+    margin: 0; color: #1e3a8a;
     text-shadow: 0 2px 0 rgba(255,255,255,.9);
+    line-height: 40px;
+  }
+  .home-history-btn {
+    position: absolute; right: 0; top: 0;
+    width: 38px; height: 38px; border-radius: 10px;
+    border: 1px solid #cbd5e1; background: #fff; color: #475569;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+    transition: all .15s; font-family: inherit;
+  }
+  .home-history-btn:hover { background: #f1f5f9; transform: translateY(-1px); }
+
+  .mode-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .mode-btn {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    padding: 14px 12px; border-radius: 12px;
+    border: 1px solid #cbd5e1; background: #fff;
+    cursor: pointer; font-family: inherit; text-align: left;
+    transition: all .18s ease;
+    box-shadow: 0 1px 3px rgba(15,23,42,.06);
+    min-height: 108px;
+  }
+  .mode-btn:hover {
+    border-color: #93c5fd; background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37,99,235,.12);
+  }
+  .mode-btn:active { transform: translateY(0); }
+  .mode-btn .mode-icon { font-size: 26px; line-height: 1; margin-bottom: 4px; }
+  .mode-btn .mode-title { font-size: 13px; font-weight: 700; color: #1e293b; letter-spacing: .5px; }
+  .mode-btn .mode-desc { font-size: 10px; color: #94a3b8; line-height: 1.4; margin-top: 2px; }
+  .mode-btn.challenge .mode-title { color: #b45309; }
+  .mode-btn.challenge { border-color: #fed7aa; }
+  .mode-btn.challenge:hover {
+    border-color: #f59e0b;
+    box-shadow: 0 6px 16px rgba(245,158,11,.18);
   }
 
-  .controls {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
-    padding: 0 2px;
+  #gameScreen { display: none; }
+  #gameScreen.active { display: block; }
+
+  .game-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin-bottom: 10px;
   }
+  .btn-back {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 10px; border-radius: 8px;
+    border: 1px solid #cbd5e1; background: #fff; color: #475569;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    font-family: inherit; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+    transition: all .15s;
+  }
+  .btn-back:hover { background: #f1f5f9; }
+  .mode-badge {
+    flex: 1; text-align: center;
+    font-size: 12px; font-weight: 700; letter-spacing: 1px;
+    color: #1e3a8a;
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    padding: 5px 10px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px;
+  }
+  .mode-badge.challenge-badge {
+    color: #b45309; background: #fffbeb; border-color: #fde68a;
+  }
+
   .btn {
-    padding: 8px 12px; border-radius: 9px; font-size: 13px; font-weight: 700;
+    padding: 8px 12px; border-radius: 9px;
+    font-size: 13px; font-weight: 700;
     cursor: pointer;
     border: 1px solid #cbd5e1; background: #fff; color: #1e293b;
     transition: all .15s ease; font-family: inherit;
     box-shadow: 0 1px 2px rgba(15,23,42,.05);
     display: inline-flex; align-items: center; justify-content: center;
-    gap: 4px;
-    white-space: nowrap;
+    gap: 5px; white-space: nowrap;
   }
   .btn:hover { background: #f1f5f9; transform: translateY(-1px); }
   .btn:active { transform: translateY(0); }
@@ -53,21 +117,30 @@
   .btn.icon-btn { padding: 8px 10px; }
   .btn.icon-btn svg { display: block; }
 
+  .controls {
+    display: flex; justify-content: center; align-items: stretch;
+    gap: 8px; margin-bottom: 10px;
+  }
   .controls .btn {
-    background: #fff; color: #1e293b; font-weight: 700; font-size: 12px;
+    background: #fff; color: #1e293b; font-weight: 700; font-size: 13px;
     border: 1px solid #cbd5e1;
-    height: 38px; padding: 0 10px;
+    height: 42px; padding: 0 12px;
     box-sizing: border-box;
     box-shadow: 0 1px 2px rgba(15,23,42,.05);
-    gap: 4px; flex-shrink: 0;
+    flex-shrink: 0;
   }
-  .controls .btn:hover { background: #f8fafc; transform: translateY(-1px); }
-  .controls .btn:active { transform: translateY(0); }
-  .controls .btn.icon-btn { width: 38px; padding: 0; }
+  .controls .btn.icon-btn { width: 42px; padding: 0; }
+  .controls .btn.main-action {
+    flex: 1; min-width: 0;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff; border-color: #2563eb;
+  }
+  .controls .btn.main-action:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border-color: #1d4ed8;
+  }
   .controls .btn.answer.active {
-    background: #fef3c7;
-    border-color: #f59e0b;
-    color: #b45309;
+    background: #fef3c7; border-color: #f59e0b; color: #b45309;
     box-shadow: 0 0 0 2px rgba(245,158,11,.28), 0 4px 12px rgba(245,158,11,.28);
   }
   .controls .btn.answer.active svg {
@@ -78,14 +151,14 @@
   .controls .btn svg { width: 18px; height: 18px; display: block; flex-shrink: 0; }
 
   @media (max-width: 420px) {
-    .controls { gap: 4px; }
-    .controls .btn { font-size: 11px; padding: 0 8px; height: 36px; }
-    .controls .btn.icon-btn { width: 34px; }
+    .controls { gap: 6px; }
+    .controls .btn { font-size: 12px; padding: 0 10px; height: 40px; }
+    .controls .btn.icon-btn { width: 40px; }
     .controls .btn svg { width: 16px; height: 16px; }
   }
   @media (max-width: 360px) {
-    .controls .btn { font-size: 10px; padding: 0 6px; height: 34px; }
-    .controls .btn.icon-btn { width: 32px; }
+    .controls .btn { font-size: 11px; padding: 0 8px; height: 38px; }
+    .controls .btn.icon-btn { width: 36px; }
   }
 
   .user-row {
@@ -138,21 +211,6 @@
     flex: 1; min-width: 0;
   }
   .mode-label .hint { font-size: 10px; font-weight: 500; color: #94a3b8; }
-  .valid-dot {
-    display: inline-block;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: #ccc;
-    flex-shrink: 0;
-  }
-  .valid-dot.valid {
-    background: #16a34a;
-    box-shadow: 0 0 6px rgba(22,163,74,.6);
-  }
-  .valid-dot.invalid {
-    background: #dc2626;
-    box-shadow: 0 0 6px rgba(220,38,38,.6);
-  }
   .switch {
     position: relative;
     width: 50px; height: 28px;
@@ -163,7 +221,6 @@
     outline: none; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
   }
   .switch[aria-pressed="true"] { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-  .switch[aria-pressed="true"].challenge-on { background: linear-gradient(135deg, #ef4444, #dc2626); }
   .switch:disabled { opacity: .4; cursor: not-allowed; }
   .switch-knob {
     position: absolute; top: 3px; left: 3px;
@@ -227,8 +284,7 @@
   .bcell {
     position: absolute; pointer-events: none;
     border: 2px solid rgba(37,99,235,.85);
-    border-radius: 5px;
-    background: transparent;
+    border-radius: 5px; background: transparent;
     transition: background-color .12s;
   }
   .board-piece:hover .bcell { background: rgba(37,99,235,.25); }
@@ -347,7 +403,7 @@
   .modal-mask.show { display: flex; }
   .modal-box {
     background: #fff; border-radius: 14px; padding: 18px;
-    width: 100%; max-width: 340px;
+    width: 100%; max-width: 360px;
     box-shadow: 0 20px 50px rgba(15,23,42,.3);
     animation: modalIn .22s cubic-bezier(.2,.9,.3,1.3);
   }
@@ -367,6 +423,7 @@
   }
   .modal-input:focus { border-color: #2563eb; background: #fff; }
   .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
   .history-list {
     max-height: 55vh; overflow-y: auto;
     margin-bottom: 12px; padding-right: 4px;
@@ -391,6 +448,7 @@
   }
   .history-tag.success { background: #dcfce7; color: #16a34a; }
   .history-tag.ongoing { background: #fef3c7; color: #d97706; }
+  .history-tag.practice { background: #e0e7ff; color: #4338ca; }
   .history-row2 {
     display: flex; justify-content: space-between;
     color: #64748b; font-size: 11px;
@@ -406,14 +464,22 @@
     padding: 24px 0; font-size: 13px;
   }
 
+  .rank-subtitle {
+    font-size: 11px; color: #94a3b8;
+    text-align: center; margin: -6px 0 10px; letter-spacing: .5px;
+  }
   .rank-tabs {
-    display: flex; gap: 6px; margin-bottom: 12px;
+    display: flex; gap: 4px; margin-bottom: 12px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
   }
   .rank-tab {
-    flex: 1; padding: 6px 0; border-radius: 8px;
+    flex: 1 0 auto;
+    padding: 7px 8px; border-radius: 8px;
     border: 1px solid #cbd5e1; background: #fff;
-    font-size: 12px; font-weight: 700; cursor: pointer;
+    font-size: 11px; font-weight: 700; cursor: pointer;
     transition: all .15s; font-family: inherit;
+    min-width: 52px; white-space: nowrap;
   }
   .rank-tab.active {
     background: #2563eb; color: #fff; border-color: #2563eb;
@@ -429,7 +495,6 @@
   .rank-item:nth-child(odd) { background: #f8fafc; }
   .rank-main {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 4px;
   }
   .rank-no {
     width: 28px; font-weight: 700; color: #64748b; text-align: center;
@@ -437,35 +502,17 @@
   }
   .rank-name {
     flex: 1; font-weight: 600; color: #1e293b;
-    margin: 0 6px;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    margin: 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 13px;
   }
   .rank-name .uid-tag {
-    color: #7c3aed; font-weight: 700;
-    font-size: 11px;
-    margin-right: 2px;
+    color: #7c3aed; font-weight: 700; font-size: 11px; margin-right: 2px;
   }
   .rank-score {
     font-weight: 700; color: #2563eb;
     font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
+    flex-shrink: 0; font-size: 13px;
   }
-  .rank-metrics {
-    display: flex;
-    padding-left: 34px;
-    gap: 6px;
-    flex-wrap: wrap;
-    font-size: 10px;
-  }
-  .rank-metrics .metric {
-    background: #eff6ff;
-    color: #1d4ed8;
-    padding: 2px 6px;
-    border-radius: 5px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-  .rank-metrics .metric.na { background: #f1f5f9; color: #94a3b8; }
   .rank-empty { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 13px; }
 
   .rules-content {
@@ -486,133 +533,175 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>旋镜叠影</h1>
 
-  <div class="controls">
-    <button id="btnHelp" class="btn icon-btn" title="规则说明">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M9.1 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-        <line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-    </button>
-    <button id="btnLeaderboard" class="btn icon-btn" title="排行榜">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 20V10"/>
-        <path d="M18 20V4"/>
-        <path d="M6 20v-4"/>
-      </svg>
-    </button>
-    <button id="btnRandom" class="btn">随机生成</button>
-    <button id="btnSpecify" class="btn">指定编号</button>
-    <button id="btnHistory" class="btn icon-btn" title="历史记录">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="9"/>
-        <polyline points="12 7 12 12 15.5 14"/>
-      </svg>
-    </button>
-    <button id="btnAnswer" class="btn icon-btn answer" title="参考答案">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 18h6"/>
-        <path d="M10 22h4"/>
-        <path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7z"/>
-      </svg>
-    </button>
-  </div>
-
-  <div class="user-row" id="userRow">
-    <span id="userStatus">未登录</span>
-    <button id="btnLogin" class="link-btn">登录</button>
-    <button id="btnRegister" class="link-btn">注册</button>
-    <button id="btnLogout" class="link-btn" style="display:none;">退出</button>
-  </div>
-
-  <div class="meta">
-    <span>题号：<b id="seedShow">—</b></span>
-    <span id="progress">已放置 0 / 16</span>
-  </div>
-
-  <div class="timer-row" id="timerRow" style="display:none;">
-    <span id="timerDisplay">0s</span>
-  </div>
-
-  <div class="mode-row" id="challengeModeRow" style="display:none;">
-    <span class="mode-label">
-      挑战模式
-      <span class="valid-dot" id="validDot"></span>
-      <span class="hint" id="challengeModeHint">关闭后方可查看答案</span>
-    </span>
-    <button id="challengeModeSwitch" class="switch challenge-on" role="switch" aria-pressed="true">
-      <span class="switch-knob"></span>
-    </button>
-  </div>
-
-  <div class="mode-row">
-    <span class="mode-label">数字显示 <span class="hint" id="modeHint">无数字</span></span>
-    <button id="digitSwitch" class="switch" role="switch" aria-pressed="false">
-      <span class="switch-knob"></span>
-    </button>
-  </div>
-  <div class="mode-row">
-    <span class="mode-label">颜色显示 <span class="hint" id="colorHint">黑白</span></span>
-    <button id="colorSwitch" class="switch" role="switch" aria-pressed="false">
-      <span class="switch-knob"></span>
-    </button>
-  </div>
-  <div class="mode-row">
-    <span class="mode-label">目标图案 <span class="hint" id="targetHint">打开来查看目标图案</span></span>
-    <button id="targetSwitch" class="switch" role="switch" aria-pressed="false">
-      <span class="switch-knob"></span>
-    </button>
-  </div>
-
-  <div class="progress-row">
-    <span class="progress-name">黑白匹配度</span>
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill"></div>
+  <div id="homeScreen">
+    <div class="home-header">
+      <h1>旋镜叠影</h1>
+      <button id="homeBtnHistory" class="home-history-btn" title="历史记录">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <polyline points="12 7 12 12 15.5 14"/>
+        </svg>
+      </button>
     </div>
-    <span class="progress-label" id="progressLabel">0%</span>
-  </div>
-  <div class="progress-row" id="numberProgressRow" style="display:none;">
-    <span class="progress-name">数字匹配度</span>
-    <div class="progress-track">
-      <div class="progress-fill number-fill" id="numberProgressFill"></div>
+
+    <div class="mode-grid">
+      <button class="mode-btn" data-action="practice-random">
+        <div class="mode-icon">🎲</div>
+        <div class="mode-title">练习模式</div>
+        <div class="mode-desc">随机选择 · 无排行榜</div>
+      </button>
+      <button class="mode-btn" data-action="practice-specify">
+        <div class="mode-icon">🔢</div>
+        <div class="mode-title">练习模式</div>
+        <div class="mode-desc">指定编号 · 无排行榜</div>
+      </button>
+      <button class="mode-btn challenge" data-action="challenge-bw">
+        <div class="mode-icon">⚪</div>
+        <div class="mode-title">挑战模式</div>
+        <div class="mode-desc">无数字 · 计入排行榜</div>
+      </button>
+      <button class="mode-btn challenge" data-action="challenge-num">
+        <div class="mode-icon">🔵</div>
+        <div class="mode-title">挑战模式</div>
+        <div class="mode-desc">有数字 · 计入排行榜</div>
+      </button>
     </div>
-    <span class="progress-label number-label" id="numberProgressLabel">0%</span>
+
+    <div class="user-row" id="homeUserRow">
+      <span id="homeUserStatus">未登录</span>
+      <button id="homeBtnLogin" class="link-btn">登录</button>
+      <button id="homeBtnRegister" class="link-btn">注册</button>
+      <button id="homeBtnLogout" class="link-btn" style="display:none;">退出</button>
+    </div>
   </div>
 
-  <div class="board-tools">
-    <button id="btnReset" class="btn ghost-btn icon-btn" title="重置盘面">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/>
-        <polyline points="3 3 3 8 8 8"/>
-      </svg>
-    </button>
-    <button id="btnUndo" class="btn ghost-btn icon-btn" title="撤回上一步" disabled>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 7v6h6"/>
-        <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
-      </svg>
-    </button>
-    <button id="btnRedo" class="btn ghost-btn icon-btn" title="前进下一步" disabled>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1);">
-        <path d="M3 7v6h6"/>
-        <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
-      </svg>
-    </button>
-    <button id="btnUpload" class="btn ghost-btn icon-btn" title="上传成绩" disabled>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 16V4"/>
-        <path d="M6 10l6-6 6 6"/>
-        <path d="M4 20h16"/>
-      </svg>
-    </button>
+  <div id="gameScreen">
+    <div class="game-header">
+      <button id="btnBack" class="btn-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        返回
+      </button>
+      <div class="mode-badge" id="modeBadge">
+        <span id="modeBadgeText">挑战 · 无数字</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="btnHelp" class="btn icon-btn" title="规则说明">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.1 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
+
+      <button id="btnMainAction" class="btn main-action">
+        <span id="btnMainActionText">新游戏</span>
+      </button>
+
+      <button id="btnAnswer" class="btn icon-btn answer" title="参考答案">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18h6"/>
+          <path d="M10 22h4"/>
+          <path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7z"/>
+        </svg>
+      </button>
+
+      <button id="btnLeaderboard" class="btn icon-btn" title="排行榜" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20V10"/>
+          <path d="M18 20V4"/>
+          <path d="M6 20v-4"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="user-row" id="gameUserRow">
+      <span id="gameUserStatus">未登录</span>
+      <button id="gameBtnLogin" class="link-btn">登录</button>
+      <button id="gameBtnRegister" class="link-btn">注册</button>
+      <button id="gameBtnLogout" class="link-btn" style="display:none;">退出</button>
+    </div>
+
+    <div class="meta">
+      <span>题号：<b id="seedShow">—</b></span>
+      <span id="progress">已放置 0 / 16</span>
+    </div>
+
+    <div class="timer-row" id="timerRow" style="display:none;">
+      <span id="timerDisplay">0s</span>
+    </div>
+
+    <div class="mode-row" id="digitRow" style="display:none;">
+      <span class="mode-label">数字显示 <span class="hint" id="modeHint">无数字</span></span>
+      <button id="digitSwitch" class="switch" role="switch" aria-pressed="false">
+        <span class="switch-knob"></span>
+      </button>
+    </div>
+    <div class="mode-row" id="colorRow">
+      <span class="mode-label">颜色显示 <span class="hint" id="colorHint">黑白</span></span>
+      <button id="colorSwitch" class="switch" role="switch" aria-pressed="false">
+        <span class="switch-knob"></span>
+      </button>
+    </div>
+    <div class="mode-row" id="targetRow">
+      <span class="mode-label">目标图案 <span class="hint" id="targetHint">打开来查看目标图案</span></span>
+      <button id="targetSwitch" class="switch" role="switch" aria-pressed="false">
+        <span class="switch-knob"></span>
+      </button>
+    </div>
+
+    <div class="progress-row">
+      <span class="progress-name">黑白匹配度</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <span class="progress-label" id="progressLabel">0%</span>
+    </div>
+    <div class="progress-row" id="numberProgressRow" style="display:none;">
+      <span class="progress-name">数字匹配度</span>
+      <div class="progress-track">
+        <div class="progress-fill number-fill" id="numberProgressFill"></div>
+      </div>
+      <span class="progress-label number-label" id="numberProgressLabel">0%</span>
+    </div>
+
+    <div class="board-tools">
+      <button id="btnReset" class="btn ghost-btn icon-btn" title="重置盘面">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/>
+          <polyline points="3 3 3 8 8 8"/>
+        </svg>
+      </button>
+      <button id="btnUndo" class="btn ghost-btn icon-btn" title="撤回上一步" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7v6h6"/>
+          <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+        </svg>
+      </button>
+      <button id="btnRedo" class="btn ghost-btn icon-btn" title="前进下一步" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1);">
+          <path d="M3 7v6h6"/>
+          <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+        </svg>
+      </button>
+      <button id="btnUpload" class="btn ghost-btn icon-btn" title="上传成绩" style="display:none;" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 16V4"/>
+          <path d="M6 10l6-6 6 6"/>
+          <path d="M4 20h16"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="board"></div>
+
+    <div class="pool-head" id="poolHead">备选碎片池</div>
+    <div id="pool" class="pool"></div>
   </div>
-
-  <div id="board"></div>
-
-  <div class="pool-head" id="poolHead">备选碎片池</div>
-  <div id="pool" class="pool"></div>
 </div>
 
 <div id="message" class="message">🎉 作答成功！</div>
@@ -644,12 +733,12 @@
   <div class="modal-box">
     <div class="modal-title">游戏规则</div>
     <div class="rules-content">
-      <span class="tip-line"><b>操作方式：</b>拖动 → 碎片可在操作盘面和碎片池之间交替移动，也能在操作盘面内任意移动 · 单击碎片顺时针方向旋转90° · 右键单击碎片（触屏：一指按住，另一指点击）逆时针旋转90° · 连续双击碎片左右镜像</span>
+      <span class="tip-line"><b>操作方式：</b>拖动 → 碎片可在操作盘面和碎片池之间交替移动 · 单击碎片顺时针旋转90° · 右键单击（触屏：一指按住，另一指点击）逆时针旋转90° · 连续双击碎片左右镜像</span>
       <span class="tip-line"><b>叠加规则：</b>同一格被覆盖奇数次为黑、偶数次为白</span>
-      <span class="tip-line" style="color:#b45309;font-weight:600;">参考答案：由于不是唯一解，答案仅供参考。所有碎片都是先旋转对应次数，再考虑是否镜像。单击盘面放置下一块，双击或右键盘面撤回至上一步。随机关卡下挑战模式开启且成绩有效时禁止查看答案。</span>
+      <span class="tip-line" style="color:#b45309;font-weight:600;">参考答案：单击盘面放置下一块，双击或右键盘面撤回至上一步。挑战模式进行中查看答案会作废本局成绩。</span>
       <span class="tip-line" style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示）。</span>
       <span class="tip-line" style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span>
-      <span class="tip-line" style="color:#7c3aed;font-weight:600;">排行榜上传条件：① 随机生成的关卡；② 挑战模式始终开启；③ 数字显示开关全程未被切换过。成绩无效后可以立即查看答案。</span>
+      <span class="tip-line" style="color:#7c3aed;font-weight:600;">挑战模式：进行中查看答案或点击"新游戏"都会作废本局成绩并打断连续记录。</span>
       <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片；若开启数字显示，数字也必须完全匹配。</span>
     </div>
     <div class="modal-actions" style="margin-top: 14px;">
@@ -677,10 +766,13 @@
 <div id="leaderboardModal" class="modal-mask">
   <div class="modal-box" style="max-width:380px;">
     <div class="modal-title">排行榜</div>
+    <div class="rank-subtitle" id="rankSubtitle">挑战模式 · 无数字</div>
     <div class="rank-tabs">
-      <button class="rank-tab active" data-tab="bw">无数字</button>
-      <button class="rank-tab" data-tab="num">有数字</button>
-      <button class="rank-tab" data-tab="total">总关卡数</button>
+      <button class="rank-tab active" data-tab="best">Best</button>
+      <button class="rank-tab" data-tab="mo3">MO3</button>
+      <button class="rank-tab" data-tab="ao5">AO5</button>
+      <button class="rank-tab" data-tab="ao12">AO12</button>
+      <button class="rank-tab" data-tab="amount">Amount</button>
     </div>
     <div class="rank-list" id="rankList"></div>
     <div class="modal-actions">
@@ -708,8 +800,8 @@
   const MAX_UNDO = 50;
   const STREAK_MAX = 12;
 
-  const STORAGE_SUCCESS = 'sm_success_v5';
-  const STORAGE_PROGRESS = 'sm_progress_v5';
+  const STORAGE_SUCCESS = 'sm_success_v6';
+  const STORAGE_PROGRESS = 'sm_progress_v7';
   const STORAGE_STREAK = 'sm_streak_v1';
 
   let BOARD_CELL = 44;
@@ -723,6 +815,10 @@
     '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'
   ];
 
+  let gameMode = 'practice';
+  let challengeSubMode = 'bw';
+  let gameTypeKey = 'practice-random';
+
   let pieces = [];
   let targetGrid = null;
   let answerPlacements = [];
@@ -730,12 +826,9 @@
   let answerMode = false;
   let answerIndex = 0;
   let solved = false;
+  let abandoned = false;       // 本局是否已作废（放弃或查看答案）
   let currentSeed = null;
   let isRandomChallenge = false;
-  let challengeModeEnabled = true;
-  let challengeModeEverDisabled = false;
-  let digitalModeEverToggled = false;
-  let previouslyValid = true;
   let challengeStartTime = null;
   let solvedElapsed = null;
   let timerInterval = null;
@@ -763,6 +856,8 @@
   let numbersLayer = null;
 
   const $ = id => document.getElementById(id);
+  const homeScreen = $('homeScreen');
+  const gameScreen = $('gameScreen');
   const boardEl = $('board');
   const poolEl = $('pool');
   const poolHead = $('poolHead');
@@ -773,28 +868,27 @@
   const numberProgressRow = $('numberProgressRow');
   const numberProgressFill = $('numberProgressFill');
   const numberProgressLabel = $('numberProgressLabel');
+  const btnBack = $('btnBack');
   const btnHelp = $('btnHelp');
   const btnLeaderboard = $('btnLeaderboard');
-  const btnRandom = $('btnRandom');
-  const btnSpecify = $('btnSpecify');
+  const btnMainAction = $('btnMainAction');
+  const btnMainActionText = $('btnMainActionText');
   const btnReset = $('btnReset');
   const btnAnswer = $('btnAnswer');
   const btnUndo = $('btnUndo');
   const btnRedo = $('btnRedo');
   const btnUpload = $('btnUpload');
-  const btnHistory = $('btnHistory');
   const messageEl = $('message');
   const toastEl = $('toast');
+  const digitRow = $('digitRow');
   const digitSwitch = $('digitSwitch');
   const modeHint = $('modeHint');
   const colorSwitch = $('colorSwitch');
   const colorHint = $('colorHint');
   const targetSwitch = $('targetSwitch');
   const targetHint = $('targetHint');
-  const challengeModeRow = $('challengeModeRow');
-  const challengeModeSwitch = $('challengeModeSwitch');
-  const challengeModeHint = $('challengeModeHint');
-  const validDot = $('validDot');
+  const modeBadge = $('modeBadge');
+  const modeBadgeText = $('modeBadgeText');
   const inputModal = $('inputModal');
   const seedInput = $('seedInput');
   const seedCancel = $('seedCancel');
@@ -807,10 +901,6 @@
   const rulesClose = $('rulesClose');
   const timerRow = $('timerRow');
   const timerDisplay = $('timerDisplay');
-  const userStatus = $('userStatus');
-  const btnLogin = $('btnLogin');
-  const btnRegister = $('btnRegister');
-  const btnLogout = $('btnLogout');
   const authModal = $('authModal');
   const authTitle = $('authTitle');
   const authEmail = $('authEmail');
@@ -822,8 +912,19 @@
   const leaderboardModal = $('leaderboardModal');
   const leaderboardClose = $('leaderboardClose');
   const rankList = $('rankList');
+  const rankSubtitle = $('rankSubtitle');
   const rankTabs = document.querySelectorAll('.rank-tab');
-  let currentRankTab = 'bw';
+  let currentRankTab = 'best';
+
+  const homeUserStatus = $('homeUserStatus');
+  const homeBtnLogin = $('homeBtnLogin');
+  const homeBtnRegister = $('homeBtnRegister');
+  const homeBtnLogout = $('homeBtnLogout');
+  const gameUserStatus = $('gameUserStatus');
+  const gameBtnLogin = $('gameBtnLogin');
+  const gameBtnRegister = $('gameBtnRegister');
+  const gameBtnLogout = $('gameBtnLogout');
+  const homeBtnHistory = $('homeBtnHistory');
 
   function getPieceColor(id) { return PIECE_COLORS[id % PIECE_COLORS.length]; }
   function formatDate(ts) {
@@ -859,6 +960,10 @@
     parts.push(sec + 's');
     return parts.join(' ');
   }
+  function formatDuration(seconds) {
+    if (seconds == null) return '—';
+    return formatTimer(seconds);
+  }
 
   function startTimer() {
     stopTimer();
@@ -888,75 +993,46 @@
     poolEl.style.gridTemplateColumns = 'repeat(4, ' + POOL_SLOT + 'px)';
   }
 
-  // 答案阻止条件：随机 + 成绩有效
-  function isAnswerBlocked() {
-    return isRandomChallenge && isValidForRank();
-  }
-
-  function isValidForRank() {
-    return isRandomChallenge
-      && challengeModeEnabled
-      && !challengeModeEverDisabled
-      && !digitalModeEverToggled;
-  }
-
-  // 有效性变化检测：true → false 时提示
-  function checkValidityChange() {
-    const currentlyValid = isValidForRank();
-    if (previouslyValid === true && currentlyValid === false) {
-      showToast('挑战模式有变动，本局成绩不计入排行榜', 3000);
-    }
-    previouslyValid = currentlyValid;
-  }
-
   function updateUserUI() {
-    if (currentUser) {
-      const name = (currentUser.username)
-        || (currentUser.user_metadata && currentUser.user_metadata.username)
-        || currentUser.email;
-      const uidText = currentUser.uid ? (' #' + currentUser.uid) : '';
-      userStatus.textContent = name + uidText;
-      userStatus.classList.add('username');
-      btnLogin.style.display = 'none';
-      btnRegister.style.display = 'none';
-      btnLogout.style.display = 'inline-block';
+    const name = currentUser
+      ? ((currentUser.username) || (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email) + (currentUser.uid ? (' #' + currentUser.uid) : '')
+      : null;
+    const isLoggedIn = !!currentUser;
+
+    if (isLoggedIn) {
+      homeUserStatus.textContent = name;
+      homeUserStatus.classList.add('username');
+      homeBtnLogin.style.display = 'none';
+      homeBtnRegister.style.display = 'none';
+      homeBtnLogout.style.display = 'inline-block';
+      gameUserStatus.textContent = name;
+      gameUserStatus.classList.add('username');
+      gameBtnLogin.style.display = 'none';
+      gameBtnRegister.style.display = 'none';
+      gameBtnLogout.style.display = 'inline-block';
     } else {
-      userStatus.textContent = '未登录';
-      userStatus.classList.remove('username');
-      btnLogin.style.display = 'inline-block';
-      btnRegister.style.display = 'inline-block';
-      btnLogout.style.display = 'none';
+      homeUserStatus.textContent = '未登录';
+      homeUserStatus.classList.remove('username');
+      homeBtnLogin.style.display = 'inline-block';
+      homeBtnRegister.style.display = 'inline-block';
+      homeBtnLogout.style.display = 'none';
+      gameUserStatus.textContent = '未登录';
+      gameUserStatus.classList.remove('username');
+      gameBtnLogin.style.display = 'inline-block';
+      gameBtnRegister.style.display = 'inline-block';
+      gameBtnLogout.style.display = 'none';
     }
   }
 
-  function hasSolvedChallenge(seed) {
-    if (!seed) return false;
-    return getSuccessList().some(s => s.seed === seed);
-  }
-  function isChallengeUploaded(seed) {
-    if (!seed) return false;
-    const item = getSuccessList().find(s => s.seed === seed);
-    return !!(item && item.uploaded);
-  }
   function updateUploadButton() {
+    if (gameMode !== 'challenge') { btnUpload.style.display = 'none'; return; }
+    btnUpload.style.display = 'inline-flex';
     if (!currentUser) { btnUpload.disabled = true; return; }
-    if (!solved || !isRandomChallenge) { btnUpload.disabled = true; return; }
-    if (!isValidForRank()) { btnUpload.disabled = true; return; }
-    if (isChallengeUploaded(currentSeed)) { btnUpload.disabled = true; return; }
+    if (!solved || abandoned) { btnUpload.disabled = true; return; }
+    if (isChallengeUploaded(currentSeed, digitalMode ? 'num' : 'bw', gameTypeKey)) {
+      btnUpload.disabled = true; return;
+    }
     btnUpload.disabled = false;
-  }
-
-  function updateValidDot() {
-    if (!isRandomChallenge) {
-      validDot.style.display = 'none';
-      return;
-    }
-    validDot.style.display = 'inline-block';
-    if (isValidForRank()) {
-      validDot.className = 'valid-dot valid';
-    } else {
-      validDot.className = 'valid-dot invalid';
-    }
   }
 
   function getSuccessList() {
@@ -970,30 +1046,32 @@
   function saveSuccessList(list) {
     try { localStorage.setItem(STORAGE_SUCCESS, JSON.stringify(list)); } catch (e) {}
   }
-  function recordSuccess(seed, mode, isRandom, elapsed, endedAt, validForRank) {
+  function isChallengeUploaded(seed, mode, gameType) {
+    if (!seed) return false;
+    const item = getSuccessList().find(s => s.seed === seed && s.mode === mode && s.gameType === gameType);
+    return !!(item && item.uploaded);
+  }
+  function recordSuccess(seed, mode, isRandom, elapsed, endedAt, gameType) {
     const list = getSuccessList();
-    const existing = list.find(s => s.seed === seed && s.mode === mode);
+    const existing = list.find(s => s.seed === seed && s.mode === mode && s.gameType === gameType);
     const endTime = endedAt || Date.now();
-    const needsUpload = isRandom && validForRank;
+    const needsUpload = (gameType === 'challenge-bw' || gameType === 'challenge-num');
     if (existing) {
       if (elapsed < existing.elapsed) existing.elapsed = elapsed;
       existing.time = endTime;
-      existing.isRandom = isRandom;
-      existing.validForRank = existing.validForRank || !!validForRank;
       if (!needsUpload) existing.uploaded = true;
     } else {
       list.push({
-        seed, mode, isRandom, elapsed,
+        seed, mode, isRandom, gameType, elapsed,
         time: endTime,
-        uploaded: !needsUpload,
-        validForRank: !!validForRank
+        uploaded: !needsUpload
       });
     }
     saveSuccessList(list);
   }
-  function markUploaded(seed, mode) {
+  function markUploaded(seed, mode, gameType) {
     const list = getSuccessList();
-    const item = list.find(s => s.seed === seed && s.mode === mode);
+    const item = list.find(s => s.seed === seed && s.mode === mode && s.gameType === gameType);
     if (item) { item.uploaded = true; saveSuccessList(list); }
   }
 
@@ -1022,13 +1100,24 @@
     streakNum = s.num;
   }
 
-  function getProgressData() {
+  function getAllProgressMap() {
     try {
       const raw = localStorage.getItem(STORAGE_PROGRESS);
-      if (!raw) return null;
-      return JSON.parse(raw);
-    } catch (e) { return null; }
+      if (!raw) return {};
+      const data = JSON.parse(raw);
+      return (data && typeof data === 'object' && !Array.isArray(data)) ? data : {};
+    } catch (e) { return {}; }
   }
+  function setProgressForMode(key, data) {
+    const all = getAllProgressMap();
+    all[key] = data;
+    try { localStorage.setItem(STORAGE_PROGRESS, JSON.stringify(all)); } catch (e) {}
+  }
+  function getProgressForMode(key) {
+    const all = getAllProgressMap();
+    return all[key] || null;
+  }
+
   function sanitizeSnapshot(snap) {
     if (!Array.isArray(snap)) return [];
     return snap.map(s => ({
@@ -1036,39 +1125,37 @@
       h: s.h, w: s.w, placed: !!s.placed, row: s.row || 0, col: s.col || 0
     }));
   }
+
   function saveProgress() {
     if (!currentSeed) return;
     if (answerMode) return;
-    try {
-      const data = {
-        seed: currentSeed,
-        mode: digitalMode ? 'num' : 'bw',
-        color: colorMode,
-        isRandom: isRandomChallenge,
-        challengeMode: challengeModeEnabled,
-        challengeModeEverDisabled: challengeModeEverDisabled,
-        digitalModeEverToggled: digitalModeEverToggled,
-        startTime: challengeStartTime,
-        solved: solved,
-        solvedElapsed: solvedElapsed,
-        pieces: pieces.map(p => ({
-          cells: p.cells.map(c => [c[0], c[1]]),
-          h: p.h, w: p.w, placed: p.placed, row: p.row, col: p.col
-        })),
-        undoStack: undoStack.slice(-MAX_UNDO),
-        redoStack: redoStack.slice(-MAX_UNDO),
-        saved: Date.now()
-      };
-      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify(data));
-    } catch (e) {}
+    const data = {
+      seed: currentSeed,
+      mode: digitalMode ? 'num' : 'bw',
+      color: colorMode,
+      isRandom: isRandomChallenge,
+      solved: solved,
+      abandoned: abandoned,
+      startTime: challengeStartTime,
+      solvedElapsed: solvedElapsed,
+      pieces: pieces.map(p => ({
+        cells: p.cells.map(c => [c[0], c[1]]),
+        h: p.h, w: p.w, placed: p.placed, row: p.row, col: p.col
+      })),
+      undoStack: undoStack.slice(-MAX_UNDO),
+      redoStack: redoStack.slice(-MAX_UNDO),
+      saved: Date.now()
+    };
+    setProgressForMode(gameTypeKey, data);
   }
   let saveTimer = null;
   function scheduleSaveProgress() {
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(saveProgress, 250);
   }
-  function loadProgress() {
-    const data = getProgressData();
+
+  function loadProgressForCurrentMode() {
+    const data = getProgressForMode(gameTypeKey);
     if (!data || !data.seed) return false;
     try {
       generateChallenge(data.seed, true, data.isRandom !== false);
@@ -1084,35 +1171,39 @@
       }
       digitalMode = data.mode === 'num';
       colorMode = !!data.color;
-      if (typeof data.challengeMode === 'boolean') {
-        challengeModeEnabled = data.challengeMode;
-      }
-      if (typeof data.challengeModeEverDisabled === 'boolean') {
-        challengeModeEverDisabled = data.challengeModeEverDisabled;
-      }
-      if (typeof data.digitalModeEverToggled === 'boolean') {
-        digitalModeEverToggled = data.digitalModeEverToggled;
-      }
-      previouslyValid = isValidForRank();
+      solved = !!data.solved;
+      abandoned = !!data.abandoned;
       undoStack = sanitizeSnapshot(data.undoStack).slice(-MAX_UNDO);
       redoStack = sanitizeSnapshot(data.redoStack).slice(-MAX_UNDO);
-      if (data.startTime && !data.solved) {
+
+      if (gameMode === 'challenge' && (solved || abandoned)) {
+        seedShow.textContent = currentSeed;
+      }
+
+      if (data.startTime && !solved && !abandoned) {
         challengeStartTime = data.startTime;
         timerRow.style.display = 'flex';
         updateTimerDisplay();
         timerInterval = setInterval(updateTimerDisplay, 1000);
-      } else if (data.solved) {
-        solved = true;
+      } else if (data.startTime) {
         solvedElapsed = data.solvedElapsed || 0;
         challengeStartTime = data.startTime;
         timerRow.style.display = 'flex';
-        timerDisplay.textContent = formatTimer(solvedElapsed);
-        if (data.isRandom) seedShow.textContent = data.seed;
+        if (solved) {
+          timerDisplay.textContent = formatTimer(solvedElapsed);
+        } else {
+          timerDisplay.textContent = formatTimer(
+            Math.floor((data.saved - data.startTime) / 1000)
+          );
+        }
+      } else {
+        timerRow.style.display = 'none';
       }
+
       renderAll();
       return true;
     } catch (e) {
-      console.error('恢复进度失败', e);
+      console.error('恢复进度失败:', e);
       return false;
     }
   }
@@ -1120,7 +1211,9 @@
   function pickNewSeed() {
     const currentMode = digitalMode ? 'num' : 'bw';
     const solvedSeeds = new Set(
-      getSuccessList().filter(s => s.mode === currentMode).map(s => s.seed)
+      getSuccessList()
+        .filter(s => s.mode === currentMode && (s.gameType === 'challenge-bw' || s.gameType === 'challenge-num'))
+        .map(s => s.seed)
     );
     let seed, attempts = 0;
     do {
@@ -1391,24 +1484,23 @@
     pieces = list;
     currentSeed = seed;
     isRandomChallenge = !!isRandom;
-    if (isRandom) {
-      challengeModeEnabled = true;
-      challengeModeEverDisabled = false;
-      digitalModeEverToggled = false;
-    } else {
-      challengeModeEnabled = false;
-      challengeModeEverDisabled = false;
-      digitalModeEverToggled = false;
+    if (gameMode === 'challenge') {
+      abandoned = false;
+      digitalMode = (challengeSubMode === 'num');
     }
-    previouslyValid = isValidForRank();
     solved = false;
     solvedElapsed = null;
     showingTarget = false;
     answerMode = false;
     answerIndex = 0;
     messageEl.classList.remove('show');
-    if (isRandom) seedShow.textContent = '？？？';
-    else seedShow.textContent = seed;
+
+    if (gameMode === 'practice') {
+      seedShow.textContent = seed;
+    } else {
+      seedShow.textContent = '？？？';
+    }
+
     renderAll();
     updateUploadButton();
     if (!skipSave) { startTimer(); scheduleSaveProgress(); }
@@ -1443,19 +1535,31 @@
     renderPool(); renderPiecesLayer(); updateBoardView();
     updateProgressText(); updateButtonStates(); updateModeUI();
   }
+
+  // ⭐ 答案按钮不再禁用
+  function isAnswerBlocked() {
+    return false;
+  }
+
   function updateModeUI() {
     boardEl.classList.toggle('answer-mode', answerMode);
     poolEl.classList.toggle('dim', showingTarget && !answerMode);
     poolHead.textContent = answerMode ? '备选碎片池（答案标注）' : '备选碎片池';
     btnAnswer.classList.toggle('active', answerMode);
 
-    challengeModeRow.style.display = isRandomChallenge ? 'flex' : 'none';
-    challengeModeSwitch.setAttribute('aria-pressed', String(challengeModeEnabled));
-    challengeModeHint.textContent = isAnswerBlocked()
-      ? '关闭后方可查看答案'
-      : '当前可查看答案';
+    if (gameMode === 'challenge') {
+      modeBadge.classList.add('challenge-badge');
+      modeBadgeText.textContent = '挑战模式 · ' + (challengeSubMode === 'num' ? '有数字' : '无数字');
+    } else {
+      modeBadge.classList.remove('challenge-badge');
+      const sub = (gameTypeKey === 'practice-specify' ? '指定编号' : '随机选择');
+      modeBadgeText.textContent = '练习模式 · ' + sub;
+    }
 
-    updateValidDot();
+    btnMainActionText.textContent = '新游戏';
+
+    btnLeaderboard.style.display = (gameMode === 'challenge') ? 'inline-flex' : 'none';
+    digitRow.style.display = (gameMode === 'practice') ? 'flex' : 'none';
 
     digitSwitch.setAttribute('aria-pressed', String(digitalMode));
     modeHint.textContent = digitalMode ? '数字已开启' : '无数字';
@@ -1470,17 +1574,15 @@
     numberProgressRow.style.display = digitalMode ? 'flex' : 'none';
 
     updateUndoButton(); updateRedoButton(); updateUploadButton();
-    const blocked = isAnswerBlocked();
-    btnAnswer.disabled = blocked || !targetGrid;
+    // ⭐ 答案按钮始终可用（有题时）
+    btnAnswer.disabled = !targetGrid;
   }
+
   function updateButtonStates() {
     btnReset.disabled = answerMode;
-    btnRandom.disabled = false;
-    btnSpecify.disabled = false;
-    const blocked = isAnswerBlocked();
-    btnAnswer.disabled = blocked || !targetGrid;
-    btnHistory.disabled = false;
+    btnAnswer.disabled = !targetGrid;
   }
+
   function updateBoardView() {
     let grid, matchGrid;
     if (answerMode) { grid = computeAnswerGrid(answerIndex); matchGrid = grid; }
@@ -1554,6 +1656,7 @@
     updateMatchBars(matchGrid);
     updateNumbersLayer();
   }
+
   function updateNumbersLayer() {
     if (!numbersLayer) return;
     if (!digitalMode) { numbersLayer.innerHTML = ''; return; }
@@ -1588,6 +1691,7 @@
     numbersLayer.innerHTML = '';
     numbersLayer.appendChild(frag);
   }
+
   function updateMatchBars(blackGrid) {
     let matched = 0;
     if (targetGrid && blackGrid) {
@@ -1624,6 +1728,7 @@
       numberProgressLabel.classList.toggle('full', numFull);
     }
   }
+
   function updateProgressText() {
     if (answerMode) progressEl.textContent = '答案演示 ' + answerIndex + ' / ' + PIECE_COUNT;
     else {
@@ -1631,6 +1736,7 @@
       progressEl.textContent = '已放置 ' + n + ' / ' + PIECE_COUNT;
     }
   }
+
   function renderPool() {
     poolEl.innerHTML = '';
     for (const p of pieces) {
@@ -1685,6 +1791,7 @@
       poolEl.appendChild(item);
     }
   }
+
   function renderPiecesLayer() {
     if (!piecesLayer) return;
     piecesLayer.innerHTML = '';
@@ -1893,12 +2000,30 @@
       if (answerIndex < answerPlacements.length) { answerIndex++; renderAll(); }
     }, ANSWER_DOUBLE_TAP_MS);
   }
-  function toggleAnswerMode() {
+
+  // ⭐ 查看答案：挑战未完成且未 abandoned 时先弹确认
+  async function toggleAnswerMode() {
     if (!targetGrid) return;
-    if (isAnswerBlocked()) {
-      showToast('挑战模式开启且成绩有效时，无法查看答案', 2000);
-      return;
+
+    if (gameMode === 'challenge' && !solved && !abandoned) {
+      // 弹确认框
+      const modeText = digitalMode ? '有数字' : '无数字';
+      const ok = confirm(
+        '当前挑战尚未完成。\n\n' +
+        '查看答案会导致本局成绩作废，并打断你在「' + modeText + '」模式下的连续成绩记录。\n\n' +
+        '确定要查看答案吗？'
+      );
+      if (!ok) return;
+      // 用户确认 → 作废本局
+      abandoned = true;
+      stopTimer();
+      await clearStreakOnServer(digitalMode ? 'num' : 'bw');
+      scheduleSaveProgress();
+      updateUploadButton();
+      showToast('本局成绩已作废，连续记录已重置', 2500);
     }
+
+    // 进入答案演示
     cancelPendingTap(); abortDrag(); activePointerIds.clear(); resetAnswerTapState();
     answerMode = !answerMode;
     if (answerMode) { answerIndex = 0; showingTarget = false; }
@@ -1923,10 +2048,11 @@
 
   function checkWin() {
     if (!targetGrid || answerMode) return;
+    if (abandoned) return;
     if (pieces.some(p => !p.placed)) {
       solved = false;
       updateUploadButton();
-      updateValidDot();
+      updateModeUI();
       return;
     }
     const g = computeGrid(pieces);
@@ -1951,7 +2077,9 @@
         messageEl.classList.add('show');
         setTimeout(() => messageEl.classList.remove('show'), 2600);
 
-        if (isRandomChallenge) seedShow.textContent = currentSeed;
+        if (gameMode === 'challenge') {
+          seedShow.textContent = currentSeed;
+        }
 
         stopTimer();
         const endTime = Date.now();
@@ -1960,25 +2088,20 @@
           : 0;
 
         const mode = digitalMode ? 'num' : 'bw';
-        const valid = isValidForRank();
-        const alreadySolved = hasSolvedChallenge(currentSeed);
-        const alreadyUploaded = isChallengeUploaded(currentSeed);
+        recordSuccess(currentSeed, mode, isRandomChallenge, solvedElapsed, endTime, gameTypeKey);
 
-        recordSuccess(currentSeed, mode, isRandomChallenge, solvedElapsed, endTime, valid);
-
-        if (!alreadySolved && !alreadyUploaded && valid &&
-            currentUser && supabase) {
-          uploadScore(currentSeed, mode, solvedElapsed, endTime);
+        if (gameMode === 'challenge' && currentUser && supabase) {
+          uploadScore(currentSeed, mode, solvedElapsed, endTime, gameTypeKey);
         }
 
         updateUploadButton();
-        updateValidDot();
+        updateModeUI();
         scheduleSaveProgress();
       }
     } else {
       solved = false;
       updateUploadButton();
-      updateValidDot();
+      updateModeUI();
     }
   }
 
@@ -2010,54 +2133,65 @@
 
   function renderHistory() {
     const successes = getSuccessList();
-    const progress = getProgressData();
+    const allProgress = getAllProgressMap();
     const items = [];
-    if (progress && progress.seed) {
-      items.push({
-        seed: progress.seed,
-        mode: progress.mode,
-        isRandom: progress.isRandom !== false,
-        time: progress.saved,
-        ongoing: true,
-        duration: progress.solved ? progress.solvedElapsed : null
-      });
-    }
+
+    const progressList = [];
+    Object.keys(allProgress).forEach(key => {
+      const p = allProgress[key];
+      if (p && p.seed && !p.solved && !p.abandoned) {
+        progressList.push({
+          seed: p.seed,
+          mode: p.mode,
+          gameType: key,
+          time: p.saved,
+          ongoing: true,
+          duration: null
+        });
+      }
+    });
+    progressList.sort((a, b) => (b.time || 0) - (a.time || 0));
+    progressList.forEach(it => items.push(it));
+
     successes.slice().sort((a, b) => (b.time || 0) - (a.time || 0)).forEach(s => {
       items.push({
         seed: s.seed,
         mode: s.mode,
-        isRandom: s.isRandom !== false,
+        gameType: s.gameType,
         time: s.time,
         ongoing: false,
         uploaded: s.uploaded,
-        validForRank: s.validForRank,
         duration: s.elapsed
       });
     });
+
     if (items.length === 0) {
       historyList.innerHTML = '<div class="history-empty">暂无记录</div>';
       return;
     }
+
     historyList.innerHTML = items.map(it => {
       const modeText = modeLabel(it.mode);
-      const typeText = it.isRandom ? '随机' : '指定';
+      const isPractice = (it.gameType === 'practice-random' || it.gameType === 'practice-specify');
+      const isChallengeOngoing = it.ongoing && !isPractice;
+      const gameText = isPractice ? '练习' : '挑战';
+      const typeText = (it.gameType === 'practice-specify') ? '指定' : '随机';
       const timeText = it.time ? formatDateShort(it.time) : '—';
+      const seedText = isChallengeOngoing ? '？？？' : ('#' + it.seed);
       const tag = it.ongoing
         ? '<span class="history-tag ongoing">进行中</span>'
-        : '<span class="history-tag success">成功</span>';
+        : (isPractice ? '<span class="history-tag practice">练习</span>' : '<span class="history-tag success">成功</span>');
       let uploadMark = '';
-      if (!it.ongoing && it.uploaded === false && it.isRandom && it.validForRank) {
+      if (!it.ongoing && !isPractice && it.uploaded === false) {
         uploadMark = ' <span style="color:#dc2626;font-size:10px;">未上传</span>';
-      } else if (!it.ongoing && it.isRandom && !it.validForRank) {
-        uploadMark = ' <span style="color:#94a3b8;font-size:10px;">不计榜</span>';
       }
       let durationHtml = '';
       if (it.duration != null) {
         durationHtml = '<div class="history-duration">挑战用时：' + formatTimer(it.duration) + '</div>';
       }
       return '<div class="history-item">' +
-        '<div class="history-row1"><span class="history-seed">#' + it.seed + '</span>' + tag + '</div>' +
-        '<div class="history-row2"><span>模式：' + modeText + ' | ' + typeText + '</span>' +
+        '<div class="history-row1"><span class="history-seed">' + seedText + '</span>' + tag + '</div>' +
+        '<div class="history-row2"><span>' + gameText + ' · ' + modeText + ' · ' + typeText + '</span>' +
         '<span>' + timeText + uploadMark + '</span></div>' +
         durationHtml +
       '</div>';
@@ -2091,6 +2225,8 @@
             id: currentUser.id,
             username: username,
             total_wins: 0,
+            bw_wins: 0,
+            num_wins: 0,
             streak_bw: [],
             streak_num: []
           })
@@ -2175,21 +2311,22 @@
       const localList = getSuccessList();
       const map = new Map();
       localList.forEach(item => {
-        map.set(item.seed + '|' + item.mode, item);
+        map.set((item.seed || '') + '|' + (item.mode || '') + '|' + (item.gameType || 'challenge-bw'), item);
       });
       data.forEach(rec => {
-        const key = rec.seed + '|' + rec.mode;
+        const gameType = rec.mode === 'num' ? 'challenge-num' : 'challenge-bw';
+        const key = rec.seed + '|' + rec.mode + '|' + gameType;
         const existing = map.get(key);
         const recTime = new Date(rec.ended_at).getTime();
         if (!existing) {
           map.set(key, {
             seed: rec.seed,
             mode: rec.mode,
+            gameType: gameType,
             isRandom: rec.is_random,
             elapsed: rec.elapsed,
             time: recTime,
-            uploaded: true,
-            validForRank: true
+            uploaded: true
           });
         } else {
           if (rec.elapsed < existing.elapsed) {
@@ -2198,17 +2335,16 @@
           }
           existing.uploaded = true;
           existing.isRandom = rec.is_random;
-          existing.validForRank = true;
         }
       });
       saveSuccessList(Array.from(map.values()));
       renderHistory();
     } catch (e) {
-      console.warn('同步云端记录失败', e);
+      console.warn('同步云端记录失败:', e);
     }
   }
 
-  async function uploadScore(seed, mode, elapsed, endedAt) {
+  async function uploadScore(seed, mode, elapsed, endedAt, gameType) {
     if (!supabase || !currentUser) return false;
     try {
       const username = currentUser.username
@@ -2228,27 +2364,29 @@
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('total_wins, streak_bw, streak_num')
+        .select('total_wins, bw_wins, num_wins, streak_bw, streak_num')
         .eq('id', currentUser.id)
         .single();
 
       let localStreakBw = Array.isArray(profile && profile.streak_bw) ? profile.streak_bw.slice() : [];
       let localStreakNum = Array.isArray(profile && profile.streak_num) ? profile.streak_num.slice() : [];
+      let bwWins = (profile && profile.bw_wins) || 0;
+      let numWins = (profile && profile.num_wins) || 0;
 
       if (mode === 'bw') {
         localStreakBw.push(elapsed);
-        if (localStreakBw.length > STREAK_MAX) {
-          localStreakBw = localStreakBw.slice(-STREAK_MAX);
-        }
+        if (localStreakBw.length > STREAK_MAX) localStreakBw = localStreakBw.slice(-STREAK_MAX);
+        bwWins += 1;
       } else {
         localStreakNum.push(elapsed);
-        if (localStreakNum.length > STREAK_MAX) {
-          localStreakNum = localStreakNum.slice(-STREAK_MAX);
-        }
+        if (localStreakNum.length > STREAK_MAX) localStreakNum = localStreakNum.slice(-STREAK_MAX);
+        numWins += 1;
       }
 
       const updateData = {
         total_wins: ((profile && profile.total_wins) || 0) + 1,
+        bw_wins: bwWins,
+        num_wins: numWins,
         streak_bw: localStreakBw,
         streak_num: localStreakNum,
         updated_at: new Date().toISOString()
@@ -2268,10 +2406,10 @@
       streakNum = localStreakNum;
       saveLocalStreak();
 
-      markUploaded(seed, mode);
+      markUploaded(seed, mode, gameType);
       return true;
     } catch (e) {
-      console.error('上传失败', e);
+      console.error('上传失败:', e);
       return false;
     }
   }
@@ -2279,12 +2417,14 @@
   async function retryOfflineUploads() {
     if (!supabase || !currentUser) return;
     const list = getSuccessList();
-    const pending = list.filter(s => s.isRandom && !s.uploaded && s.validForRank);
+    const pending = list.filter(s =>
+      (s.gameType === 'challenge-bw' || s.gameType === 'challenge-num') && !s.uploaded
+    );
     if (pending.length === 0) return;
     pending.sort((a, b) => (a.time || 0) - (b.time || 0));
     let successCount = 0;
     for (const item of pending) {
-      const ok = await uploadScore(item.seed, item.mode, item.elapsed, item.time || Date.now());
+      const ok = await uploadScore(item.seed, item.mode, item.elapsed, item.time || Date.now(), item.gameType);
       if (ok) successCount++;
     }
     if (successCount > 0) {
@@ -2294,7 +2434,12 @@
   }
 
   async function clearStreakOnServer(mode) {
-    if (!supabase || !currentUser) return;
+    if (!supabase || !currentUser) {
+      if (mode === 'bw') streakBw = [];
+      else streakNum = [];
+      saveLocalStreak();
+      return;
+    }
     try {
       const field = mode === 'bw' ? 'streak_bw' : 'streak_num';
       const updateData = {};
@@ -2319,11 +2464,12 @@
     authEmail.value = ''; authPassword.value = ''; authUsername.value = '';
     authModal.classList.add('show');
   }
-  btnLogin.addEventListener('click', () => showAuthModal('login'));
-  btnRegister.addEventListener('click', () => showAuthModal('register'));
-  btnLogout.addEventListener('click', async () => {
-    if (supabase) await supabase.auth.signOut();
-  });
+  homeBtnLogin.addEventListener('click', () => showAuthModal('login'));
+  homeBtnRegister.addEventListener('click', () => showAuthModal('register'));
+  gameBtnLogin.addEventListener('click', () => showAuthModal('login'));
+  gameBtnRegister.addEventListener('click', () => showAuthModal('register'));
+  homeBtnLogout.addEventListener('click', async () => { if (supabase) await supabase.auth.signOut(); });
+  gameBtnLogout.addEventListener('click', async () => { if (supabase) await supabase.auth.signOut(); });
   authSwitch.addEventListener('click', () => showAuthModal(authMode === 'login' ? 'register' : 'login'));
   authCancel.addEventListener('click', () => authModal.classList.remove('show'));
   authSubmit.addEventListener('click', async () => {
@@ -2347,16 +2493,13 @@
             .select('username')
             .eq('username', username)
             .maybeSingle();
-          if (existing) {
-            throw new Error('USERNAME_TAKEN');
-          }
+          if (existing) throw new Error('USERNAME_TAKEN');
         } catch (e) {
           if (e && e.message === 'USERNAME_TAKEN') {
             alert('该用户名「' + username + '」已被占用，请更换其他用户名');
             authSubmit.disabled = false;
             return;
           }
-          console.warn('用户名检查失败:', e);
         }
 
         const { data, error } = await supabase.auth.signUp({
@@ -2372,6 +2515,8 @@
               id: data.user.id,
               username: username,
               total_wins: 0,
+              bw_wins: 0,
+              num_wins: 0,
               streak_bw: [],
               streak_num: []
             });
@@ -2382,7 +2527,6 @@
               authSubmit.disabled = false;
               return;
             }
-            console.warn('插入 profiles 失败:', insertErr);
           }
         }
 
@@ -2396,11 +2540,7 @@
     } catch (e) {
       const msg = (e.message || '').toLowerCase();
       if (msg.includes('email rate limit') || msg.includes('rate limit')) {
-        alert(
-          '注册过于频繁，请稍后再试。\n\n' +
-          '（这是 Supabase 免费版的邮件发送限制。\n' +
-          '如需立刻注册，请联系管理员关闭邮箱验证功能。）'
-        );
+        alert('注册过于频繁，请稍后再试。\n\n（这是 Supabase 免费版的邮件发送限制，建议关闭邮箱验证功能以避免此问题）');
       } else if (msg.includes('user already registered') || msg.includes('already registered')) {
         alert('该邮箱已被注册，请直接登录或更换邮箱');
       } else if (msg.includes('已被占用')) {
@@ -2415,7 +2555,6 @@
     }
   });
 
-  // ============ 滑动窗口（速拧标准） ============
   function calcBest(arr) {
     if (!arr || arr.length === 0) return null;
     return Math.min(...arr);
@@ -2453,126 +2592,241 @@
     return best;
   }
 
-  function formatDuration(seconds) {
-    if (seconds == null) return '—';
-    const s = Math.max(0, Math.floor(seconds));
-    const d = Math.floor(s / 86400);
-    const h = Math.floor((s % 86400) / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    let parts = [];
-    if (d > 0) parts.push(d + 'd');
-    if (h > 0) parts.push(h + 'h');
-    if (m > 0) parts.push(m + 'm');
-    parts.push(sec + 's');
-    return parts.join(' ');
-  }
-
   async function loadRanking(tab) {
     if (!supabase) { rankList.innerHTML = '<div class="rank-empty">服务尚未就绪</div>'; return; }
     rankList.innerHTML = '<div class="rank-empty">加载中...</div>';
     try {
-      if (tab === 'bw' || tab === 'num') {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('uid, username, streak_bw, streak_num, total_wins')
-          .limit(500);
-        if (error) throw error;
-        if (!data || data.length === 0) {
-          rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
-          return;
-        }
+      const isNum = (challengeSubMode === 'num');
+      rankSubtitle.textContent = '挑战模式 · ' + (isNum ? '有数字' : '无数字');
 
-        const items = [];
-        data.forEach(prof => {
-          const arr = tab === 'bw'
-            ? (Array.isArray(prof.streak_bw) ? prof.streak_bw : [])
-            : (Array.isArray(prof.streak_num) ? prof.streak_num : []);
-          if (arr.length === 0) return;
-          const best = calcBest(arr);
-          const mo3 = calcMO3(arr);
-          const ao5 = calcAO5(arr);
-          const ao12 = calcAO12(arr);
-          if (best == null) return;
-          items.push({
-            uid: prof.uid,
-            username: prof.username,
-            best: best,
-            mo3: mo3,
-            ao5: ao5,
-            ao12: ao12
-          });
-        });
-
-        if (items.length === 0) {
-          rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
-          return;
-        }
-
-        items.sort((a, b) => a.best - b.best);
-        const top = items.slice(0, 100);
-
-        let html = '';
-        top.forEach((item, index) => {
-          const uidTag = item.uid ? '<span class="uid-tag">#' + item.uid + '</span> ' : '';
-          const bestStr = formatDuration(item.best);
-          const mo3Str = item.mo3 == null ? '—' : formatDuration(item.mo3);
-          const ao5Str = item.ao5 == null ? '—' : formatDuration(item.ao5);
-          const ao12Str = item.ao12 == null ? '—' : formatDuration(item.ao12);
-          const mo3Cls = item.mo3 == null ? 'metric na' : 'metric';
-          const ao5Cls = item.ao5 == null ? 'metric na' : 'metric';
-          const ao12Cls = item.ao12 == null ? 'metric na' : 'metric';
-          html += '<div class="rank-item">' +
-            '<div class="rank-main">' +
-              '<span class="rank-no">' + (index + 1) + '</span>' +
-              '<span class="rank-name">' + uidTag + (item.username || '匿名') + '</span>' +
-              '<span class="rank-score">Best ' + bestStr + '</span>' +
-            '</div>' +
-            '<div class="rank-metrics">' +
-              '<span class="' + mo3Cls + '">MO3: ' + mo3Str + '</span>' +
-              '<span class="' + ao5Cls + '">AO5: ' + ao5Str + '</span>' +
-              '<span class="' + ao12Cls + '">AO12: ' + ao12Str + '</span>' +
-            '</div>' +
-          '</div>';
-        });
-        rankList.innerHTML = html;
-
-      } else {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('uid, username, total_wins')
-          .order('total_wins', { ascending: false })
-          .limit(100);
-        if (error) throw error;
-        if (!data || data.length === 0) {
-          rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
-          return;
-        }
-        const filtered = data.filter(d => (d.total_wins || 0) > 0);
-        if (filtered.length === 0) {
-          rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
-          return;
-        }
-        let html = '';
-        filtered.forEach((item, index) => {
-          const uidTag = item.uid ? '<span class="uid-tag">#' + item.uid + '</span> ' : '';
-          html += '<div class="rank-item">' +
-            '<div class="rank-main">' +
-              '<span class="rank-no">' + (index + 1) + '</span>' +
-              '<span class="rank-name">' + uidTag + (item.username || '匿名') + '</span>' +
-              '<span class="rank-score">' + (item.total_wins || 0) + ' 关</span>' +
-            '</div>' +
-          '</div>';
-        });
-        rankList.innerHTML = html;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('uid, username, streak_bw, streak_num, bw_wins, num_wins, total_wins')
+        .limit(500);
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
+        return;
       }
+
+      const items = [];
+      data.forEach(prof => {
+        const arr = isNum
+          ? (Array.isArray(prof.streak_num) ? prof.streak_num : [])
+          : (Array.isArray(prof.streak_bw) ? prof.streak_bw : []);
+        const amount = isNum ? (prof.num_wins || 0) : (prof.bw_wins || 0);
+        const best = calcBest(arr);
+        const mo3 = calcMO3(arr);
+        const ao5 = calcAO5(arr);
+        const ao12 = calcAO12(arr);
+        if (best == null && amount === 0) return;
+        items.push({
+          uid: prof.uid,
+          username: prof.username,
+          best, mo3, ao5, ao12,
+          amount: amount
+        });
+      });
+
+      if (items.length === 0) {
+        rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
+        return;
+      }
+
+      let sorted, scoreFn;
+      if (tab === 'best') {
+        sorted = items.filter(it => it.best != null).sort((a, b) => a.best - b.best);
+        scoreFn = it => formatDuration(it.best);
+      } else if (tab === 'mo3') {
+        sorted = items.filter(it => it.mo3 != null).sort((a, b) => a.mo3 - b.mo3);
+        scoreFn = it => formatDuration(it.mo3);
+      } else if (tab === 'ao5') {
+        sorted = items.filter(it => it.ao5 != null).sort((a, b) => a.ao5 - b.ao5);
+        scoreFn = it => formatDuration(it.ao5);
+      } else if (tab === 'ao12') {
+        sorted = items.filter(it => it.ao12 != null).sort((a, b) => a.ao12 - b.ao12);
+        scoreFn = it => formatDuration(it.ao12);
+      } else {
+        sorted = items.filter(it => it.amount > 0).sort((a, b) => b.amount - a.amount);
+        scoreFn = it => it.amount + ' 次';
+      }
+
+      sorted = sorted.slice(0, 100);
+      if (sorted.length === 0) {
+        rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
+        return;
+      }
+
+      let html = '';
+      sorted.forEach((item, index) => {
+        const uidTag = item.uid ? '<span class="uid-tag">#' + item.uid + '</span> ' : '';
+        html += '<div class="rank-item">' +
+          '<div class="rank-main">' +
+            '<span class="rank-no">' + (index + 1) + '</span>' +
+            '<span class="rank-name">' + uidTag + (item.username || '匿名') + '</span>' +
+            '<span class="rank-score">' + scoreFn(item) + '</span>' +
+          '</div>' +
+        '</div>';
+      });
+      rankList.innerHTML = html;
     } catch (e) {
       console.error(e);
       rankList.innerHTML = '<div class="rank-empty">加载失败</div>';
     }
   }
 
+  function startMode(action) {
+    if (currentSeed && gameScreen.classList.contains('active')) {
+      saveProgress();
+    }
+
+    if (action === 'practice-random') {
+      gameMode = 'practice';
+      challengeSubMode = 'bw';
+      gameTypeKey = 'practice-random';
+      digitalMode = false;
+      isRandomChallenge = true;
+      enterGameAndStart();
+    } else if (action === 'practice-specify') {
+      gameMode = 'practice';
+      challengeSubMode = 'bw';
+      gameTypeKey = 'practice-specify';
+      digitalMode = false;
+      isRandomChallenge = false;
+      homeScreen.classList.add('hidden');
+      gameScreen.classList.add('active');
+      if (!loadProgressForCurrentMode()) {
+        showInputModal('').then(v => {
+          if (v === null) {
+            gameScreen.classList.remove('active');
+            homeScreen.classList.remove('hidden');
+            return;
+          }
+          const n = Number(String(v).trim());
+          if (!Number.isInteger(n) || n < 1 || n > 100000) {
+            alert('编号无效，请输入 1 ~ 100000 之间的整数。');
+            gameScreen.classList.remove('active');
+            homeScreen.classList.remove('hidden');
+            return;
+          }
+          generateChallenge(n, false, false);
+        });
+      } else {
+        updateUndoButton(); updateRedoButton();
+      }
+      updateModeUI();
+      return;
+    } else if (action === 'challenge-bw') {
+      gameMode = 'challenge';
+      challengeSubMode = 'bw';
+      gameTypeKey = 'challenge-bw';
+      digitalMode = false;
+      isRandomChallenge = true;
+      enterGameAndStart();
+    } else if (action === 'challenge-num') {
+      gameMode = 'challenge';
+      challengeSubMode = 'num';
+      gameTypeKey = 'challenge-num';
+      digitalMode = true;
+      isRandomChallenge = true;
+      enterGameAndStart();
+    }
+  }
+
+  function enterGameAndStart() {
+    homeScreen.classList.add('hidden');
+    gameScreen.classList.add('active');
+    if (!loadProgressForCurrentMode()) {
+      const s = pickNewSeed();
+      generateChallenge(s, false, true);
+    } else {
+      updateUndoButton(); updateRedoButton();
+    }
+    updateModeUI();
+  }
+
+  function backToHome() {
+    if (currentSeed) saveProgress();
+    gameScreen.classList.remove('active');
+    homeScreen.classList.remove('hidden');
+    stopTimer();
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => startMode(btn.dataset.action));
+  });
+
+  btnBack.addEventListener('click', backToHome);
+  homeBtnHistory.addEventListener('click', openHistory);
+  btnHelp.addEventListener('click', openRules);
+  rulesClose.addEventListener('click', closeRules);
+  rulesModal.addEventListener('click', (e) => { if (e.target === rulesModal) closeRules(); });
+
+  // ⭐ 主按钮：挑战模式未完成且未作废时弹确认；若已查看答案（abandoned=true），不再弹
+  btnMainAction.addEventListener('click', async () => {
+    if (gameMode === 'challenge') {
+      if (currentSeed && !solved && !abandoned) {
+        const modeText = digitalMode ? '有数字' : '无数字';
+        const ok = confirm(
+          '当前挑战尚未完成。\n\n' +
+          '开始新游戏将放弃当前挑战，并打断你在「' + modeText + '」模式下的连续成绩记录。\n\n' +
+          '确定要开始新游戏吗？'
+        );
+        if (!ok) return;
+        await clearStreakOnServer(digitalMode ? 'num' : 'bw');
+        abandoned = true;
+        stopTimer();
+        scheduleSaveProgress();
+      }
+      generateChallenge(pickNewSeed(), false, true);
+    } else {
+      if (gameTypeKey === 'practice-random') {
+        generateChallenge(pickNewSeed(), false, true);
+      } else {
+        const input = await showInputModal('');
+        if (input === null) return;
+        const n = Number(String(input).trim());
+        if (!Number.isInteger(n) || n < 1 || n > 100000) {
+          alert('编号无效，请输入 1 ~ 100000 之间的整数。');
+          return;
+        }
+        generateChallenge(n, false, false);
+      }
+    }
+  });
+
+  btnReset.addEventListener('click', resetBoard);
+  btnAnswer.addEventListener('click', toggleAnswerMode);
+  btnUndo.addEventListener('click', () => { if (answerMode) return; popUndo(); });
+  btnRedo.addEventListener('click', () => { if (answerMode) return; popRedo(); });
+
+  btnUpload.addEventListener('click', async () => {
+    if (gameMode !== 'challenge') { alert('练习模式不能上传成绩'); return; }
+    if (!supabase) { alert('服务尚未就绪'); return; }
+    if (!currentUser) { alert('请先登录账号'); return; }
+    if (!solved || abandoned) { alert('本局未成功或已作废，无法上传'); return; }
+    if (solvedElapsed == null) { alert('无法获取用时'); return; }
+    const mode = digitalMode ? 'num' : 'bw';
+    const endedAt = Date.now();
+    const ok = await uploadScore(currentSeed, mode, solvedElapsed, endedAt, gameTypeKey);
+    showToast(ok ? '成绩上传成功！' : '上传失败，请检查网络');
+    updateUploadButton();
+  });
+
+  historyClose.addEventListener('click', closeHistory);
+  historyClear.addEventListener('click', () => {
+    if (!confirm('确定清空全部本地历史记录吗？（云端记录不会删除）')) return;
+    try {
+      localStorage.removeItem(STORAGE_SUCCESS);
+      localStorage.removeItem(STORAGE_PROGRESS);
+    } catch (e) {}
+    if (currentUser) syncRecordsFromCloud();
+    else renderHistory();
+  });
+  historyModal.addEventListener('click', (e) => { if (e.target === historyModal) closeHistory(); });
+
   btnLeaderboard.addEventListener('click', () => {
+    if (gameMode !== 'challenge') return;
     leaderboardModal.classList.add('show');
     loadRanking(currentRankTab);
   });
@@ -2586,90 +2840,12 @@
     });
   });
 
-  btnHelp.addEventListener('click', openRules);
-  rulesClose.addEventListener('click', closeRules);
-  rulesModal.addEventListener('click', (e) => { if (e.target === rulesModal) closeRules(); });
-
-  btnRandom.addEventListener('click', async () => {
-    if (isRandomChallenge && currentSeed != null && !solved) {
-      const mode = digitalMode ? 'num' : 'bw';
-      const arr = mode === 'bw' ? streakBw : streakNum;
-      if (arr.length > 0) {
-        const modeText = digitalMode ? '有数字' : '无数字';
-        const ok = confirm(
-          '当前题目尚未通关，直接开始新题会打断你在「' + modeText + '」模式下的连续成绩记录（当前连续 ' + arr.length + ' 次）。\n\n' +
-          '确定要放弃本局并开始新题吗？'
-        );
-        if (!ok) return;
-        await clearStreakOnServer(mode);
-      }
-    }
-    generateChallenge(pickNewSeed(), false, true);
-  });
-
-  btnSpecify.addEventListener('click', async () => {
-    const input = await showInputModal('');
-    if (input === null) return;
-    const n = Number(String(input).trim());
-    if (!Number.isInteger(n) || n < 1 || n > 100000) {
-      alert('编号无效，请输入 1 ~ 100000 之间的整数。');
-      return;
-    }
-    generateChallenge(n, false, false);
-  });
-  btnReset.addEventListener('click', resetBoard);
-  btnAnswer.addEventListener('click', toggleAnswerMode);
-  btnUndo.addEventListener('click', () => { if (answerMode) return; popUndo(); });
-  btnRedo.addEventListener('click', () => { if (answerMode) return; popRedo(); });
-
-  btnUpload.addEventListener('click', async () => {
-    if (!supabase) { alert('服务尚未就绪'); return; }
-    if (!currentUser) { alert('请先登录账号'); return; }
-    if (!solved) { alert('请先完成挑战'); return; }
-    if (!isRandomChallenge) { alert('指定编号的关卡不能上传成绩'); return; }
-    if (!isValidForRank()) { alert('成绩无效（挑战模式关闭或数字开关被切换），不计入排行榜'); return; }
-    if (solvedElapsed == null) { alert('无法获取用时'); return; }
-    const mode = digitalMode ? 'num' : 'bw';
-    const endedAt = Date.now();
-    const ok = await uploadScore(currentSeed, mode, solvedElapsed, endedAt);
-    showToast(ok ? '成绩上传成功！' : '上传失败，请检查网络');
-    updateUploadButton();
-  });
-
-  btnHistory.addEventListener('click', openHistory);
-  historyClose.addEventListener('click', closeHistory);
-  historyClear.addEventListener('click', () => {
-    if (!confirm('确定清空全部本地历史记录吗？（云端记录不会删除）')) return;
-    try {
-      localStorage.removeItem(STORAGE_SUCCESS);
-      localStorage.removeItem(STORAGE_PROGRESS);
-    } catch (e) {}
-    if (currentUser) syncRecordsFromCloud();
-    else renderHistory();
-  });
-  historyModal.addEventListener('click', (e) => { if (e.target === historyModal) closeHistory(); });
-
   boardEl.addEventListener('pointerdown', onBoardPointerDown);
   boardEl.addEventListener('contextmenu', (e) => e.preventDefault());
 
-  challengeModeSwitch.addEventListener('click', () => {
-    if (!isRandomChallenge) return;
-    challengeModeEnabled = !challengeModeEnabled;
-    if (!challengeModeEnabled) {
-      challengeModeEverDisabled = true;
-      if (answerMode) answerMode = false;
-    }
-    checkValidityChange();
-    updateModeUI();
-    if (answerMode) renderPiecesLayer();
-    scheduleSaveProgress();
-  });
-
   digitSwitch.addEventListener('click', () => {
+    if (gameMode !== 'practice') return;
     digitalMode = !digitalMode;
-    digitalModeEverToggled = true;
-    solved = false;
-    checkValidityChange();
     updateModeUI(); renderPool(); updateBoardView();
     if (answerMode) renderPiecesLayer();
     checkWin(); scheduleSaveProgress();
@@ -2681,6 +2857,7 @@
     if (answerMode) renderPiecesLayer();
     scheduleSaveProgress();
   });
+
   targetSwitch.addEventListener('click', () => {
     if (!targetGrid || answerMode) return;
     cancelPendingTap();
@@ -2699,7 +2876,7 @@
     }, 160);
   });
 
-  function initGame() {
+  function initApp() {
     computeSizes();
     buildBoard();
     renderAll();
@@ -2707,11 +2884,9 @@
     updateUserUI();
     updateUploadButton();
     poolEl.addEventListener('contextmenu', e => e.preventDefault());
-    if (!loadProgress()) generateChallenge(pickNewSeed(), false, true);
-    else { updateUndoButton(); updateRedoButton(); }
   }
 
-  initGame();
+  initApp();
 
   waitForSupabase(50).then(() => {
     updateUserUI();
