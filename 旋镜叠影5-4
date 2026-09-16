@@ -1050,9 +1050,7 @@
   let pending = null;
   let drag = null;
 
-  // ⭐ 标记：下一次挑战模式通关时，是否要把该项 streak 重置为 [本次成绩]
-  // 场景：玩家在挑战进行中放弃（点新游戏 / 查看答案）→ 连续被打断
-  //      接下来的新游戏通关应作为"连续 1 次"的起点
+  // 标记：下一次挑战模式通关时，是否要把该项 streak 重置为 [本次成绩]
   let resetStreakOnNextSolve = false;
 
   let streakBw = [];
@@ -1259,10 +1257,6 @@
     btnUpload.style.display = 'none';
   }
 
-  /* ============================================================
-   * 本地存储：completedSeeds（每个 seed 一条，含综合 state）
-   * ============================================================ */
-
   function makeEmptyModeState() {
     return {
       done: false, doneAt: null,
@@ -1396,7 +1390,6 @@
       isRandom: isRandomChallenge,
       solved: solved,
       abandoned: abandoned,
-      // ⭐ 持久化"下一次通关需重置 streak"的标志
       pendingResetStreak: resetStreakOnNextSolve,
       startTime: challengeStartTime,
       solvedElapsed: solvedElapsed,
@@ -1435,7 +1428,6 @@
       colorMode = !!data.color;
       solved = !!data.solved;
       abandoned = !!data.abandoned;
-      // ⭐ 恢复"下一次通关重置 streak"标志
       resetStreakOnNextSolve = !!data.pendingResetStreak;
       undoStack = sanitizeSnapshot(data.undoStack).slice(-MAX_UNDO);
       redoStack = sanitizeSnapshot(data.redoStack).slice(-MAX_UNDO);
@@ -2278,7 +2270,6 @@
       abandoned = true;
       stopTimer();
       await clearStreakOnServer(digitalMode ? 'num' : 'bw');
-      // ⭐ 作废后，下一次通关应作为新连续的起点
       resetStreakOnNextSolve = true;
       scheduleSaveProgress();
       updateUploadButton();
@@ -2536,7 +2527,7 @@
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('uid, username, streak_bw, streak_num')
+        .select('uid, username, streak_bw, streak_num, max_streak_bw, max_streak_num')
         .eq('id', currentUser.id)
         .maybeSingle();
       if (error && error.code !== 'PGRST116') throw error;
@@ -2552,13 +2543,10 @@
           .insert({
             id: currentUser.id,
             username: username,
-            total_wins: 0,
-            bw_wins: 0,
-            num_wins: 0,
-            streak_bw: [],
-            streak_num: [],
-            records_bw: null,
-            records_num: null
+            total_wins: 0, bw_wins: 0, num_wins: 0,
+            streak_bw: [], streak_num: [],
+            max_streak_bw: 0, max_streak_num: 0,
+            records_bw: null, records_num: null
           })
           .select('uid')
           .single();
@@ -2696,10 +2684,6 @@
     };
   }
 
-  // ⭐ 上传成绩
-  //    - 所有模式都写 records 流水 + upsert user_seeds
-  //    - 只有挑战模式才更新 profiles 的 records/streak/wins
-  //    - 若 resetStreakOnNextSolve 为 true，则直接把 streak 设为 [elapsed]
   async function uploadScore(seed, mode, gameType, elapsed, endedAt) {
     if (!supabase || !currentUser) return false;
     const isChallenge = (gameType === 'challenge-bw' || gameType === 'challenge-num');
@@ -2712,7 +2696,6 @@
 
       const endedIso = new Date(endedAt).toISOString();
 
-      // 1. 插入 records 流水
       const { error: recErr } = await supabase.from('records').insert({
         user_id: currentUser.id,
         username: username,
@@ -2725,7 +2708,6 @@
       });
       if (recErr) throw recErr;
 
-      // 2. upsert user_seeds
       const { data: existingSeed } = await supabase
         .from('user_seeds')
         .select('state')
@@ -2748,10 +2730,9 @@
         }, { onConflict: 'user_id,seed' });
       if (upsertErr) throw upsertErr;
 
-      // 3. 读取 profile
       const { data: profile } = await supabase
         .from('profiles')
-        .select('total_wins, bw_wins, num_wins, streak_bw, streak_num, records_bw, records_num')
+        .select('total_wins, bw_wins, num_wins, streak_bw, streak_num, records_bw, records_num, max_streak_bw, max_streak_num')
         .eq('id', currentUser.id)
         .maybeSingle();
 
@@ -2761,10 +2742,11 @@
       let numWins = (profile && profile.num_wins) || 0;
       let recordsBw = (profile && profile.records_bw) || null;
       let recordsNum = (profile && profile.records_num) || null;
+      let maxStreakBw = (profile && profile.max_streak_bw) || 0;
+      let maxStreakNum = (profile && profile.max_streak_num) || 0;
       const totalWins = ((profile && profile.total_wins) || 0) + 1;
 
       if (isChallenge) {
-        // ⭐ 关键：若之前放弃过挑战，则把本次成绩作为新连续的第 1 项
         const doReset = resetStreakOnNextSolve;
         resetStreakOnNextSolve = false;
 
@@ -2776,6 +2758,7 @@
             if (localStreakBw.length > STREAK_MAX) localStreakBw = localStreakBw.slice(-STREAK_MAX);
           }
           bwWins += 1;
+          if (localStreakBw.length > maxStreakBw) maxStreakBw = localStreakBw.length;
         } else {
           if (doReset) {
             localStreakNum = [elapsed];
@@ -2784,9 +2767,9 @@
             if (localStreakNum.length > STREAK_MAX) localStreakNum = localStreakNum.slice(-STREAK_MAX);
           }
           numWins += 1;
+          if (localStreakNum.length > maxStreakNum) maxStreakNum = localStreakNum.length;
         }
 
-        // 只统计挑战模式的记录
         const { data: history } = await supabase
           .from('records')
           .select('elapsed, seed, ended_at')
@@ -2830,6 +2813,8 @@
         num_wins: numWins,
         streak_bw: localStreakBw,
         streak_num: localStreakNum,
+        max_streak_bw: maxStreakBw,
+        max_streak_num: maxStreakNum,
         records_bw: recordsBw,
         records_num: recordsNum,
         updated_at: new Date().toISOString()
@@ -2934,13 +2919,10 @@
             .insert({
               id: data.user.id,
               username: username,
-              total_wins: 0,
-              bw_wins: 0,
-              num_wins: 0,
-              streak_bw: [],
-              streak_num: [],
-              records_bw: null,
-              records_num: null
+              total_wins: 0, bw_wins: 0, num_wins: 0,
+              streak_bw: [], streak_num: [],
+              max_streak_bw: 0, max_streak_num: 0,
+              records_bw: null, records_num: null
             });
           if (insertErr) {
             if (insertErr.code === '23505' ||
@@ -3121,7 +3103,7 @@
 
       const { data: allProfiles, error } = await supabase
         .from('profiles')
-        .select('id, streak_bw, streak_num, bw_wins, num_wins, records_bw, records_num')
+        .select('id, streak_bw, streak_num, bw_wins, num_wins, records_bw, records_num, max_streak_bw, max_streak_num')
         .limit(500);
       if (error) throw error;
       if (!allProfiles) {
@@ -3144,7 +3126,8 @@
       const curMo3 = calcMO3(myStreak);
       const curAo5 = calcAO5(myStreak);
       const curAo12 = calcAO12(myStreak);
-      const curAmount = isNum ? (myProfile.num_wins || 0) : (myProfile.bw_wins || 0);
+      const curStreak = myStreak.length;
+      const maxStreak = (isNum ? myProfile.max_streak_num : myProfile.max_streak_bw) || 0;
 
       const storedBest = (myRecords.best && typeof myRecords.best === 'object' && myRecords.best.elapsed != null)
         ? myRecords.best.elapsed : null;
@@ -3154,9 +3137,12 @@
         mo3: (typeof myRecords.mo3 === 'number') ? myRecords.mo3 : curMo3,
         ao5: (typeof myRecords.ao5 === 'number') ? myRecords.ao5 : curAo5,
         ao12: (typeof myRecords.ao12 === 'number') ? myRecords.ao12 : curAo12,
-        amount: curAmount
+        streak: maxStreak
       };
-      const current = { best: curBest, mo3: curMo3, ao5: curAo5, ao12: curAo12, amount: curAmount };
+      const current = {
+        best: curBest, mo3: curMo3, ao5: curAo5, ao12: curAo12,
+        streak: curStreak
+      };
 
       const allUsers = allProfiles.map(p => {
         const arrRaw = isNum ? p.streak_num : p.streak_bw;
@@ -3171,7 +3157,7 @@
           mo3: (typeof rec.mo3 === 'number') ? rec.mo3 : calcMO3(arr),
           ao5: (typeof rec.ao5 === 'number') ? rec.ao5 : calcAO5(arr),
           ao12: (typeof rec.ao12 === 'number') ? rec.ao12 : calcAO12(arr),
-          amount: isNum ? (p.num_wins || 0) : (p.bw_wins || 0)
+          streak: (isNum ? p.max_streak_num : p.max_streak_bw) || 0
         };
       });
 
@@ -3188,7 +3174,7 @@
         mo3: rankOf('mo3', false),
         ao5: rankOf('ao5', false),
         ao12: rankOf('ao12', false),
-        amount: rankOf('amount', true)
+        streak: rankOf('streak', true)
       };
 
       renderMyRecords(current, best, ranks);
@@ -3204,7 +3190,7 @@
       { label: 'MO3',    key: 'mo3',    unit: 'time' },
       { label: 'AO5',    key: 'ao5',    unit: 'time' },
       { label: 'AO12',   key: 'ao12',   unit: 'time' },
-      { label: 'Amount', key: 'amount', unit: 'count' }
+      { label: 'Streak', key: 'streak', unit: 'count' }
     ];
     const fmt = (val, unit) => {
       if (val == null) return '—';
@@ -3336,7 +3322,6 @@
         await clearStreakOnServer(digitalMode ? 'num' : 'bw');
         abandoned = true;
         stopTimer();
-        // ⭐ 关键：标记"下一次通关重置 streak"
         resetStreakOnNextSolve = true;
         scheduleSaveProgress();
       }
