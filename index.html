@@ -95,7 +95,7 @@
   }
   .user-row .username {
     font-weight: 700; color: #1e293b;
-    max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .user-row .link-btn {
     background: none; border: none;
@@ -390,7 +390,6 @@
     padding: 24px 0; font-size: 13px;
   }
 
-  /* 排行榜 */
   .rank-tabs {
     display: flex; gap: 6px; margin-bottom: 12px;
   }
@@ -424,6 +423,11 @@
     flex: 1; font-weight: 600; color: #1e293b;
     margin: 0 6px;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .rank-name .uid-tag {
+    color: #7c3aed; font-weight: 700;
+    font-size: 11px;
+    margin-right: 2px;
   }
   .rank-score {
     font-weight: 700; color: #2563eb;
@@ -629,7 +633,7 @@
     <div class="modal-title" id="authTitle">登录</div>
     <input type="email" class="modal-input" id="authEmail" placeholder="邮箱" autocomplete="email">
     <input type="password" class="modal-input" id="authPassword" placeholder="密码" autocomplete="current-password">
-    <input type="text" class="modal-input" id="authUsername" placeholder="用户名（注册时填写）" style="display:none;">
+    <input type="text" class="modal-input" id="authUsername" placeholder="用户名（注册时填写，不可重复）" style="display:none;">
     <div class="modal-actions">
       <button class="btn" id="authCancel">取消</button>
       <button class="btn primary" id="authSubmit">登录</button>
@@ -703,7 +707,7 @@
   let currentSeed = null;
   let isRandomChallenge = false;
   let challengeModeEnabled = true;
-  let challengeModeEverDisabled = false;  // 关键：从关卡生成到结束之间是否曾经关闭过挑战模式
+  let challengeModeEverDisabled = false;
   let challengeStartTime = null;
   let solvedElapsed = null;
   let timerInterval = null;
@@ -866,7 +870,6 @@
     return isRandomChallenge && challengeModeEnabled;
   }
 
-  // 判断某局是否具备排行榜上传资格
   function isValidForRank() {
     return isRandomChallenge && challengeModeEnabled && !challengeModeEverDisabled;
   }
@@ -876,8 +879,11 @@
   // ====================================================
   function updateUserUI() {
     if (currentUser) {
-      const name = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
-      userStatus.textContent = name;
+      const name = (currentUser.username)
+        || (currentUser.user_metadata && currentUser.user_metadata.username)
+        || currentUser.email;
+      const uidText = currentUser.uid ? (' #' + currentUser.uid) : '';
+      userStatus.textContent = name + uidText;
       userStatus.classList.add('username');
       btnLogin.style.display = 'none';
       btnRegister.style.display = 'none';
@@ -903,7 +909,6 @@
   function updateUploadButton() {
     if (!currentUser) { btnUpload.disabled = true; return; }
     if (!solved || !isRandomChallenge) { btnUpload.disabled = true; return; }
-    // 关键：挑战模式必须全程开启
     if (!isValidForRank()) { btnUpload.disabled = true; return; }
     if (isChallengeUploaded(currentSeed)) { btnUpload.disabled = true; return; }
     btnUpload.disabled = false;
@@ -927,15 +932,12 @@
     const list = getSuccessList();
     const existing = list.find(s => s.seed === seed && s.mode === mode);
     const endTime = endedAt || Date.now();
-    // 需要上传的语义：随机关卡 + 满足上传条件
     const needsUpload = isRandom && validForRank;
     if (existing) {
       if (elapsed < existing.elapsed) existing.elapsed = elapsed;
       existing.time = endTime;
       existing.isRandom = isRandom;
-      // 有效标志采用 OR 逻辑：只要曾经有过一次有效通关即视为有效
       existing.validForRank = existing.validForRank || !!validForRank;
-      // uploaded 保持：如果从未上传过且这次有效，则保留待上传状态
       if (!needsUpload) existing.uploaded = true;
     } else {
       list.push({
@@ -1335,7 +1337,6 @@
     pieces = list;
     currentSeed = seed;
     isRandomChallenge = !!isRandom;
-    // 关键：新关卡重置挑战模式状态
     if (isRandom) {
       challengeModeEnabled = true;
       challengeModeEverDisabled = false;
@@ -1921,7 +1922,6 @@
 
         recordSuccess(currentSeed, mode, isRandomChallenge, solvedElapsed, endTime, valid);
 
-        // 自动上传：首次通关、随机关卡、有效、已登录、未上传
         if (!alreadySolved && !alreadyUploaded && valid &&
             currentUser && supabase) {
           uploadScore(currentSeed, mode, solvedElapsed, endTime);
@@ -2031,6 +2031,38 @@
   // ====================================================
   // Supabase 初始化
   // ====================================================
+  // 从 profiles 表查询当前用户的 uid 与用户名
+  async function loadUserUid() {
+    if (!supabase || !currentUser) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('uid, username')
+        .eq('id', currentUser.id)
+        .maybeSingle();
+      if (error && error.code !== 'PGRST116') throw error;
+      if (data) {
+        currentUser.uid = data.uid;
+        currentUser.username = data.username;
+      } else {
+        // 没有 profile 记录，尝试创建
+        const username = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
+        const { data: created } = await supabase
+          .from('profiles')
+          .insert({ id: currentUser.id, username: username, total_wins: 0 })
+          .select('uid')
+          .single();
+        if (created) {
+          currentUser.uid = created.uid;
+          currentUser.username = username;
+        }
+      }
+    } catch (e) {
+      console.warn('加载 uid 失败:', e);
+    }
+    updateUserUI();
+  }
+
   function initSupabase() {
     if (supabase) return true;
     if (!window.supabase || !window.supabase.createClient) return false;
@@ -2039,24 +2071,26 @@
 
       supabase.auth.onAuthStateChange(async (event, session) => {
         currentUser = session ? session.user : null;
-        updateUserUI();
-        updateUploadButton();
         if (currentUser) {
+          await loadUserUid();
           await syncRecordsFromCloud();
           await retryOfflineUploads();
         } else {
+          updateUserUI();
           renderHistory();
         }
+        updateUploadButton();
       });
 
       supabase.auth.getUser().then(async ({ data }) => {
         currentUser = data.user || null;
-        updateUserUI();
-        updateUploadButton();
         if (currentUser) {
+          await loadUserUid();
           await syncRecordsFromCloud();
           await retryOfflineUploads();
         }
+        updateUserUI();
+        updateUploadButton();
       }).catch(() => {});
 
       return true;
@@ -2139,7 +2173,9 @@
   async function uploadScore(seed, mode, elapsed, endedAt) {
     if (!supabase || !currentUser) return false;
     try {
-      const username = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
+      const username = currentUser.username
+        || (currentUser.user_metadata && currentUser.user_metadata.username)
+        || currentUser.email;
       const { error: recErr } = await supabase.from('records').insert({
         user_id: currentUser.id,
         username: username,
@@ -2181,7 +2217,6 @@
   async function retryOfflineUploads() {
     if (!supabase || !currentUser) return;
     const list = getSuccessList();
-    // 只上传满足排行榜条件的记录
     const pending = list.filter(s => s.isRandom && !s.uploaded && s.validForRank);
     if (pending.length === 0) return;
     let successCount = 0;
@@ -2231,23 +2266,46 @@
         authModal.classList.remove('show');
         showToast('登录成功');
       } else {
+        // ============ 注册流程 ============
+
+        // ① 检查用户名是否已存在
+        try {
+          const { data: existing } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('username', username)
+            .maybeSingle();
+          if (existing) {
+            throw new Error('该用户名「' + username + '」已被占用，请更换其他用户名');
+          }
+        } catch (e) {
+          if (e && e.message && e.message.indexOf('已被占用') >= 0) throw e;
+          console.warn('用户名检查失败:', e);
+        }
+
+        // ② 创建 auth 用户
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: { data: { username } }
         });
         if (error) throw error;
+
+        // ③ 插入 profiles 记录（UNIQUE 兜底）
         if (data.user) {
-          // 尝试创建 profiles 记录（可能失败，因为邮箱未验证时没有 session）
-          try {
-            await supabase.from('profiles').insert({
-              id: data.user.id,
-              username: username,
-              total_wins: 0
-            });
-          } catch (e) { /* 忽略 */ }
+          const { error: insertErr } = await supabase
+            .from('profiles')
+            .insert({ id: data.user.id, username: username, total_wins: 0 });
+
+          if (insertErr) {
+            if (insertErr.code === '23505' ||
+                (insertErr.message && insertErr.message.toLowerCase().indexOf('duplicate') >= 0)) {
+              throw new Error('该用户名「' + username + '」已被占用，请更换其他用户名');
+            }
+            console.warn('插入 profiles 失败:', insertErr);
+          }
         }
+
         authModal.classList.remove('show');
-        // 关键提示
         alert(
           '注册成功！\n\n' +
           '请前往邮箱完成验证。\n\n' +
@@ -2284,7 +2342,7 @@
       if (tab === 'bw' || tab === 'num') {
         let query = supabase
           .from('records')
-          .select('username, elapsed, seed, ended_at')
+          .select('username, elapsed, seed, ended_at, user_id')
           .eq('mode', tab === 'bw' ? 'bw' : 'num')
           .eq('is_random', true)
           .order('elapsed', { ascending: true })
@@ -2295,13 +2353,25 @@
           rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
           return;
         }
+        // 批量查询 profiles 拿 uid
+        const userIds = [...new Set(data.map(d => d.user_id))];
+        let uidMap = {};
+        if (userIds.length > 0) {
+          const { data: profs } = await supabase
+            .from('profiles')
+            .select('id, uid')
+            .in('id', userIds);
+          if (profs) profs.forEach(p => { uidMap[p.id] = p.uid; });
+        }
         let html = '';
         data.forEach((item, index) => {
           const timeStr = formatDate(new Date(item.ended_at).getTime());
+          const uid = uidMap[item.user_id];
+          const uidTag = uid ? '<span class="uid-tag">#' + uid + '</span> ' : '';
           html += '<div class="rank-item">' +
             '<div class="rank-main">' +
               '<span class="rank-no">' + (index + 1) + '</span>' +
-              '<span class="rank-name">' + (item.username || '匿名') + '</span>' +
+              '<span class="rank-name">' + uidTag + (item.username || '匿名') + '</span>' +
               '<span class="rank-score">' + formatDuration(item.elapsed) + '</span>' +
             '</div>' +
             '<div class="rank-sub">' +
@@ -2314,7 +2384,7 @@
       } else {
         const { data, error } = await supabase
           .from('profiles')
-          .select('username, total_wins')
+          .select('uid, username, total_wins')
           .gt('total_wins', 0)
           .order('total_wins', { ascending: false })
           .limit(100);
@@ -2325,10 +2395,11 @@
         }
         let html = '';
         data.forEach((item, index) => {
+          const uidTag = item.uid ? '<span class="uid-tag">#' + item.uid + '</span> ' : '';
           html += '<div class="rank-item">' +
             '<div class="rank-main">' +
               '<span class="rank-no">' + (index + 1) + '</span>' +
-              '<span class="rank-name">' + (item.username || '匿名') + '</span>' +
+              '<span class="rank-name">' + uidTag + (item.username || '匿名') + '</span>' +
               '<span class="rank-score">' + (item.total_wins || 0) + ' 关</span>' +
             '</div>' +
           '</div>';
@@ -2412,7 +2483,6 @@
     if (!isRandomChallenge) return;
     challengeModeEnabled = !challengeModeEnabled;
     if (!challengeModeEnabled) {
-      // 关键：只要曾经关闭过，标记本次成绩无效
       challengeModeEverDisabled = true;
       if (answerMode) answerMode = false;
     }
