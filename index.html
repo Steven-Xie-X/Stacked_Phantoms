@@ -21,207 +21,107 @@
     -webkit-tap-highlight-color: transparent;
   }
   .wrap { width: 100%; max-width: 400px; }
-
   #homeScreen { display: block; }
   #homeScreen.hidden { display: none; }
-
   .home-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 18px;
-    padding: 0 2px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin-bottom: 18px; padding: 0 2px;
   }
   .home-header h1 {
-    flex: 1;
-    font-size: 22px;
-    letter-spacing: 6px;
-    text-align: center;
-    margin: 0;
-    color: #1e3a8a;
-    text-shadow: 0 2px 0 rgba(255,255,255,.9);
-    white-space: nowrap;
+    flex: 1; font-size: 22px; letter-spacing: 6px; text-align: center; margin: 0;
+    color: #1e3a8a; text-shadow: 0 2px 0 rgba(255,255,255,.9); white-space: nowrap;
   }
-  .home-header-left, .home-header-right {
-    display: flex;
-    gap: 6px;
-    flex-shrink: 0;
-  }
+  .home-header-left, .home-header-right { display: flex; gap: 6px; flex-shrink: 0; }
   .home-header-left { min-width: 82px; }
   .home-header-right { min-width: 82px; justify-content: flex-end; }
   .home-icon-btn {
-    width: 38px; height: 38px;
-    border-radius: 10px;
-    border: 1px solid #cbd5e1;
-    background: #fff;
-    color: #475569;
-    cursor: pointer;
+    width: 38px; height: 38px; border-radius: 10px; border: 1px solid #cbd5e1;
+    background: #fff; color: #475569; cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-    transition: all .15s;
-    font-family: inherit;
-    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05); transition: all .15s;
+    font-family: inherit; flex-shrink: 0;
   }
-  .home-icon-btn:hover {
-    background: #f1f5f9;
-    transform: translateY(-1px);
-    color: #1e293b;
-  }
+  .home-icon-btn:hover { background: #f1f5f9; transform: translateY(-1px); color: #1e293b; }
   .home-icon-btn:active { transform: translateY(0); }
-
   .home-user-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
-    padding: 8px 12px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 12px;
-    color: #64748b;
-    min-height: 40px;
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap;
+    gap: 8px; margin-bottom: 16px; padding: 8px 12px;
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    font-size: 12px; color: #64748b; min-height: 40px;
     box-shadow: 0 1px 2px rgba(15,23,42,.04);
   }
   .home-user-row .user-label { font-weight: 600; color: #475569; }
   .home-user-row .username {
-    font-weight: 700;
-    color: #1e293b;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-weight: 700; color: #1e293b; max-width: 200px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .home-user-row .link-btn {
-    background: none;
-    border: none;
-    color: #2563eb;
-    font-weight: 700;
-    font-size: 12px;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-family: inherit;
-    transition: background .15s;
+    background: none; border: none; color: #2563eb; font-weight: 700;
+    font-size: 12px; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    font-family: inherit; transition: background .15s;
   }
   .home-user-row .link-btn:hover { background: #eff6ff; }
-
-  .mode-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
+  .mode-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
   .mode-btn {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    padding: 16px 18px;
-    border-radius: 14px;
-    border: 1px solid #cbd5e1;
-    background: #fff;
-    cursor: pointer;
-    font-family: inherit;
-    text-align: center;
-    transition: all .18s ease;
-    box-shadow: 0 2px 6px rgba(15,23,42,.05);
-    width: 100%;
+    display: flex; flex-direction: row; align-items: center; justify-content: center;
+    gap: 14px; padding: 16px 18px; border-radius: 14px; border: 1px solid #cbd5e1;
+    background: #fff; cursor: pointer; font-family: inherit; text-align: center;
+    transition: all .18s ease; box-shadow: 0 2px 6px rgba(15,23,42,.05); width: 100%;
   }
   .mode-btn:hover {
-    border-color: #93c5fd;
-    background: linear-gradient(135deg, #f8fafc, #eff6ff);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(37,99,235,.14);
+    border-color: #93c5fd; background: linear-gradient(135deg, #f8fafc, #eff6ff);
+    transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,.14);
   }
   .mode-btn:active { transform: translateY(0); }
-
   .mode-btn .mode-icon {
-    font-size: 32px;
-    line-height: 1;
-    flex-shrink: 0;
-    width: 46px;
-    height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    background: #f1f5f9;
-    transition: background .18s;
+    font-size: 32px; line-height: 1; flex-shrink: 0; width: 46px; height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px; background: #f1f5f9; transition: background .18s;
   }
   .mode-btn:hover .mode-icon { background: #dbeafe; }
-
   .mode-btn .mode-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    flex: 0 1 auto;
-    min-width: 0;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 3px; flex: 0 1 auto; min-width: 0;
   }
   .mode-btn .mode-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #1e293b;
-    letter-spacing: .5px;
-    text-align: center;
+    font-size: 14px; font-weight: 700; color: #1e293b;
+    letter-spacing: .5px; text-align: center;
   }
   .mode-btn .mode-desc {
-    font-size: 11px;
-    color: #94a3b8;
-    line-height: 1.4;
-    text-align: center;
+    font-size: 11px; color: #94a3b8; line-height: 1.4; text-align: center;
   }
-
   .mode-btn.challenge { border-color: #fed7aa; }
   .mode-btn.challenge .mode-icon { background: #fffbeb; }
   .mode-btn.challenge:hover {
-    border-color: #f59e0b;
-    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-color: #f59e0b; background: linear-gradient(135deg, #fffbeb, #fef3c7);
     box-shadow: 0 8px 20px rgba(245,158,11,.18);
   }
   .mode-btn.challenge:hover .mode-icon { background: #fde68a; }
   .mode-btn.challenge .mode-title { color: #b45309; }
-
-  /* ========== 游戏界面 ========== */
   #gameScreen { display: none; }
   #gameScreen.active { display: block; }
-
   .game-header {
     display: flex; align-items: center; justify-content: space-between;
     gap: 8px; margin-bottom: 10px;
   }
   .btn-back {
     display: inline-flex; align-items: center; gap: 4px;
-    padding: 6px 10px; border-radius: 8px;
-    border: 1px solid #cbd5e1; background: #fff; color: #475569;
-    font-size: 12px; font-weight: 700; cursor: pointer;
-    font-family: inherit; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-    transition: all .15s;
+    padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1;
+    background: #fff; color: #475569; font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05); transition: all .15s;
   }
   .btn-back:hover { background: #f1f5f9; }
   .mode-badge {
-    flex: 1; text-align: center;
-    font-size: 12px; font-weight: 700; letter-spacing: 1px;
-    color: #1e3a8a;
-    background: #eff6ff; border: 1px solid #bfdbfe;
-    padding: 5px 10px; border-radius: 8px;
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: 6px;
+    flex: 1; text-align: center; font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; color: #1e3a8a; background: #eff6ff;
+    border: 1px solid #bfdbfe; padding: 5px 10px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   }
-  .mode-badge.challenge-badge {
-    color: #b45309; background: #fffbeb; border-color: #fde68a;
-  }
-
+  .mode-badge.challenge-badge { color: #b45309; background: #fffbeb; border-color: #fde68a; }
   .btn {
-    padding: 8px 12px; border-radius: 9px;
-    font-size: 13px; font-weight: 700;
-    cursor: pointer;
-    border: 1px solid #cbd5e1; background: #fff; color: #1e293b;
+    padding: 8px 12px; border-radius: 9px; font-size: 13px; font-weight: 700;
+    cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #1e293b;
     transition: all .15s ease; font-family: inherit;
     box-shadow: 0 1px 2px rgba(15,23,42,.05);
     display: inline-flex; align-items: center; justify-content: center;
@@ -232,40 +132,27 @@
   .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
   .btn.icon-btn { padding: 8px 10px; }
   .btn.icon-btn svg { display: block; }
-
-  .controls {
-    display: flex; justify-content: center; align-items: stretch;
-    gap: 8px; margin-bottom: 10px;
-  }
+  .controls { display: flex; justify-content: center; align-items: stretch; gap: 8px; margin-bottom: 10px; }
   .controls .btn {
     background: #fff; color: #1e293b; font-weight: 700; font-size: 13px;
-    border: 1px solid #cbd5e1;
-    height: 42px; padding: 0 12px;
-    box-sizing: border-box;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-    flex-shrink: 0;
+    border: 1px solid #cbd5e1; height: 42px; padding: 0 12px;
+    box-sizing: border-box; box-shadow: 0 1px 2px rgba(15,23,42,.05); flex-shrink: 0;
   }
   .controls .btn.icon-btn { width: 42px; padding: 0; }
   .controls .btn.main-action {
-    flex: 1; min-width: 0;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    flex: 1; min-width: 0; background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: #fff; border-color: #2563eb;
   }
   .controls .btn.main-action:hover {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    border-color: #1d4ed8;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8); border-color: #1d4ed8;
   }
   .controls .btn.answer.active {
     background: #fef3c7; border-color: #f59e0b; color: #b45309;
     box-shadow: 0 0 0 2px rgba(245,158,11,.28), 0 4px 12px rgba(245,158,11,.28);
   }
-  .controls .btn.answer.active svg {
-    stroke: #d97706;
-    filter: drop-shadow(0 0 5px rgba(245,158,11,.85));
-  }
+  .controls .btn.answer.active svg { stroke: #d97706; filter: drop-shadow(0 0 5px rgba(245,158,11,.85)); }
   .controls .btn:disabled { opacity: .4; }
   .controls .btn svg { width: 18px; height: 18px; display: block; flex-shrink: 0; }
-
   @media (max-width: 420px) {
     .controls { gap: 6px; }
     .controls .btn { font-size: 12px; padding: 0 10px; height: 40px; }
@@ -276,36 +163,26 @@
     .controls .btn { font-size: 11px; padding: 0 8px; height: 38px; }
     .controls .btn.icon-btn { width: 36px; }
   }
-
   .user-row {
-    display: flex; justify-content: flex-end; align-items: center;
-    gap: 8px; margin-bottom: 6px;
-    font-size: 12px; color: #64748b; min-height: 22px;
+    display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+    margin-bottom: 6px; font-size: 12px; color: #64748b; min-height: 22px;
   }
   .user-row .username {
-    font-weight: 700; color: #1e293b;
-    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-weight: 700; color: #1e293b; max-width: 200px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .user-row .link-btn {
-    background: none; border: none;
-    color: #2563eb; font-weight: 700; font-size: 12px;
-    cursor: pointer; padding: 2px 6px; border-radius: 4px;
-    font-family: inherit;
+    background: none; border: none; color: #2563eb; font-weight: 700;
+    font-size: 12px; cursor: pointer; padding: 2px 6px; border-radius: 4px; font-family: inherit;
   }
   .user-row .link-btn:hover { background: #eff6ff; }
-
-  .board-tools {
-    display: flex; justify-content: center; gap: 12px;
-    margin: 4px 0 8px;
-  }
+  .board-tools { display: flex; justify-content: center; gap: 12px; margin: 4px 0 8px; }
   .board-tools .btn { padding: 8px 12px; }
-
   .meta {
     display: flex; justify-content: space-between; align-items: center;
     font-size: 12px; color: #64748b; margin-bottom: 8px; padding: 0 2px;
   }
   .meta b { color: #2563eb; font-size: 13px; }
-
   .timer-row {
     display: flex; justify-content: center; align-items: center;
     margin: 0 0 8px; font-size: 14px; font-weight: 700;
@@ -315,50 +192,38 @@
     background: #eff6ff; padding: 3px 14px; border-radius: 20px;
     border: 1px solid #bfdbfe; font-variant-numeric: tabular-nums;
   }
-
   .mode-row {
     display: flex; align-items: center; justify-content: space-between;
-    margin: 0 0 8px; padding: 0 2px;
-    font-size: 12px; color: #64748b;
+    margin: 0 0 8px; padding: 0 2px; font-size: 12px; color: #64748b;
   }
   .mode-label {
-    font-weight: 600; letter-spacing: 1px;
-    display: flex; align-items: center; gap: 6px;
-    flex: 1; min-width: 0;
+    font-weight: 600; letter-spacing: 1px; display: flex; align-items: center;
+    gap: 6px; flex: 1; min-width: 0;
   }
   .mode-label .hint { font-size: 10px; font-weight: 500; color: #94a3b8; }
   .switch {
-    position: relative;
-    width: 50px; height: 28px;
-    border-radius: 14px; background: #cbd5e1;
-    border: none; cursor: pointer; padding: 0;
-    transition: background .22s ease;
-    box-shadow: inset 0 1px 3px rgba(15,23,42,.15);
+    position: relative; width: 50px; height: 28px; border-radius: 14px;
+    background: #cbd5e1; border: none; cursor: pointer; padding: 0;
+    transition: background .22s ease; box-shadow: inset 0 1px 3px rgba(15,23,42,.15);
     outline: none; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
   }
   .switch[aria-pressed="true"] { background: linear-gradient(135deg, #3b82f6, #2563eb); }
   .switch:disabled { opacity: .4; cursor: not-allowed; }
   .switch-knob {
-    position: absolute; top: 3px; left: 3px;
-    width: 22px; height: 22px; border-radius: 50%;
-    background: #fff;
+    position: absolute; top: 3px; left: 3px; width: 22px; height: 22px;
+    border-radius: 50%; background: #fff;
     box-shadow: 0 2px 4px rgba(15,23,42,.25), 0 0 0 1px rgba(15,23,42,.05);
     transition: left .22s cubic-bezier(.4,0,.2,1);
   }
   .switch[aria-pressed="true"] .switch-knob { left: 25px; }
-
-  .progress-row {
-    display: flex; align-items: center; gap: 8px;
-    margin: 0 0 8px; padding: 0 2px;
-  }
+  .progress-row { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 0 2px; }
   .progress-name {
-    font-size: 12px; font-weight: 600; color: #64748b;
-    letter-spacing: 1px; width: 78px; flex-shrink: 0; text-align: left;
+    font-size: 12px; font-weight: 600; color: #64748b; letter-spacing: 1px;
+    width: 78px; flex-shrink: 0; text-align: left;
   }
   .progress-track {
-    flex: 1; height: 10px; border-radius: 999px;
-    background: #e2e8f0; overflow: hidden;
-    box-shadow: inset 0 1px 2px rgba(15,23,42,.10);
+    flex: 1; height: 10px; border-radius: 999px; background: #e2e8f0;
+    overflow: hidden; box-shadow: inset 0 1px 2px rgba(15,23,42,.10);
   }
   .progress-fill {
     height: 100%; width: 0%; border-radius: 999px;
@@ -369,48 +234,36 @@
   .progress-fill.number-fill { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
   .progress-fill.number-fill.full { background: linear-gradient(90deg, #34d399, #16a34a); }
   .progress-label {
-    font-size: 12px; font-weight: 700; color: #2563eb;
-    min-width: 40px; text-align: right;
-    font-variant-numeric: tabular-nums; letter-spacing: .5px;
+    font-size: 12px; font-weight: 700; color: #2563eb; min-width: 40px;
+    text-align: right; font-variant-numeric: tabular-nums; letter-spacing: .5px;
   }
   .progress-label.full { color: #16a34a; }
   .progress-label.number-label { color: #7c3aed; }
   .progress-label.number-label.full { color: #16a34a; }
-
   #board {
-    position: relative; margin: 0 auto 16px;
-    background: #fff; border-radius: 8px;
+    position: relative; margin: 0 auto 16px; background: #fff; border-radius: 8px;
     box-shadow: 0 0 0 2px #94a3b8, 0 10px 26px rgba(15,23,42,.10);
     touch-action: none; overflow: hidden;
   }
   #board.answer-mode {
-    box-shadow: 0 0 0 2px #f59e0b, 0 10px 26px rgba(245,158,11,.25);
-    cursor: pointer;
+    box-shadow: 0 0 0 2px #f59e0b, 0 10px 26px rgba(245,158,11,.25); cursor: pointer;
   }
-  .cell {
-    position: absolute; border: 1px solid #e2e8f0;
-    transition: background-color .12s linear;
-  }
+  .cell { position: absolute; border: 1px solid #e2e8f0; transition: background-color .12s linear; }
   .cell.white { background: #ffffff; }
   .cell.black { background: #1e293b; }
-
   #piecesLayer { position: absolute; inset: 0; pointer-events: none; }
   .board-piece { position: absolute; pointer-events: auto; cursor: pointer; touch-action: none; }
   .board-piece:active { cursor: grabbing; }
   .bcell {
     position: absolute; pointer-events: none;
-    border: 2px solid rgba(37,99,235,.85);
-    border-radius: 5px; background: transparent;
-    transition: background-color .12s;
+    border: 2px solid rgba(37,99,235,.85); border-radius: 5px;
+    background: transparent; transition: background-color .12s;
   }
   .board-piece:hover .bcell { background: rgba(37,99,235,.25); }
-
   #numbersLayer { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
   .num-cell {
-    position: absolute;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-family: inherit; pointer-events: none;
-    line-height: 1; letter-spacing: 0;
+    position: absolute; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-family: inherit; pointer-events: none; line-height: 1; letter-spacing: 0;
   }
   .num-cell.on-white {
     color: #0f172a;
@@ -420,24 +273,18 @@
     color: #f8fafc;
     text-shadow: -1px -1px 0 rgba(0,0,0,.9), 1px -1px 0 rgba(0,0,0,.9), -1px 1px 0 rgba(0,0,0,.9), 1px 1px 0 rgba(0,0,0,.9), 0 0 5px rgba(0,0,0,.8);
   }
-
   .answer-piece { position: absolute; pointer-events: none; }
   .answer-cell {
-    position: absolute; border: 2px solid rgba(245, 158, 11, 0.75);
-    border-radius: 4px; box-sizing: border-box; pointer-events: none;
+    position: absolute; border: 2px solid rgba(245, 158, 11, 0.75); border-radius: 4px;
+    box-sizing: border-box; pointer-events: none;
     transition: background-color .15s, border-color .15s;
   }
-  .answer-cell.latest {
-    border: 3px solid #dc2626;
-    box-shadow: 0 0 8px rgba(220, 38, 38, 0.6);
-    z-index: 5;
-  }
-
+  .answer-cell.latest { border: 3px solid #dc2626; box-shadow: 0 0 8px rgba(220, 38, 38, 0.6); z-index: 5; }
   .pool-head { font-size: 12px; color: #64748b; margin: 0 0 6px 2px; letter-spacing: 1px; }
   .pool {
-    display: grid; justify-content: space-between; row-gap: 12px;
-    padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1;
-    border-radius: 12px; min-height: 98px; transition: opacity .2s;
+    display: grid; justify-content: space-between; row-gap: 12px; padding: 10px;
+    background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px;
+    min-height: 98px; transition: opacity .2s;
   }
   .pool.dim { opacity: .4; }
   .pool:empty::after {
@@ -465,26 +312,21 @@
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); pointer-events: none;
   }
   .pool-digit {
-    position: absolute; transform: translate(-50%, -50%);
-    font-size: 15px; font-weight: 800; color: #fff; background: #dc2626;
-    min-width: 22px; height: 22px; line-height: 22px; text-align: center;
-    padding: 0 4px; border-radius: 11px; border: 2px solid #fff;
+    position: absolute; transform: translate(-50%, -50%); font-size: 15px; font-weight: 800;
+    color: #fff; background: #dc2626; min-width: 22px; height: 22px; line-height: 22px;
+    text-align: center; padding: 0 4px; border-radius: 11px; border: 2px solid #fff;
     box-shadow: 0 2px 5px rgba(220,38,38,.45); pointer-events: none;
     z-index: 3; font-family: inherit;
   }
   .pool-tag {
-    font-size: 9px; font-weight: 700; line-height: 1.3;
-    color: #6d28d9; background: #f3e8ff;
-    padding: 1px 4px; border-radius: 5px;
-    width: 100%; text-align: center;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 9px; font-weight: 700; line-height: 1.3; color: #6d28d9;
+    background: #f3e8ff; padding: 1px 4px; border-radius: 5px; width: 100%;
+    text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-
   .ghost {
     position: fixed; pointer-events: none; z-index: 9999;
     opacity: .88; filter: drop-shadow(0 8px 14px rgba(15,23,42,.35));
   }
-
   .message {
     position: fixed; left: 50%; top: 38%;
     transform: translate(-50%, -50%) scale(.75);
@@ -495,23 +337,18 @@
     z-index: 10000; box-shadow: 0 16px 40px rgba(22,163,74,.4);
   }
   .message.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
   .toast {
     position: fixed; left: 50%; bottom: 40px;
     transform: translateX(-50%) translateY(20px);
-    background: rgba(15,23,42,.9); color: #fff;
-    padding: 10px 20px; border-radius: 10px;
-    font-size: 13px; font-weight: 600;
-    opacity: 0; pointer-events: none;
-    transition: all .25s; z-index: 10002;
-    box-shadow: 0 8px 24px rgba(15,23,42,.3);
+    background: rgba(15,23,42,.9); color: #fff; padding: 10px 20px;
+    border-radius: 10px; font-size: 13px; font-weight: 600;
+    opacity: 0; pointer-events: none; transition: all .25s;
+    z-index: 10002; box-shadow: 0 8px 24px rgba(15,23,42,.3);
     max-width: 90vw; text-align: center;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
   .modal-mask {
-    position: fixed; inset: 0;
-    background: rgba(15,23,42,.45);
+    position: fixed; inset: 0; background: rgba(15,23,42,.45);
     display: none; align-items: center; justify-content: center;
     z-index: 10001; padding: 20px;
     -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
@@ -519,184 +356,104 @@
   .modal-mask.show { display: flex; }
   .modal-box {
     background: #fff; border-radius: 14px; padding: 18px;
-    width: 100%; max-width: 360px;
-    box-shadow: 0 20px 50px rgba(15,23,42,.3);
+    width: 100%; max-width: 360px; box-shadow: 0 20px 50px rgba(15,23,42,.3);
     animation: modalIn .22s cubic-bezier(.2,.9,.3,1.3);
   }
-  @keyframes modalIn {
-    from { transform: scale(.88); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  .modal-title {
-    font-size: 15px; font-weight: 700;
-    margin-bottom: 12px; color: #1e3a8a; letter-spacing: 1px;
-  }
+  @keyframes modalIn { from { transform: scale(.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: #1e3a8a; letter-spacing: 1px; }
   .modal-input {
-    width: 100%; padding: 10px 12px; font-size: 15px;
-    border: 1px solid #cbd5e1; border-radius: 8px;
-    font-family: inherit; outline: none; margin-bottom: 12px;
+    width: 100%; padding: 10px 12px; font-size: 15px; border: 1px solid #cbd5e1;
+    border-radius: 8px; font-family: inherit; outline: none; margin-bottom: 12px;
     background: #f8fafc; color: #1e293b;
   }
   .modal-input:focus { border-color: #2563eb; background: #fff; }
   .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-
   .history-list {
-    max-height: 55vh; overflow-y: auto;
-    margin-bottom: 12px; padding-right: 4px;
+    max-height: 55vh; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;
     -webkit-overflow-scrolling: touch;
   }
   .history-item {
-    padding: 10px 12px; border-radius: 9px;
-    background: #f8fafc; border: 1px solid #e2e8f0;
-    margin-bottom: 8px; font-size: 12px;
+    padding: 10px 12px; border-radius: 9px; background: #f8fafc;
+    border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 12px;
   }
-  .history-row1 {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 5px;
-  }
-  .history-seed {
-    font-weight: 700; color: #1e3a8a;
-    font-size: 13px; letter-spacing: .5px;
-  }
+  .history-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .history-seed { font-weight: 700; color: #1e3a8a; font-size: 13px; letter-spacing: .5px; }
   .history-tag {
-    font-size: 10px; font-weight: 700;
-    padding: 2px 7px; border-radius: 6px; letter-spacing: .5px;
+    font-size: 10px; font-weight: 700; padding: 2px 7px;
+    border-radius: 6px; letter-spacing: .5px;
   }
   .history-tag.success { background: #dcfce7; color: #16a34a; }
   .history-tag.ongoing { background: #fef3c7; color: #d97706; }
   .history-tag.practice { background: #e0e7ff; color: #4338ca; }
-  .history-row2 {
-    display: flex; justify-content: space-between;
-    color: #64748b; font-size: 11px;
-  }
-  .history-state {
-    color: #7c3aed; font-weight: 700;
-    font-size: 11px; margin-top: 4px;
-  }
-  .history-duration {
-    margin-top: 2px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #2563eb;
-  }
-  .history-empty {
-    text-align: center; color: #94a3b8;
-    padding: 24px 0; font-size: 13px;
-  }
-
-  .rank-subtitle {
-    font-size: 11px; color: #94a3b8;
-    text-align: center; margin: -6px 0 10px; letter-spacing: .5px;
-  }
+  .history-row2 { display: flex; justify-content: space-between; color: #64748b; font-size: 11px; }
+  .history-state { color: #7c3aed; font-weight: 700; font-size: 11px; margin-top: 4px; }
+  .history-duration { margin-top: 2px; font-size: 11px; font-weight: 700; color: #2563eb; }
+  .history-empty { text-align: center; color: #94a3b8; padding: 24px 0; font-size: 13px; }
+  .rank-subtitle { font-size: 11px; color: #94a3b8; text-align: center; margin: -6px 0 10px; letter-spacing: .5px; }
   .rank-tabs {
-    display: flex; gap: 4px; margin-bottom: 12px;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-    padding-bottom: 2px;
+    display: flex; gap: 4px; margin-bottom: 12px; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; padding-bottom: 2px;
   }
   .rank-tab {
-    flex: 1 0 auto;
-    padding: 7px 8px; border-radius: 8px;
-    border: 1px solid #cbd5e1; background: #fff;
-    font-size: 11px; font-weight: 700; cursor: pointer;
-    transition: all .15s; font-family: inherit;
-    min-width: 52px; white-space: nowrap;
+    flex: 1 0 auto; padding: 7px 8px; border-radius: 8px;
+    border: 1px solid #cbd5e1; background: #fff; font-size: 11px;
+    font-weight: 700; cursor: pointer; transition: all .15s;
+    font-family: inherit; min-width: 52px; white-space: nowrap;
   }
-  .rank-tab.active {
-    background: #2563eb; color: #fff; border-color: #2563eb;
-  }
-  .rank-list {
-    max-height: 55vh; overflow-y: auto; margin-bottom: 12px;
-    -webkit-overflow-scrolling: touch;
-  }
+  .rank-tab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+  .rank-list { max-height: 55vh; overflow-y: auto; margin-bottom: 12px; -webkit-overflow-scrolling: touch; }
   .rank-item {
-    padding: 8px 10px; border-radius: 8px;
-    border-bottom: 1px solid #f1f5f9; font-size: 13px;
+    padding: 8px 10px; border-radius: 8px; border-bottom: 1px solid #f1f5f9; font-size: 13px;
   }
   .rank-item:nth-child(odd) { background: #f8fafc; }
-  .rank-main {
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .rank-no {
-    width: 28px; font-weight: 700; color: #64748b; text-align: center;
-    flex-shrink: 0;
-  }
+  .rank-main { display: flex; align-items: center; justify-content: space-between; }
+  .rank-no { width: 28px; font-weight: 700; color: #64748b; text-align: center; flex-shrink: 0; }
   .rank-name {
-    flex: 1; font-weight: 600; color: #1e293b;
-    margin: 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    font-size: 13px;
+    flex: 1; font-weight: 600; color: #1e293b; margin: 0 6px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px;
   }
   .rank-score {
-    font-weight: 700; color: #2563eb;
-    font-variant-numeric: tabular-nums;
+    font-weight: 700; color: #2563eb; font-variant-numeric: tabular-nums;
     flex-shrink: 0; font-size: 13px;
   }
   .rank-meta {
-    display: flex; justify-content: space-between;
-    font-size: 10px; color: #94a3b8;
-    margin-top: 3px;
-    padding-left: 34px;
+    display: flex; justify-content: space-between; font-size: 10px;
+    color: #94a3b8; margin-top: 3px; padding-left: 34px;
   }
   .rank-meta .rank-seed { color: #2563eb; font-weight: 700; }
   .rank-empty { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 13px; }
-
   .rules-content {
-    max-height: 60vh; overflow-y: auto;
-    font-size: 12px; line-height: 1.8;
-    color: #475569; padding-right: 4px;
-    -webkit-overflow-scrolling: touch;
+    max-height: 60vh; overflow-y: auto; font-size: 12px; line-height: 1.8;
+    color: #475569; padding-right: 4px; -webkit-overflow-scrolling: touch;
   }
   .rules-content .tip-line { display: block; }
   .rules-content .tip-line + .tip-line { margin-top: 4px; }
   .rules-content b { color: #334155; }
   .rules-content .win-rule {
-    display: block; margin-top: 6px;
-    color: #b45309; font-weight: 700;
+    display: block; margin-top: 6px; color: #b45309; font-weight: 700;
     padding-top: 6px; border-top: 1px dashed #e2e8f0;
   }
-
   .records-grid {
-    display: grid;
-    grid-template-columns: auto 1fr 1fr 1fr;
-    gap: 1px;
-    background: #e2e8f0;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 14px;
-    border: 1px solid #e2e8f0;
+    display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 1px;
+    background: #e2e8f0; border-radius: 8px; overflow: hidden;
+    margin-bottom: 14px; border: 1px solid #e2e8f0;
   }
   .records-cell {
-    background: #fff;
-    padding: 9px 6px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
+    background: #fff; padding: 9px 6px; text-align: center;
+    font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
   }
   .records-cell.header {
-    background: #f8fafc;
-    font-size: 11px;
-    color: #64748b;
-    font-weight: 700;
-    letter-spacing: .5px;
+    background: #f8fafc; font-size: 11px; color: #64748b;
+    font-weight: 700; letter-spacing: .5px;
   }
   .records-cell.label {
-    background: #f8fafc;
-    text-align: left;
-    color: #475569;
-    font-weight: 700;
-    padding-left: 12px;
-    padding-right: 12px;
-    white-space: nowrap;
+    background: #f8fafc; text-align: left; color: #475569;
+    font-weight: 700; padding-left: 12px; padding-right: 12px; white-space: nowrap;
   }
   .records-cell.value-current { color: #64748b; }
   .records-cell.value-best { color: #2563eb; font-weight: 800; }
   .records-cell.value-rank { color: #7c3aed; font-weight: 800; }
-  .records-empty {
-    text-align: center;
-    color: #94a3b8;
-    padding: 20px 0;
-    font-size: 13px;
-  }
+  .records-empty { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -750,7 +507,6 @@
           <div class="mode-desc">随机生成关卡 · 无排行榜</div>
         </div>
       </button>
-
       <button class="mode-btn" data-action="practice-specify">
         <div class="mode-icon">🔢</div>
         <div class="mode-content">
@@ -758,7 +514,6 @@
           <div class="mode-desc">指定编号关卡 · 无排行榜</div>
         </div>
       </button>
-
       <button class="mode-btn challenge" data-action="challenge-bw">
         <div class="mode-icon">⚪</div>
         <div class="mode-content">
@@ -766,7 +521,6 @@
           <div class="mode-desc">随机关卡 · 计入无数字排行榜</div>
         </div>
       </button>
-
       <button class="mode-btn challenge" data-action="challenge-num">
         <div class="mode-icon">🔵</div>
         <div class="mode-content">
@@ -798,11 +552,9 @@
           <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </button>
-
       <button id="btnMainAction" class="btn main-action">
         <span id="btnMainActionText">新游戏</span>
       </button>
-
       <button id="btnAnswer" class="btn icon-btn answer" title="参考答案">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 18h6"/>
@@ -810,7 +562,6 @@
           <path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7z"/>
         </svg>
       </button>
-
       <button id="btnLeaderboard" class="btn icon-btn" title="排行榜" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 20V10"/>
@@ -886,13 +637,6 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1);">
           <path d="M3 7v6h6"/>
           <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
-        </svg>
-      </button>
-      <button id="btnUpload" class="btn ghost-btn icon-btn" title="上传成绩" style="display:none;" disabled>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 16V4"/>
-          <path d="M6 10l6-6 6 6"/>
-          <path d="M4 20h16"/>
         </svg>
       </button>
     </div>
@@ -1050,8 +794,9 @@
   let pending = null;
   let drag = null;
 
-  // 标记：下一次挑战模式通关时，是否要把该项 streak 重置为 [本次成绩]
   let resetStreakOnNextSolve = false;
+  // ⭐ 新增：追踪正在进行的成绩上传，避免个人纪录读到旧数据
+  let pendingUploadPromise = null;
 
   let streakBw = [];
   let streakNum = [];
@@ -1093,7 +838,6 @@
   const btnAnswer = $('btnAnswer');
   const btnUndo = $('btnUndo');
   const btnRedo = $('btnRedo');
-  const btnUpload = $('btnUpload');
   const messageEl = $('message');
   const toastEl = $('toast');
   const digitRow = $('digitRow');
@@ -1250,11 +994,6 @@
       gameBtnLogin.style.display = 'inline-block';
       gameBtnRegister.style.display = 'inline-block';
     }
-  }
-
-  function updateUploadButton() {
-    if (gameMode !== 'challenge') { btnUpload.style.display = 'none'; return; }
-    btnUpload.style.display = 'none';
   }
 
   function makeEmptyModeState() {
@@ -1763,7 +1502,6 @@
     }
 
     renderAll();
-    updateUploadButton();
     if (!skipSave) { startTimer(); scheduleSaveProgress(); }
   }
 
@@ -1813,23 +1551,19 @@
     }
 
     btnMainActionText.textContent = '新游戏';
-
     btnLeaderboard.style.display = (gameMode === 'challenge') ? 'inline-flex' : 'none';
     digitRow.style.display = (gameMode === 'practice') ? 'flex' : 'none';
 
     digitSwitch.setAttribute('aria-pressed', String(digitalMode));
     modeHint.textContent = digitalMode ? '数字已开启' : '无数字';
-
     colorSwitch.setAttribute('aria-pressed', String(colorMode));
     colorHint.textContent = colorMode ? '彩色' : '黑白';
-
     targetSwitch.setAttribute('aria-pressed', String(showingTarget));
     targetHint.textContent = showingTarget ? '已显示目标图案' : '打开来查看目标图案';
     targetSwitch.disabled = answerMode;
-
     numberProgressRow.style.display = digitalMode ? 'flex' : 'none';
 
-    updateUndoButton(); updateRedoButton(); updateUploadButton();
+    updateUndoButton(); updateRedoButton();
     btnAnswer.disabled = !targetGrid;
   }
 
@@ -2272,7 +2006,6 @@
       await clearStreakOnServer(digitalMode ? 'num' : 'bw');
       resetStreakOnNextSolve = true;
       scheduleSaveProgress();
-      updateUploadButton();
       showToast('本局成绩已作废，连续记录已重置', 2500);
     }
 
@@ -2303,7 +2036,6 @@
     if (abandoned) return;
     if (pieces.some(p => !p.placed)) {
       solved = false;
-      updateUploadButton();
       updateModeUI();
       return;
     }
@@ -2341,19 +2073,29 @@
 
         const mode = digitalMode ? 'num' : 'bw';
 
+        // ⭐ 本地记录（所有模式）
         recordSuccess(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
 
+        // ⭐ 云端上传（已登录时，所有模式都上传）
         if (currentUser && supabase) {
-          uploadScore(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
+          // ⭐ 关键修复：保留上传的 promise，供个人纪录弹窗 await
+          pendingUploadPromise = uploadScore(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
         }
 
-        updateUploadButton();
+        // ⭐ 若个人纪录弹窗正打开着，等上传完成后自动刷新
+        if (myRecordsModal && myRecordsModal.classList.contains('show')) {
+          setTimeout(() => {
+            if (myRecordsModal.classList.contains('show')) {
+              loadMyRecords(currentRecordTab);
+            }
+          }, 600);
+        }
+
         updateModeUI();
         scheduleSaveProgress();
       }
     } else {
       solved = false;
-      updateUploadButton();
       updateModeUI();
     }
   }
@@ -2576,7 +2318,6 @@
           updateUserUI();
         }
         renderHistory();
-        updateUploadButton();
       });
 
       supabase.auth.getUser().then(async ({ data }) => {
@@ -2586,7 +2327,6 @@
           await syncRecordsFromCloud();
         }
         updateUserUI();
-        updateUploadButton();
         renderHistory();
       }).catch(() => {});
 
@@ -2622,7 +2362,11 @@
         .select('seed, state, updated_at')
         .eq('user_id', currentUser.id)
         .order('updated_at', { ascending: false });
-      if (error) throw error;
+      if (error) {
+        // 表不存在等错误不阻塞其他功能
+        console.warn('user_seeds 同步失败:', error.message);
+        return;
+      }
       if (!data) return;
 
       const localList = getCompletedSeeds();
@@ -2684,6 +2428,9 @@
     };
   }
 
+  // ⭐ 上传成绩：所有模式都写 records + upsert user_seeds
+  //    只有挑战模式才更新 profiles 的 records/streak/wins
+  //    ⭐ 关键修复：user_seeds 操作包裹 try-catch，避免因表缺失导致整个流程中断
   async function uploadScore(seed, mode, gameType, elapsed, endedAt) {
     if (!supabase || !currentUser) return false;
     const isChallenge = (gameType === 'challenge-bw' || gameType === 'challenge-num');
@@ -2696,6 +2443,7 @@
 
       const endedIso = new Date(endedAt).toISOString();
 
+      // 1. 插入 records 流水（失败则抛出，整个上传失败）
       const { error: recErr } = await supabase.from('records').insert({
         user_id: currentUser.id,
         username: username,
@@ -2708,28 +2456,34 @@
       });
       if (recErr) throw recErr;
 
-      const { data: existingSeed } = await supabase
-        .from('user_seeds')
-        .select('state')
-        .eq('user_id', currentUser.id)
-        .eq('seed', seed)
-        .maybeSingle();
+      // 2. ⭐ upsert user_seeds（失败不阻塞后续 profile 更新）
+      try {
+        const { data: existingSeed } = await supabase
+          .from('user_seeds')
+          .select('state')
+          .eq('user_id', currentUser.id)
+          .eq('seed', seed)
+          .maybeSingle();
 
-      const baseState = (existingSeed && existingSeed.state && typeof existingSeed.state === 'object' && !Array.isArray(existingSeed.state))
-        ? JSON.parse(JSON.stringify(existingSeed.state)) : {};
-      updateSeedState(baseState, mode, gameType, elapsed, endedAt);
+        const baseState = (existingSeed && existingSeed.state && typeof existingSeed.state === 'object' && !Array.isArray(existingSeed.state))
+          ? JSON.parse(JSON.stringify(existingSeed.state)) : {};
+        updateSeedState(baseState, mode, gameType, elapsed, endedAt);
 
-      const { error: upsertErr } = await supabase
-        .from('user_seeds')
-        .upsert({
-          user_id: currentUser.id,
-          seed: seed,
-          username: username,
-          state: baseState,
-          updated_at: endedIso
-        }, { onConflict: 'user_id,seed' });
-      if (upsertErr) throw upsertErr;
+        const { error: upsertErr } = await supabase
+          .from('user_seeds')
+          .upsert({
+            user_id: currentUser.id,
+            seed: seed,
+            username: username,
+            state: baseState,
+            updated_at: endedIso
+          }, { onConflict: 'user_id,seed' });
+        if (upsertErr) throw upsertErr;
+      } catch (seedErr) {
+        console.warn('user_seeds 更新失败（不影响 streak）:', seedErr);
+      }
 
+      // 3. ⭐ 更新 profile（核心：streak / records / wins）
       const { data: profile } = await supabase
         .from('profiles')
         .select('total_wins, bw_wins, num_wins, streak_bw, streak_num, records_bw, records_num, max_streak_bw, max_streak_num')
@@ -2821,15 +2575,18 @@
       };
 
       if (profile) {
-        await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
+        const { error: upErr } = await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
+        if (upErr) throw upErr;
       } else {
-        await supabase.from('profiles').insert({
+        const { error: insErr } = await supabase.from('profiles').insert({
           id: currentUser.id,
           username: username,
           ...updateData
         });
+        if (insErr) throw insErr;
       }
 
+      // ⭐ 更新内存缓存，让个人纪录能立即读到最新值
       streakBw = localStreakBw;
       streakNum = localStreakNum;
 
@@ -3098,6 +2855,13 @@
     if (!supabase) { myRecordsContent.innerHTML = '<div class="records-empty">服务尚未就绪</div>'; return; }
     if (!currentUser) { myRecordsContent.innerHTML = '<div class="records-empty">请先登录查看个人纪录</div>'; return; }
     myRecordsContent.innerHTML = '<div class="records-empty">加载中...</div>';
+
+    // ⭐ 关键修复：如果有正在进行的成绩上传，先等它完成，确保读到最新 streak
+    if (pendingUploadPromise) {
+      try { await pendingUploadPromise; } catch (e) {}
+      pendingUploadPromise = null;
+    }
+
     try {
       const isNum = (mode === 'num');
 
@@ -3117,8 +2881,22 @@
         return;
       }
 
-      const myStreakRaw = isNum ? myProfile.streak_num : myProfile.streak_bw;
-      const myStreak = Array.isArray(myStreakRaw) ? myStreakRaw : [];
+      // ⭐ 优先使用内存中的 streak（刚通关时已更新，比数据库更新）
+      let myStreak, maxStreak;
+      const dbStreak = isNum ? myProfile.streak_num : myProfile.streak_bw;
+      const dbStreakArr = Array.isArray(dbStreak) ? dbStreak : [];
+      const memStreak = isNum ? streakNum : streakBw;
+
+      // 内存优先：如果内存非空，用内存的；否则用数据库的
+      if (Array.isArray(memStreak) && memStreak.length > 0) {
+        myStreak = memStreak.slice();
+      } else {
+        myStreak = dbStreakArr;
+      }
+
+      const dbMaxStreak = (isNum ? myProfile.max_streak_num : myProfile.max_streak_bw) || 0;
+      maxStreak = Math.max(dbMaxStreak, myStreak.length);
+
       const myRecordsRaw = isNum ? myProfile.records_num : myProfile.records_bw;
       const myRecords = (myRecordsRaw && typeof myRecordsRaw === 'object' && !Array.isArray(myRecordsRaw)) ? myRecordsRaw : {};
 
@@ -3127,7 +2905,6 @@
       const curAo5 = calcAO5(myStreak);
       const curAo12 = calcAO12(myStreak);
       const curStreak = myStreak.length;
-      const maxStreak = (isNum ? myProfile.max_streak_num : myProfile.max_streak_bw) || 0;
 
       const storedBest = (myRecords.best && typeof myRecords.best === 'object' && myRecords.best.elapsed != null)
         ? myRecords.best.elapsed : null;
@@ -3340,19 +3117,6 @@
   btnUndo.addEventListener('click', () => { if (answerMode) return; popUndo(); });
   btnRedo.addEventListener('click', () => { if (answerMode) return; popRedo(); });
 
-  btnUpload.addEventListener('click', async () => {
-    if (gameMode !== 'challenge') { alert('练习模式不能上传成绩'); return; }
-    if (!supabase) { alert('服务尚未就绪'); return; }
-    if (!currentUser) { alert('请先登录账号'); return; }
-    if (!solved || abandoned) { alert('本局未成功或已作废，无法上传'); return; }
-    if (solvedElapsed == null) { alert('无法获取用时'); return; }
-    const mode = digitalMode ? 'num' : 'bw';
-    const endedAt = Date.now();
-    const ok = await uploadScore(currentSeed, mode, gameTypeKey, solvedElapsed, endedAt);
-    showToast(ok ? '成绩上传成功！' : '上传失败，请检查网络');
-    updateUploadButton();
-  });
-
   historyClose.addEventListener('click', closeHistory);
   historyClear.addEventListener('click', () => {
     if (!confirm('确定清空全部本地历史记录吗？（云端记录不会删除）')) return;
@@ -3421,7 +3185,6 @@
     buildBoard();
     renderAll();
     updateUserUI();
-    updateUploadButton();
     poolEl.addEventListener('contextmenu', e => e.preventDefault());
   }
 
@@ -3429,7 +3192,6 @@
 
   waitForSupabase(50).then(() => {
     updateUserUI();
-    updateUploadButton();
   });
 
 })();
