@@ -29,7 +29,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 18px;
     padding: 0 2px;
   }
@@ -41,7 +41,15 @@
     margin: 0;
     color: #1e3a8a;
     text-shadow: 0 2px 0 rgba(255,255,255,.9);
+    white-space: nowrap;
   }
+  .home-header-left, .home-header-right {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .home-header-left { min-width: 82px; }
+  .home-header-right { min-width: 82px; justify-content: flex-end; }
   .home-icon-btn {
     width: 38px; height: 38px;
     border-radius: 10px;
@@ -107,12 +115,11 @@
     gap: 12px;
     margin-bottom: 14px;
   }
-  /* ⭐ 内容居中排布，左右留白相等 */
   .mode-btn {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;   /* 整体居中 */
+    justify-content: center;
     gap: 14px;
     padding: 16px 18px;
     border-radius: 14px;
@@ -151,7 +158,7 @@
   .mode-btn .mode-content {
     display: flex;
     flex-direction: column;
-    align-items: center;   /* 内部文字居中 */
+    align-items: center;
     gap: 3px;
     flex: 0 1 auto;
     min-width: 0;
@@ -614,14 +621,18 @@
     margin: 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     font-size: 13px;
   }
-  .rank-name .uid-tag {
-    color: #7c3aed; font-weight: 700; font-size: 11px; margin-right: 2px;
-  }
   .rank-score {
     font-weight: 700; color: #2563eb;
     font-variant-numeric: tabular-nums;
     flex-shrink: 0; font-size: 13px;
   }
+  .rank-meta {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: #94a3b8;
+    margin-top: 3px;
+    padding-left: 34px;
+  }
+  .rank-meta .rank-seed { color: #2563eb; font-weight: 700; }
   .rank-empty { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 13px; }
 
   .rules-content {
@@ -638,6 +649,51 @@
     color: #b45309; font-weight: 700;
     padding-top: 6px; border-top: 1px dashed #e2e8f0;
   }
+
+  /* 个人纪录表格 */
+  .records-grid {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr 1fr;
+    gap: 1px;
+    background: #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    border: 1px solid #e2e8f0;
+  }
+  .records-cell {
+    background: #fff;
+    padding: 9px 6px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .records-cell.header {
+    background: #f8fafc;
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .records-cell.label {
+    background: #f8fafc;
+    text-align: left;
+    color: #475569;
+    font-weight: 700;
+    padding-left: 12px;
+    padding-right: 12px;
+    white-space: nowrap;
+  }
+  .records-cell.value-current { color: #64748b; }
+  .records-cell.value-best { color: #2563eb; font-weight: 800; }
+  .records-cell.value-rank { color: #7c3aed; font-weight: 800; }
+  .records-empty {
+    text-align: center;
+    color: #94a3b8;
+    padding: 20px 0;
+    font-size: 13px;
+  }
 </style>
 </head>
 <body>
@@ -645,20 +701,34 @@
 
   <div id="homeScreen">
     <div class="home-header">
-      <button id="homeBtnHelp" class="home-icon-btn" title="规则说明">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M9.1 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-          <line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-      </button>
+      <div class="home-header-left">
+        <button id="homeBtnHelp" class="home-icon-btn" title="规则说明">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.1 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </button>
+        <button id="homeBtnMyRecords" class="home-icon-btn" title="个人纪录">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M4 22h16"/>
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+          </svg>
+        </button>
+      </div>
       <h1>旋镜叠影</h1>
-      <button id="homeBtnHistory" class="home-icon-btn" title="历史记录">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="9"/>
-          <polyline points="12 7 12 12 15.5 14"/>
-        </svg>
-      </button>
+      <div class="home-header-right">
+        <button id="homeBtnHistory" class="home-icon-btn" title="历史记录">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <polyline points="12 7 12 12 15.5 14"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="home-user-row" id="homeUserRow">
@@ -751,7 +821,6 @@
       <span id="gameUserStatus">未登录</span>
       <button id="gameBtnLogin" class="link-btn">登录</button>
       <button id="gameBtnRegister" class="link-btn">注册</button>
-      <button id="gameBtnLogout" class="link-btn" style="display:none;">退出</button>
     </div>
 
     <div class="meta">
@@ -909,6 +978,20 @@
   </div>
 </div>
 
+<div id="myRecordsModal" class="modal-mask">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-title">个人纪录</div>
+    <div class="rank-tabs" style="margin-bottom:12px;">
+      <button class="rank-tab active" data-recordtab="bw">无数字</button>
+      <button class="rank-tab" data-recordtab="num">有数字</button>
+    </div>
+    <div id="myRecordsContent"></div>
+    <div class="modal-actions">
+      <button class="btn primary" id="myRecordsClose">关闭</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   'use strict';
@@ -964,7 +1047,6 @@
   let pending = null;
   let drag = null;
 
-  // streakBw / streakNum 仅内存缓存（用于上传排行榜）
   let streakBw = [];
   let streakNum = [];
 
@@ -1041,8 +1123,14 @@
   const leaderboardClose = $('leaderboardClose');
   const rankList = $('rankList');
   const rankSubtitle = $('rankSubtitle');
-  const rankTabs = document.querySelectorAll('.rank-tab');
+  const rankTabs = document.querySelectorAll('.rank-tab[data-tab]');
   let currentRankTab = 'best';
+
+  const myRecordsModal = $('myRecordsModal');
+  const myRecordsContent = $('myRecordsContent');
+  const myRecordsClose = $('myRecordsClose');
+  const myRecordTabs = document.querySelectorAll('.rank-tab[data-recordtab]');
+  let currentRecordTab = 'bw';
 
   const homeUserStatus = $('homeUserStatus');
   const homeBtnLogin = $('homeBtnLogin');
@@ -1051,11 +1139,10 @@
   const gameUserStatus = $('gameUserStatus');
   const gameBtnLogin = $('gameBtnLogin');
   const gameBtnRegister = $('gameBtnRegister');
-  const gameBtnLogout = $('gameBtnLogout');
   const homeBtnHistory = $('homeBtnHistory');
   const homeBtnHelp = $('homeBtnHelp');
+  const homeBtnMyRecords = $('homeBtnMyRecords');
 
-  // ============ 关键：按用户隔离本地存储 key ============
   function getStorageKey(base) {
     if (currentUser && currentUser.id) {
       return base + '_u_' + currentUser.id;
@@ -1146,7 +1233,6 @@
       gameUserStatus.classList.add('username');
       gameBtnLogin.style.display = 'none';
       gameBtnRegister.style.display = 'none';
-      gameBtnLogout.style.display = 'inline-block';
     } else {
       homeUserStatus.textContent = '未登录';
       homeUserStatus.classList.remove('username');
@@ -1157,7 +1243,6 @@
       gameUserStatus.classList.remove('username');
       gameBtnLogin.style.display = 'inline-block';
       gameBtnRegister.style.display = 'inline-block';
-      gameBtnLogout.style.display = 'none';
     }
   }
 
@@ -1172,7 +1257,6 @@
     btnUpload.disabled = false;
   }
 
-  // ===== 本地历史（按用户隔离） =====
   function getSuccessList() {
     try {
       const raw = localStorage.getItem(getStorageKey(STORAGE_SUCCESS));
@@ -1213,7 +1297,6 @@
     if (item) { item.uploaded = true; saveSuccessList(list); }
   }
 
-  // ===== 进度存储（按用户隔离） =====
   function getAllProgressMap() {
     try {
       const raw = localStorage.getItem(getStorageKey(STORAGE_PROGRESS));
@@ -2194,7 +2277,6 @@
         const mode = digitalMode ? 'num' : 'bw';
         recordSuccess(currentSeed, mode, isRandomChallenge, solvedElapsed, endTime, gameTypeKey);
 
-        // ⭐ 只有登录用户完成挑战模式通关时才上传排行榜
         if (gameMode === 'challenge' && currentUser && supabase) {
           uploadScore(currentSeed, mode, solvedElapsed, endTime, gameTypeKey);
         }
@@ -2287,7 +2369,6 @@
         ? '<span class="history-tag ongoing">进行中</span>'
         : (isPractice ? '<span class="history-tag practice">练习</span>' : '<span class="history-tag success">成功</span>');
       let uploadMark = '';
-      // 上传状态提示：仅挑战模式且非进行中显示
       if (!it.ongoing && !isPractice && it.uploaded === false && currentUser) {
         uploadMark = ' <span style="color:#dc2626;font-size:10px;">未上传</span>';
       }
@@ -2320,7 +2401,6 @@
       if (data) {
         currentUser.uid = data.uid;
         currentUser.username = data.username;
-        // ⭐ 从云端加载 streak（用于排行榜上传）
         streakBw = Array.isArray(data.streak_bw) ? data.streak_bw : [];
         streakNum = Array.isArray(data.streak_num) ? data.streak_num : [];
       } else {
@@ -2334,7 +2414,9 @@
             bw_wins: 0,
             num_wins: 0,
             streak_bw: [],
-            streak_num: []
+            streak_num: [],
+            records_bw: null,
+            records_num: null
           })
           .select('uid')
           .single();
@@ -2359,19 +2441,11 @@
         currentUser = session ? session.user : null;
         if (currentUser) {
           await loadUserUid();
-          // ⭐ 登录后，加载属于该用户的历史记录（本地 + 云端只读展示）
           await syncRecordsFromCloud();
         } else {
           updateUserUI();
         }
-        // ⭐ 无论登录与否，都重新渲染历史（因为 key 变了）
         renderHistory();
-        // ⭐ 重新加载当前模式的进度（因为 key 变了）
-        if (currentSeed && gameScreen.classList.contains('active')) {
-          // 保存旧用户进度
-          // 注：由于 getStorageKey 已根据 currentUser 变化，
-          // 这里需要根据新的 key 重新读取
-        }
         updateUploadButton();
       });
 
@@ -2410,7 +2484,6 @@
     });
   }
 
-  // ⭐ 只从云端读取该用户的历史记录用于展示（写入该用户专属本地 key）
   async function syncRecordsFromCloud() {
     if (!supabase || !currentUser) return;
     try {
@@ -2458,13 +2531,15 @@
     }
   }
 
-  // ⭐ 上传成绩（仅登录用户通关挑战模式时调用，用于排行榜）
+  // ⭐ 上传成绩：写入 records + 更新 profiles（best 永不降级）
   async function uploadScore(seed, mode, elapsed, endedAt, gameType) {
     if (!supabase || !currentUser) return false;
     try {
       const username = currentUser.username
         || (currentUser.user_metadata && currentUser.user_metadata.username)
         || currentUser.email;
+
+      const endedIso = new Date(endedAt).toISOString();
 
       const { error: recErr } = await supabase.from('records').insert({
         user_id: currentUser.id,
@@ -2473,20 +2548,22 @@
         mode: mode,
         is_random: true,
         elapsed: elapsed,
-        ended_at: new Date(endedAt).toISOString()
+        ended_at: endedIso
       });
       if (recErr) throw recErr;
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('total_wins, bw_wins, num_wins, streak_bw, streak_num')
+        .select('total_wins, bw_wins, num_wins, streak_bw, streak_num, records_bw, records_num')
         .eq('id', currentUser.id)
-        .single();
+        .maybeSingle();
 
-      let localStreakBw = Array.isArray(profile && profile.streak_bw) ? profile.streak_bw.slice() : [];
-      let localStreakNum = Array.isArray(profile && profile.streak_num) ? profile.streak_num.slice() : [];
+      let localStreakBw = (profile && Array.isArray(profile.streak_bw)) ? profile.streak_bw.slice() : [];
+      let localStreakNum = (profile && Array.isArray(profile.streak_num)) ? profile.streak_num.slice() : [];
       let bwWins = (profile && profile.bw_wins) || 0;
       let numWins = (profile && profile.num_wins) || 0;
+      const recordsBw = (profile && profile.records_bw) || null;
+      const recordsNum = (profile && profile.records_num) || null;
 
       if (mode === 'bw') {
         localStreakBw.push(elapsed);
@@ -2498,12 +2575,68 @@
         numWins += 1;
       }
 
+      const curStreak = mode === 'bw' ? localStreakBw : localStreakNum;
+      const curStats = {
+        best: calcBest(curStreak),
+        mo3: calcMO3(curStreak),
+        ao5: calcAO5(curStreak),
+        ao12: calcAO12(curStreak)
+      };
+
+      let curRecords = (mode === 'bw' ? recordsBw : recordsNum) || {};
+      if (typeof curRecords !== 'object' || Array.isArray(curRecords)) curRecords = {};
+      const newRecords = Object.assign({}, curRecords);
+
+      const storedBest = curRecords.best;
+      const storedBestVal = (storedBest && typeof storedBest === 'object' && storedBest.elapsed != null)
+        ? storedBest.elapsed : null;
+
+      // ⭐ 核心：只在本次成绩严格优于历史最佳时替换
+      if (storedBestVal == null || elapsed < storedBestVal) {
+        newRecords.best = {
+          elapsed: elapsed,
+          seed: seed,
+          ended_at: endedIso
+        };
+      }
+
+      // MO3 / AO5 / AO12 同样只在更优时替换
+      ['mo3', 'ao5', 'ao12'].forEach(k => {
+        const v = curStats[k];
+        if (v == null) return;
+        const prev = (typeof curRecords[k] === 'number') ? curRecords[k] : null;
+        if (prev == null || v < prev) newRecords[k] = v;
+      });
+
+      // 边界：如果有更早的更好成绩但记录缺失，从 records 兜底取
+      if (storedBestVal == null && curStats.best != null && curStats.best < elapsed) {
+        try {
+          const { data: bestRec } = await supabase
+            .from('records')
+            .select('seed, elapsed, ended_at')
+            .eq('user_id', currentUser.id)
+            .eq('mode', mode)
+            .order('elapsed', { ascending: true })
+            .limit(1)
+            .maybeSingle();
+          if (bestRec && bestRec.elapsed < elapsed) {
+            newRecords.best = {
+              elapsed: bestRec.elapsed,
+              seed: bestRec.seed,
+              ended_at: bestRec.ended_at
+            };
+          }
+        } catch (e) {}
+      }
+
       const updateData = {
         total_wins: ((profile && profile.total_wins) || 0) + 1,
         bw_wins: bwWins,
         num_wins: numWins,
         streak_bw: localStreakBw,
         streak_num: localStreakNum,
+        records_bw: mode === 'bw' ? newRecords : (recordsBw || null),
+        records_num: mode === 'num' ? newRecords : (recordsNum || null),
         updated_at: new Date().toISOString()
       };
 
@@ -2517,7 +2650,6 @@
         });
       }
 
-      // 更新内存缓存
       streakBw = localStreakBw;
       streakNum = localStreakNum;
 
@@ -2564,7 +2696,6 @@
   gameBtnLogin.addEventListener('click', () => showAuthModal('login'));
   gameBtnRegister.addEventListener('click', () => showAuthModal('register'));
   homeBtnLogout.addEventListener('click', async () => { if (supabase) await supabase.auth.signOut(); });
-  gameBtnLogout.addEventListener('click', async () => { if (supabase) await supabase.auth.signOut(); });
   authSwitch.addEventListener('click', () => showAuthModal(authMode === 'login' ? 'register' : 'login'));
   authCancel.addEventListener('click', () => authModal.classList.remove('show'));
   authSubmit.addEventListener('click', async () => {
@@ -2613,7 +2744,9 @@
               bw_wins: 0,
               num_wins: 0,
               streak_bw: [],
-              streak_num: []
+              streak_num: [],
+              records_bw: null,
+              records_num: null
             });
           if (insertErr) {
             if (insertErr.code === '23505' ||
@@ -2687,6 +2820,7 @@
     return best;
   }
 
+  // ⭐ 排行榜：Best 用 records_bw.records_num.best，且显示 seed 与时间
   async function loadRanking(tab) {
     if (!supabase) { rankList.innerHTML = '<div class="rank-empty">服务尚未就绪</div>'; return; }
     rankList.innerHTML = '<div class="rank-empty">加载中...</div>';
@@ -2696,7 +2830,7 @@
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('uid, username, streak_bw, streak_num, bw_wins, num_wins, total_wins')
+        .select('username, streak_bw, streak_num, bw_wins, num_wins, records_bw, records_num')
         .limit(500);
       if (error) throw error;
       if (!data || data.length === 0) {
@@ -2706,20 +2840,29 @@
 
       const items = [];
       data.forEach(prof => {
-        const arr = isNum
-          ? (Array.isArray(prof.streak_num) ? prof.streak_num : [])
-          : (Array.isArray(prof.streak_bw) ? prof.streak_bw : []);
+        const arrRaw = isNum ? prof.streak_num : prof.streak_bw;
+        const arr = Array.isArray(arrRaw) ? arrRaw : [];
+        const recordsRaw = isNum ? prof.records_num : prof.records_bw;
+        const records = (recordsRaw && typeof recordsRaw === 'object' && !Array.isArray(recordsRaw)) ? recordsRaw : {};
+
+        const storedBest = (records.best && typeof records.best === 'object' && records.best.elapsed != null)
+          ? records.best : null;
+        const best = storedBest ? storedBest.elapsed : calcBest(arr);
+        const bestSeed = storedBest ? storedBest.seed : null;
+        const bestEndedAt = storedBest ? storedBest.ended_at : null;
+
+        const mo3 = (typeof records.mo3 === 'number') ? records.mo3 : calcMO3(arr);
+        const ao5 = (typeof records.ao5 === 'number') ? records.ao5 : calcAO5(arr);
+        const ao12 = (typeof records.ao12 === 'number') ? records.ao12 : calcAO12(arr);
         const amount = isNum ? (prof.num_wins || 0) : (prof.bw_wins || 0);
-        const best = calcBest(arr);
-        const mo3 = calcMO3(arr);
-        const ao5 = calcAO5(arr);
-        const ao12 = calcAO12(arr);
+
         if (best == null && amount === 0) return;
+
         items.push({
-          uid: prof.uid,
           username: prof.username,
-          best, mo3, ao5, ao12,
-          amount: amount
+          best, bestSeed, bestEndedAt,
+          mo3, ao5, ao12,
+          amount
         });
       });
 
@@ -2754,20 +2897,142 @@
 
       let html = '';
       sorted.forEach((item, index) => {
-        const uidTag = item.uid ? '<span class="uid-tag">#' + item.uid + '</span> ' : '';
         html += '<div class="rank-item">' +
           '<div class="rank-main">' +
             '<span class="rank-no">' + (index + 1) + '</span>' +
-            '<span class="rank-name">' + uidTag + (item.username || '匿名') + '</span>' +
+            '<span class="rank-name">' + (item.username || '匿名') + '</span>' +
             '<span class="rank-score">' + scoreFn(item) + '</span>' +
-          '</div>' +
-        '</div>';
+          '</div>';
+        // ⭐ Best 榜额外显示 seed 与结束时间
+        if (tab === 'best' && item.bestSeed != null) {
+          const t = item.bestEndedAt ? formatDateShort(new Date(item.bestEndedAt).getTime()) : '—';
+          html += '<div class="rank-meta">' +
+            '<span class="rank-seed">#' + item.bestSeed + '</span>' +
+            '<span class="rank-time">' + t + '</span>' +
+          '</div>';
+        }
+        html += '</div>';
       });
       rankList.innerHTML = html;
     } catch (e) {
       console.error(e);
       rankList.innerHTML = '<div class="rank-empty">加载失败</div>';
     }
+  }
+
+  // ⭐ 个人纪录弹窗
+  async function loadMyRecords(mode) {
+    if (!supabase) { myRecordsContent.innerHTML = '<div class="records-empty">服务尚未就绪</div>'; return; }
+    if (!currentUser) { myRecordsContent.innerHTML = '<div class="records-empty">请先登录查看个人纪录</div>'; return; }
+    myRecordsContent.innerHTML = '<div class="records-empty">加载中...</div>';
+    try {
+      const isNum = (mode === 'num');
+
+      const { data: allProfiles, error } = await supabase
+        .from('profiles')
+        .select('id, streak_bw, streak_num, bw_wins, num_wins, records_bw, records_num')
+        .limit(500);
+      if (error) throw error;
+      if (!allProfiles) {
+        myRecordsContent.innerHTML = '<div class="records-empty">暂无数据</div>';
+        return;
+      }
+
+      const myProfile = allProfiles.find(p => p.id === currentUser.id);
+      if (!myProfile) {
+        myRecordsContent.innerHTML = '<div class="records-empty">暂无数据</div>';
+        return;
+      }
+
+      const myStreakRaw = isNum ? myProfile.streak_num : myProfile.streak_bw;
+      const myStreak = Array.isArray(myStreakRaw) ? myStreakRaw : [];
+      const myRecordsRaw = isNum ? myProfile.records_num : myProfile.records_bw;
+      const myRecords = (myRecordsRaw && typeof myRecordsRaw === 'object' && !Array.isArray(myRecordsRaw)) ? myRecordsRaw : {};
+
+      const curBest = calcBest(myStreak);
+      const curMo3 = calcMO3(myStreak);
+      const curAo5 = calcAO5(myStreak);
+      const curAo12 = calcAO12(myStreak);
+      const curAmount = isNum ? (myProfile.num_wins || 0) : (myProfile.bw_wins || 0);
+
+      const storedBest = (myRecords.best && typeof myRecords.best === 'object' && myRecords.best.elapsed != null)
+        ? myRecords.best.elapsed : null;
+
+      const best = {
+        best: storedBest != null ? storedBest : curBest,
+        mo3: (typeof myRecords.mo3 === 'number') ? myRecords.mo3 : curMo3,
+        ao5: (typeof myRecords.ao5 === 'number') ? myRecords.ao5 : curAo5,
+        ao12: (typeof myRecords.ao12 === 'number') ? myRecords.ao12 : curAo12,
+        amount: curAmount
+      };
+      const current = { best: curBest, mo3: curMo3, ao5: curAo5, ao12: curAo12, amount: curAmount };
+
+      const allUsers = allProfiles.map(p => {
+        const arrRaw = isNum ? p.streak_num : p.streak_bw;
+        const arr = Array.isArray(arrRaw) ? arrRaw : [];
+        const recRaw = isNum ? p.records_num : p.records_bw;
+        const rec = (recRaw && typeof recRaw === 'object' && !Array.isArray(recRaw)) ? recRaw : {};
+        const sb = (rec.best && typeof rec.best === 'object' && rec.best.elapsed != null)
+          ? rec.best.elapsed : calcBest(arr);
+        return {
+          id: p.id,
+          best: sb,
+          mo3: (typeof rec.mo3 === 'number') ? rec.mo3 : calcMO3(arr),
+          ao5: (typeof rec.ao5 === 'number') ? rec.ao5 : calcAO5(arr),
+          ao12: (typeof rec.ao12 === 'number') ? rec.ao12 : calcAO12(arr),
+          amount: isNum ? (p.num_wins || 0) : (p.bw_wins || 0)
+        };
+      });
+
+      const rankOf = (key, desc) => {
+        const filtered = allUsers.filter(x => x[key] != null).sort((a, b) => {
+          return desc ? (b[key] - a[key]) : (a[key] - b[key]);
+        });
+        const idx = filtered.findIndex(x => x.id === currentUser.id);
+        return idx >= 0 ? idx + 1 : null;
+      };
+
+      const ranks = {
+        best: rankOf('best', false),
+        mo3: rankOf('mo3', false),
+        ao5: rankOf('ao5', false),
+        ao12: rankOf('ao12', false),
+        amount: rankOf('amount', true)
+      };
+
+      renderMyRecords(current, best, ranks);
+    } catch (e) {
+      console.error('加载个人纪录失败:', e);
+      myRecordsContent.innerHTML = '<div class="records-empty">加载失败</div>';
+    }
+  }
+
+  function renderMyRecords(current, best, ranks) {
+    const rows = [
+      { label: 'Best',   key: 'best',   unit: 'time' },
+      { label: 'MO3',    key: 'mo3',    unit: 'time' },
+      { label: 'AO5',    key: 'ao5',    unit: 'time' },
+      { label: 'AO12',   key: 'ao12',   unit: 'time' },
+      { label: 'Amount', key: 'amount', unit: 'count' }
+    ];
+    const fmt = (val, unit) => {
+      if (val == null) return '—';
+      if (unit === 'count') return val + ' 次';
+      return formatTimer(val);
+    };
+    let html = '<div class="records-grid">';
+    html += '<div class="records-cell header label">项目</div>';
+    html += '<div class="records-cell header">当前</div>';
+    html += '<div class="records-cell header">最好</div>';
+    html += '<div class="records-cell header">排名</div>';
+    rows.forEach(row => {
+      html += '<div class="records-cell label">' + row.label + '</div>';
+      html += '<div class="records-cell value-current">' + fmt(current[row.key], row.unit) + '</div>';
+      html += '<div class="records-cell value-best">' + fmt(best[row.key], row.unit) + '</div>';
+      html += '<div class="records-cell value-rank">' + (ranks[row.key] ? ('#' + ranks[row.key]) : '—') + '</div>';
+    });
+    html += '</div>';
+    myRecordsContent.innerHTML = html;
   }
 
   function startMode(action) {
@@ -2857,6 +3122,24 @@
   btnHelp.addEventListener('click', openRules);
   rulesClose.addEventListener('click', closeRules);
   rulesModal.addEventListener('click', (e) => { if (e.target === rulesModal) closeRules(); });
+
+  homeBtnMyRecords.addEventListener('click', () => {
+    if (!currentUser) { alert('请先登录后再查看个人纪录'); return; }
+    currentRecordTab = 'bw';
+    myRecordTabs.forEach(t => t.classList.toggle('active', t.dataset.recordtab === 'bw'));
+    myRecordsModal.classList.add('show');
+    loadMyRecords('bw');
+  });
+  myRecordsClose.addEventListener('click', () => myRecordsModal.classList.remove('show'));
+  myRecordsModal.addEventListener('click', (e) => { if (e.target === myRecordsModal) myRecordsModal.classList.remove('show'); });
+  myRecordTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      myRecordTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentRecordTab = tab.dataset.recordtab;
+      loadMyRecords(currentRecordTab);
+    });
+  });
 
   btnMainAction.addEventListener('click', async () => {
     if (gameMode === 'challenge') {
