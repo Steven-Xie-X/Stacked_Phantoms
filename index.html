@@ -654,7 +654,6 @@
     padding-top: 6px; border-top: 1px dashed #e2e8f0;
   }
 
-  /* 个人纪录表格 */
   .records-grid {
     display: grid;
     grid-template-columns: auto 1fr 1fr 1fr;
@@ -939,7 +938,7 @@
       <span class="tip-line" style="color:#b45309;font-weight:600;">参考答案：单击盘面放置下一块，双击或右键盘面撤回至上一步。挑战模式进行中查看答案会作废本局成绩。</span>
       <span class="tip-line" style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示）。</span>
       <span class="tip-line" style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span>
-      <span class="tip-line" style="color:#7c3aed;font-weight:600;">挑战模式：进行中查看答案或点击"新游戏"都会作废本局成绩并打断连续记录。</span>
+      <span class="tip-line" style="color:#7c3aed;font-weight:600;">挑战模式：进行中查看答案或点击"新游戏"都会作废本局成绩并打断连续记录。放弃后重新开始的第一局通关会作为新的连续起点（连续 1 次）。</span>
       <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片；若开启数字显示，数字也必须完全匹配。</span>
     </div>
     <div class="modal-actions" style="margin-top: 14px;">
@@ -1050,6 +1049,11 @@
   let colorMode = false;
   let pending = null;
   let drag = null;
+
+  // ⭐ 标记：下一次挑战模式通关时，是否要把该项 streak 重置为 [本次成绩]
+  // 场景：玩家在挑战进行中放弃（点新游戏 / 查看答案）→ 连续被打断
+  //      接下来的新游戏通关应作为"连续 1 次"的起点
+  let resetStreakOnNextSolve = false;
 
   let streakBw = [];
   let streakNum = [];
@@ -1251,25 +1255,12 @@
   }
 
   function updateUploadButton() {
-    // 由于所有模式均已自动上传，此按钮仅作为挑战模式下的备用显示
     if (gameMode !== 'challenge') { btnUpload.style.display = 'none'; return; }
     btnUpload.style.display = 'none';
   }
 
   /* ============================================================
-   * 本地存储：completedSeeds（每个 seed 一条，包含 state 综合状态）
-   * 结构：
-   * [
-   *   {
-   *     seed: 5,
-   *     state: {
-   *       bw: { done, doneAt, challenge, practice, random, specify,
-   *             challengeBest, challengeBestAt, practiceBest, practiceBestAt },
-   *       num: { ... }
-   *     },
-   *     updatedAt: 1234567890
-   *   }
-   * ]
+   * 本地存储：completedSeeds（每个 seed 一条，含综合 state）
    * ============================================================ */
 
   function makeEmptyModeState() {
@@ -1282,7 +1273,6 @@
     };
   }
 
-  // 更新 state 中的某一模式（bw/num）
   function updateSeedState(state, mode, gameType, elapsed, endedAt) {
     if (!state) state = {};
     const m = Object.assign(makeEmptyModeState(), state[mode] || {});
@@ -1306,15 +1296,13 @@
         m.practiceBestAt = endedAt;
       }
     }
-    // 抽取方式
     if (gameType === 'practice-specify') m.specify = true;
-    else m.random = true; // 其余三种都是随机
+    else m.random = true;
 
     state[mode] = m;
     return state;
   }
 
-  // 旧结构迁移：旧结构是 [ { seed, mode, gameType, elapsed, time, ... } ]
   function migrateOldSuccessList(oldList) {
     const map = new Map();
     oldList.forEach(old => {
@@ -1336,7 +1324,6 @@
       if (!raw) return [];
       const data = JSON.parse(raw);
       if (!Array.isArray(data)) return [];
-      // 检测旧结构
       if (data.length > 0 && data[0].mode !== undefined) {
         const migrated = migrateOldSuccessList(data);
         try { localStorage.setItem(getStorageKey(STORAGE_SUCCESS), JSON.stringify(migrated)); } catch (e) {}
@@ -1349,7 +1336,6 @@
     try { localStorage.setItem(getStorageKey(STORAGE_SUCCESS), JSON.stringify(list)); } catch (e) {}
   }
 
-  // 记录一次通关（本地）
   function recordSuccess(seed, mode, gameType, elapsed, endedAt) {
     const list = getCompletedSeeds();
     let item = list.find(x => x && x.seed === seed);
@@ -1368,7 +1354,6 @@
     return list.find(x => x && x.seed === seed) || null;
   }
 
-  // 所有已完成过的 seed 集合
   function getAllSolvedSeeds() {
     const set = new Set();
     getCompletedSeeds().forEach(x => { if (x && x.seed != null) set.add(x.seed); });
@@ -1411,6 +1396,8 @@
       isRandom: isRandomChallenge,
       solved: solved,
       abandoned: abandoned,
+      // ⭐ 持久化"下一次通关需重置 streak"的标志
+      pendingResetStreak: resetStreakOnNextSolve,
       startTime: challengeStartTime,
       solvedElapsed: solvedElapsed,
       pieces: pieces.map(p => ({
@@ -1448,6 +1435,8 @@
       colorMode = !!data.color;
       solved = !!data.solved;
       abandoned = !!data.abandoned;
+      // ⭐ 恢复"下一次通关重置 streak"标志
+      resetStreakOnNextSolve = !!data.pendingResetStreak;
       undoStack = sanitizeSnapshot(data.undoStack).slice(-MAX_UNDO);
       redoStack = sanitizeSnapshot(data.redoStack).slice(-MAX_UNDO);
 
@@ -1483,7 +1472,6 @@
     }
   }
 
-  // 随机抽题：排除所有模式下已成功通关的编号
   function pickNewSeed() {
     const solvedSeeds = getAllSolvedSeeds();
     if (solvedSeeds.size < 5000) {
@@ -2290,6 +2278,8 @@
       abandoned = true;
       stopTimer();
       await clearStreakOnServer(digitalMode ? 'num' : 'bw');
+      // ⭐ 作废后，下一次通关应作为新连续的起点
+      resetStreakOnNextSolve = true;
       scheduleSaveProgress();
       updateUploadButton();
       showToast('本局成绩已作废，连续记录已重置', 2500);
@@ -2360,10 +2350,8 @@
 
         const mode = digitalMode ? 'num' : 'bw';
 
-        // ⭐ 本地记录（所有模式）
         recordSuccess(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
 
-        // ⭐ 云端上传（已登录时，所有模式都上传）
         if (currentUser && supabase) {
           uploadScore(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
         }
@@ -2405,7 +2393,6 @@
     });
   }
 
-  // ⭐ 指定编号：根据 state 提示已挑战过哪些模式
   async function promptSeedAndStart() {
     const input = await showInputModal('');
     if (input === null) return false;
@@ -2432,7 +2419,6 @@
     return true;
   }
 
-  // 构造显示用的状态标签
   function buildStateTag(state) {
     if (!state) return '';
     let practice = false, challenge = false;
@@ -2465,7 +2451,6 @@
     return parts.join(' · ');
   }
 
-  // 从 state 中提取"该 seed 的最快挑战成绩"（用于展示）
   function getBestElapsedFromState(state) {
     if (!state) return null;
     let best = null;
@@ -2482,7 +2467,6 @@
     const allProgress = getAllProgressMap();
     const items = [];
 
-    // 进行中
     Object.keys(allProgress).forEach(key => {
       const p = allProgress[key];
       if (p && p.seed && !p.solved && !p.abandoned) {
@@ -2642,7 +2626,6 @@
     });
   }
 
-  // ⭐ 从 user_seeds 表同步状态到本地
   async function syncRecordsFromCloud() {
     if (!supabase || !currentUser) return;
     try {
@@ -2668,7 +2651,6 @@
             updatedAt: recTime
           });
         } else {
-          // 合并 state（云端覆盖本地）
           if (rec.state && typeof rec.state === 'object') {
             if (!existing.state) existing.state = {};
             Object.keys(rec.state).forEach(m => {
@@ -2714,8 +2696,10 @@
     };
   }
 
-  // ⭐ 上传成绩：所有模式都写 records 流水 + upsert user_seeds
-  //    但只有挑战模式才更新 profiles 的 records/streak/wins
+  // ⭐ 上传成绩
+  //    - 所有模式都写 records 流水 + upsert user_seeds
+  //    - 只有挑战模式才更新 profiles 的 records/streak/wins
+  //    - 若 resetStreakOnNextSolve 为 true，则直接把 streak 设为 [elapsed]
   async function uploadScore(seed, mode, gameType, elapsed, endedAt) {
     if (!supabase || !currentUser) return false;
     const isChallenge = (gameType === 'challenge-bw' || gameType === 'challenge-num');
@@ -2780,13 +2764,25 @@
       const totalWins = ((profile && profile.total_wins) || 0) + 1;
 
       if (isChallenge) {
+        // ⭐ 关键：若之前放弃过挑战，则把本次成绩作为新连续的第 1 项
+        const doReset = resetStreakOnNextSolve;
+        resetStreakOnNextSolve = false;
+
         if (mode === 'bw') {
-          localStreakBw.push(elapsed);
-          if (localStreakBw.length > STREAK_MAX) localStreakBw = localStreakBw.slice(-STREAK_MAX);
+          if (doReset) {
+            localStreakBw = [elapsed];
+          } else {
+            localStreakBw.push(elapsed);
+            if (localStreakBw.length > STREAK_MAX) localStreakBw = localStreakBw.slice(-STREAK_MAX);
+          }
           bwWins += 1;
         } else {
-          localStreakNum.push(elapsed);
-          if (localStreakNum.length > STREAK_MAX) localStreakNum = localStreakNum.slice(-STREAK_MAX);
+          if (doReset) {
+            localStreakNum = [elapsed];
+          } else {
+            localStreakNum.push(elapsed);
+            if (localStreakNum.length > STREAK_MAX) localStreakNum = localStreakNum.slice(-STREAK_MAX);
+          }
           numWins += 1;
         }
 
@@ -3340,6 +3336,8 @@
         await clearStreakOnServer(digitalMode ? 'num' : 'bw');
         abandoned = true;
         stopTimer();
+        // ⭐ 关键：标记"下一次通关重置 streak"
+        resetStreakOnNextSolve = true;
         scheduleSaveProgress();
       }
       generateChallenge(pickNewSeed(), false, true);
