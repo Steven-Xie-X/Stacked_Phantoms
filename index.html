@@ -569,11 +569,15 @@
     display: flex; justify-content: space-between;
     color: #64748b; font-size: 11px;
   }
+  .history-state {
+    color: #7c3aed; font-weight: 700;
+    font-size: 11px; margin-top: 4px;
+  }
   .history-duration {
-    margin-top: 4px;
+    margin-top: 2px;
     font-size: 11px;
     font-weight: 700;
-    color: #7c3aed;
+    color: #2563eb;
   }
   .history-empty {
     text-align: center; color: #94a3b8;
@@ -1247,54 +1251,128 @@
   }
 
   function updateUploadButton() {
+    // 由于所有模式均已自动上传，此按钮仅作为挑战模式下的备用显示
     if (gameMode !== 'challenge') { btnUpload.style.display = 'none'; return; }
-    btnUpload.style.display = 'inline-flex';
-    if (!currentUser) { btnUpload.disabled = true; return; }
-    if (!solved || abandoned) { btnUpload.disabled = true; return; }
-    if (isChallengeUploaded(currentSeed, digitalMode ? 'num' : 'bw', gameTypeKey)) {
-      btnUpload.disabled = true; return;
-    }
-    btnUpload.disabled = false;
+    btnUpload.style.display = 'none';
   }
 
-  function getSuccessList() {
+  /* ============================================================
+   * 本地存储：completedSeeds（每个 seed 一条，包含 state 综合状态）
+   * 结构：
+   * [
+   *   {
+   *     seed: 5,
+   *     state: {
+   *       bw: { done, doneAt, challenge, practice, random, specify,
+   *             challengeBest, challengeBestAt, practiceBest, practiceBestAt },
+   *       num: { ... }
+   *     },
+   *     updatedAt: 1234567890
+   *   }
+   * ]
+   * ============================================================ */
+
+  function makeEmptyModeState() {
+    return {
+      done: false, doneAt: null,
+      challenge: false, practice: false,
+      random: false, specify: false,
+      challengeBest: null, challengeBestAt: null,
+      practiceBest: null, practiceBestAt: null
+    };
+  }
+
+  // 更新 state 中的某一模式（bw/num）
+  function updateSeedState(state, mode, gameType, elapsed, endedAt) {
+    if (!state) state = {};
+    const m = Object.assign(makeEmptyModeState(), state[mode] || {});
+    m.done = true;
+    if (!m.doneAt || endedAt > m.doneAt) m.doneAt = endedAt;
+
+    const isChallenge = gameType === 'challenge-bw' || gameType === 'challenge-num';
+    const isPractice = gameType === 'practice-random' || gameType === 'practice-specify';
+
+    if (isChallenge) {
+      m.challenge = true;
+      if (m.challengeBest == null || elapsed < m.challengeBest) {
+        m.challengeBest = elapsed;
+        m.challengeBestAt = endedAt;
+      }
+    }
+    if (isPractice) {
+      m.practice = true;
+      if (m.practiceBest == null || elapsed < m.practiceBest) {
+        m.practiceBest = elapsed;
+        m.practiceBestAt = endedAt;
+      }
+    }
+    // 抽取方式
+    if (gameType === 'practice-specify') m.specify = true;
+    else m.random = true; // 其余三种都是随机
+
+    state[mode] = m;
+    return state;
+  }
+
+  // 旧结构迁移：旧结构是 [ { seed, mode, gameType, elapsed, time, ... } ]
+  function migrateOldSuccessList(oldList) {
+    const map = new Map();
+    oldList.forEach(old => {
+      if (!old || old.seed == null) return;
+      let entry = map.get(old.seed);
+      if (!entry) {
+        entry = { seed: old.seed, state: {}, updatedAt: 0 };
+        map.set(old.seed, entry);
+      }
+      updateSeedState(entry.state, old.mode || 'bw', old.gameType || 'challenge-bw', old.elapsed || 0, old.time || Date.now());
+      if ((old.time || 0) > entry.updatedAt) entry.updatedAt = old.time;
+    });
+    return Array.from(map.values());
+  }
+
+  function getCompletedSeeds() {
     try {
       const raw = localStorage.getItem(getStorageKey(STORAGE_SUCCESS));
       if (!raw) return [];
-      const list = JSON.parse(raw);
-      return Array.isArray(list) ? list : [];
+      const data = JSON.parse(raw);
+      if (!Array.isArray(data)) return [];
+      // 检测旧结构
+      if (data.length > 0 && data[0].mode !== undefined) {
+        const migrated = migrateOldSuccessList(data);
+        try { localStorage.setItem(getStorageKey(STORAGE_SUCCESS), JSON.stringify(migrated)); } catch (e) {}
+        return migrated;
+      }
+      return data;
     } catch (e) { return []; }
   }
-  function saveSuccessList(list) {
+  function saveCompletedSeeds(list) {
     try { localStorage.setItem(getStorageKey(STORAGE_SUCCESS), JSON.stringify(list)); } catch (e) {}
   }
-  function isChallengeUploaded(seed, mode, gameType) {
-    if (!seed) return false;
-    const item = getSuccessList().find(s => s.seed === seed && s.mode === mode && s.gameType === gameType);
-    return !!(item && item.uploaded);
-  }
-  function recordSuccess(seed, mode, isRandom, elapsed, endedAt, gameType) {
-    const list = getSuccessList();
-    const existing = list.find(s => s.seed === seed && s.mode === mode && s.gameType === gameType);
-    const endTime = endedAt || Date.now();
-    const needsUpload = (gameType === 'challenge-bw' || gameType === 'challenge-num');
-    if (existing) {
-      if (elapsed < existing.elapsed) existing.elapsed = elapsed;
-      existing.time = endTime;
-      if (!needsUpload) existing.uploaded = true;
-    } else {
-      list.push({
-        seed, mode, isRandom, gameType, elapsed,
-        time: endTime,
-        uploaded: !needsUpload
-      });
+
+  // 记录一次通关（本地）
+  function recordSuccess(seed, mode, gameType, elapsed, endedAt) {
+    const list = getCompletedSeeds();
+    let item = list.find(x => x && x.seed === seed);
+    if (!item) {
+      item = { seed, state: {}, updatedAt: endedAt };
+      list.push(item);
     }
-    saveSuccessList(list);
+    if (!item.state) item.state = {};
+    updateSeedState(item.state, mode, gameType, elapsed, endedAt);
+    if (!item.updatedAt || endedAt > item.updatedAt) item.updatedAt = endedAt;
+    saveCompletedSeeds(list);
   }
-  function markUploaded(seed, mode, gameType) {
-    const list = getSuccessList();
-    const item = list.find(s => s.seed === seed && s.mode === mode && s.gameType === gameType);
-    if (item) { item.uploaded = true; saveSuccessList(list); }
+
+  function getSeedEntry(seed) {
+    const list = getCompletedSeeds();
+    return list.find(x => x && x.seed === seed) || null;
+  }
+
+  // 所有已完成过的 seed 集合
+  function getAllSolvedSeeds() {
+    const set = new Set();
+    getCompletedSeeds().forEach(x => { if (x && x.seed != null) set.add(x.seed); });
+    return set;
   }
 
   function getAllProgressMap() {
@@ -1405,19 +1483,25 @@
     }
   }
 
+  // 随机抽题：排除所有模式下已成功通关的编号
   function pickNewSeed() {
-    const currentMode = digitalMode ? 'num' : 'bw';
-    const solvedSeeds = new Set(
-      getSuccessList()
-        .filter(s => s.mode === currentMode && (s.gameType === 'challenge-bw' || s.gameType === 'challenge-num'))
-        .map(s => s.seed)
-    );
-    let seed, attempts = 0;
-    do {
-      seed = Math.floor(Math.random() * 100000) + 1;
-      attempts++;
-    } while (solvedSeeds.has(seed) && attempts < 500);
-    return seed;
+    const solvedSeeds = getAllSolvedSeeds();
+    if (solvedSeeds.size < 5000) {
+      let seed, attempts = 0;
+      do {
+        seed = Math.floor(Math.random() * 100000) + 1;
+        attempts++;
+      } while (solvedSeeds.has(seed) && attempts < 800);
+      if (!solvedSeeds.has(seed)) return seed;
+    }
+    const candidates = [];
+    for (let i = 1; i <= 100000; i++) {
+      if (!solvedSeeds.has(i)) candidates.push(i);
+    }
+    if (candidates.length === 0) {
+      return Math.floor(Math.random() * 100000) + 1;
+    }
+    return candidates[Math.floor(Math.random() * candidates.length)];
   }
 
   function mulberry32(a) {
@@ -2275,10 +2359,13 @@
           : 0;
 
         const mode = digitalMode ? 'num' : 'bw';
-        recordSuccess(currentSeed, mode, isRandomChallenge, solvedElapsed, endTime, gameTypeKey);
 
-        if (gameMode === 'challenge' && currentUser && supabase) {
-          uploadScore(currentSeed, mode, solvedElapsed, endTime, gameTypeKey);
+        // ⭐ 本地记录（所有模式）
+        recordSuccess(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
+
+        // ⭐ 云端上传（已登录时，所有模式都上传）
+        if (currentUser && supabase) {
+          uploadScore(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
         }
 
         updateUploadButton();
@@ -2318,16 +2405,88 @@
     });
   }
 
+  // ⭐ 指定编号：根据 state 提示已挑战过哪些模式
+  async function promptSeedAndStart() {
+    const input = await showInputModal('');
+    if (input === null) return false;
+    const n = Number(String(input).trim());
+    if (!Number.isInteger(n) || n < 1 || n > 100000) {
+      alert('编号无效，请输入 1 ~ 100000 之间的整数。');
+      return false;
+    }
+    const entry = getSeedEntry(n);
+    if (entry && entry.state) {
+      const s = entry.state;
+      const hasBw = !!(s.bw && s.bw.done);
+      const hasNum = !!(s.num && s.num.done);
+      if (hasBw || hasNum) {
+        let msg;
+        if (hasBw && hasNum) msg = '你已经挑战过该关卡的「有数字」和「无数字」2 种模式';
+        else if (hasBw) msg = '你已经挑战过该关卡的「无数字」模式';
+        else msg = '你已经挑战过该关卡的「有数字」模式';
+        const ok = confirm('关卡 #' + n + '：' + msg + '。\n\n确定要再次挑战吗？');
+        if (!ok) return false;
+      }
+    }
+    generateChallenge(n, false, false);
+    return true;
+  }
+
+  // 构造显示用的状态标签
+  function buildStateTag(state) {
+    if (!state) return '';
+    let practice = false, challenge = false;
+    let random = false, specify = false;
+    const modes = [];
+    if (state.bw && state.bw.done) {
+      modes.push('无数字');
+      if (state.bw.practice) practice = true;
+      if (state.bw.challenge) challenge = true;
+      if (state.bw.random) random = true;
+      if (state.bw.specify) specify = true;
+    }
+    if (state.num && state.num.done) {
+      modes.push('有数字');
+      if (state.num.practice) practice = true;
+      if (state.num.challenge) challenge = true;
+      if (state.num.random) random = true;
+      if (state.num.specify) specify = true;
+    }
+    const game = [];
+    if (practice) game.push('练习');
+    if (challenge) game.push('挑战');
+    const pick = [];
+    if (random) pick.push('随机');
+    if (specify) pick.push('指定');
+    const parts = [];
+    if (game.length) parts.push(game.join('/'));
+    if (modes.length) parts.push(modes.join('/'));
+    if (pick.length) parts.push(pick.join('/'));
+    return parts.join(' · ');
+  }
+
+  // 从 state 中提取"该 seed 的最快挑战成绩"（用于展示）
+  function getBestElapsedFromState(state) {
+    if (!state) return null;
+    let best = null;
+    ['bw', 'num'].forEach(m => {
+      if (state[m] && state[m].challengeBest != null) {
+        if (best == null || state[m].challengeBest < best) best = state[m].challengeBest;
+      }
+    });
+    return best;
+  }
+
   function renderHistory() {
-    const successes = getSuccessList();
+    const list = getCompletedSeeds();
     const allProgress = getAllProgressMap();
     const items = [];
 
-    const progressList = [];
+    // 进行中
     Object.keys(allProgress).forEach(key => {
       const p = allProgress[key];
       if (p && p.seed && !p.solved && !p.abandoned) {
-        progressList.push({
+        items.push({
           seed: p.seed,
           mode: p.mode,
           gameType: key,
@@ -2337,52 +2496,51 @@
         });
       }
     });
-    progressList.sort((a, b) => (b.time || 0) - (a.time || 0));
-    progressList.forEach(it => items.push(it));
+    items.sort((a, b) => (b.time || 0) - (a.time || 0));
 
-    successes.slice().sort((a, b) => (b.time || 0) - (a.time || 0)).forEach(s => {
-      items.push({
-        seed: s.seed,
-        mode: s.mode,
-        gameType: s.gameType,
-        time: s.time,
-        ongoing: false,
-        uploaded: s.uploaded,
-        duration: s.elapsed
-      });
-    });
+    const completed = list.slice().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 
-    if (items.length === 0) {
+    if (items.length === 0 && completed.length === 0) {
       historyList.innerHTML = '<div class="history-empty">暂无记录</div>';
       return;
     }
 
-    historyList.innerHTML = items.map(it => {
+    let html = '';
+
+    items.forEach(it => {
       const modeText = modeLabel(it.mode);
       const isPractice = (it.gameType === 'practice-random' || it.gameType === 'practice-specify');
-      const isChallengeOngoing = it.ongoing && !isPractice;
       const gameText = isPractice ? '练习' : '挑战';
       const typeText = (it.gameType === 'practice-specify') ? '指定' : '随机';
       const timeText = it.time ? formatDateShort(it.time) : '—';
-      const seedText = isChallengeOngoing ? '？？？' : ('#' + it.seed);
-      const tag = it.ongoing
-        ? '<span class="history-tag ongoing">进行中</span>'
-        : (isPractice ? '<span class="history-tag practice">练习</span>' : '<span class="history-tag success">成功</span>');
-      let uploadMark = '';
-      if (!it.ongoing && !isPractice && it.uploaded === false && currentUser) {
-        uploadMark = ' <span style="color:#dc2626;font-size:10px;">未上传</span>';
-      }
-      let durationHtml = '';
-      if (it.duration != null) {
-        durationHtml = '<div class="history-duration">挑战用时：' + formatTimer(it.duration) + '</div>';
-      }
-      return '<div class="history-item">' +
-        '<div class="history-row1"><span class="history-seed">' + seedText + '</span>' + tag + '</div>' +
+      const seedText = isPractice ? ('#' + it.seed) : '？？？';
+      html += '<div class="history-item">' +
+        '<div class="history-row1"><span class="history-seed">' + seedText + '</span>' +
+        '<span class="history-tag ongoing">进行中</span></div>' +
         '<div class="history-row2"><span>' + gameText + ' · ' + modeText + ' · ' + typeText + '</span>' +
-        '<span>' + timeText + uploadMark + '</span></div>' +
+        '<span>' + timeText + '</span></div>' +
+      '</div>';
+    });
+
+    completed.forEach(it => {
+      const state = it.state || {};
+      const stateTag = buildStateTag(state);
+      const timeText = it.updatedAt ? formatDateShort(it.updatedAt) : '—';
+      const bestElapsed = getBestElapsedFromState(state);
+      let durationHtml = '';
+      if (bestElapsed != null) {
+        durationHtml = '<div class="history-duration">最快挑战用时：' + formatTimer(bestElapsed) + '</div>';
+      }
+      html += '<div class="history-item">' +
+        '<div class="history-row1"><span class="history-seed">#' + it.seed + '</span>' +
+        '<span class="history-tag success">已通关</span></div>' +
+        '<div class="history-state">' + stateTag + '</div>' +
+        '<div class="history-row2"><span></span><span>' + timeText + '</span></div>' +
         durationHtml +
       '</div>';
-    }).join('');
+    });
+
+    historyList.innerHTML = html;
   }
   function openHistory() { renderHistory(); historyModal.classList.add('show'); }
   function closeHistory() { historyModal.classList.remove('show'); }
@@ -2484,56 +2642,85 @@
     });
   }
 
+  // ⭐ 从 user_seeds 表同步状态到本地
   async function syncRecordsFromCloud() {
     if (!supabase || !currentUser) return;
     try {
       const { data, error } = await supabase
-        .from('records')
-        .select('seed, mode, is_random, elapsed, ended_at')
+        .from('user_seeds')
+        .select('seed, state, updated_at')
         .eq('user_id', currentUser.id)
-        .order('ended_at', { ascending: false });
+        .order('updated_at', { ascending: false });
       if (error) throw error;
       if (!data) return;
 
-      const localList = getSuccessList();
+      const localList = getCompletedSeeds();
       const map = new Map();
-      localList.forEach(item => {
-        map.set((item.seed || '') + '|' + (item.mode || '') + '|' + (item.gameType || 'challenge-bw'), item);
-      });
+      localList.forEach(item => { if (item && item.seed != null) map.set(item.seed, item); });
+
       data.forEach(rec => {
-        const gameType = rec.mode === 'num' ? 'challenge-num' : 'challenge-bw';
-        const key = rec.seed + '|' + rec.mode + '|' + gameType;
-        const existing = map.get(key);
-        const recTime = new Date(rec.ended_at).getTime();
+        const recTime = new Date(rec.updated_at).getTime();
+        const existing = map.get(rec.seed);
         if (!existing) {
-          map.set(key, {
+          map.set(rec.seed, {
             seed: rec.seed,
-            mode: rec.mode,
-            gameType: gameType,
-            isRandom: rec.is_random,
-            elapsed: rec.elapsed,
-            time: recTime,
-            uploaded: true
+            state: rec.state || {},
+            updatedAt: recTime
           });
         } else {
-          if (rec.elapsed < existing.elapsed) {
-            existing.elapsed = rec.elapsed;
-            existing.time = recTime;
+          // 合并 state（云端覆盖本地）
+          if (rec.state && typeof rec.state === 'object') {
+            if (!existing.state) existing.state = {};
+            Object.keys(rec.state).forEach(m => {
+              existing.state[m] = Object.assign({}, existing.state[m] || {}, rec.state[m] || {});
+            });
           }
-          existing.uploaded = true;
-          existing.isRandom = rec.is_random;
+          if (recTime > existing.updatedAt) existing.updatedAt = recTime;
         }
       });
-      saveSuccessList(Array.from(map.values()));
+      saveCompletedSeeds(Array.from(map.values()));
       renderHistory();
     } catch (e) {
       console.warn('同步云端记录失败:', e);
     }
   }
 
-  // ⭐ 上传成绩：写入 records + 更新 profiles（best 永不降级）
-  async function uploadScore(seed, mode, elapsed, endedAt, gameType) {
+  function computeStatsFromHistory(historyList) {
+    const empty = { best: null, bestSeed: null, bestEndedAt: null, mo3: null, ao5: null, ao12: null };
+    if (!historyList || historyList.length === 0) return empty;
+    const sorted = historyList.slice().sort((a, b) =>
+      new Date(a.ended_at).getTime() - new Date(b.ended_at).getTime()
+    );
+    const arr = sorted
+      .map(r => r.elapsed)
+      .filter(v => typeof v === 'number' && isFinite(v));
+    if (arr.length === 0) return empty;
+
+    const bestVal = calcBest(arr);
+    const mo3 = calcMO3(arr);
+    const ao5 = calcAO5(arr);
+    const ao12 = calcAO12(arr);
+
+    let bestRec = null;
+    for (const r of sorted) {
+      if (bestRec == null || r.elapsed < bestRec.elapsed) bestRec = r;
+    }
+
+    return {
+      best: bestVal,
+      bestSeed: bestRec ? bestRec.seed : null,
+      bestEndedAt: bestRec ? bestRec.ended_at : null,
+      mo3, ao5, ao12
+    };
+  }
+
+  // ⭐ 上传成绩：所有模式都写 records 流水 + upsert user_seeds
+  //    但只有挑战模式才更新 profiles 的 records/streak/wins
+  async function uploadScore(seed, mode, gameType, elapsed, endedAt) {
     if (!supabase || !currentUser) return false;
+    const isChallenge = (gameType === 'challenge-bw' || gameType === 'challenge-num');
+    const isRandom = (gameType === 'practice-random') || isChallenge;
+
     try {
       const username = currentUser.username
         || (currentUser.user_metadata && currentUser.user_metadata.username)
@@ -2541,17 +2728,43 @@
 
       const endedIso = new Date(endedAt).toISOString();
 
+      // 1. 插入 records 流水
       const { error: recErr } = await supabase.from('records').insert({
         user_id: currentUser.id,
         username: username,
         seed: seed,
         mode: mode,
-        is_random: true,
+        is_random: isRandom,
+        is_challenge: isChallenge,
         elapsed: elapsed,
         ended_at: endedIso
       });
       if (recErr) throw recErr;
 
+      // 2. upsert user_seeds
+      const { data: existingSeed } = await supabase
+        .from('user_seeds')
+        .select('state')
+        .eq('user_id', currentUser.id)
+        .eq('seed', seed)
+        .maybeSingle();
+
+      const baseState = (existingSeed && existingSeed.state && typeof existingSeed.state === 'object' && !Array.isArray(existingSeed.state))
+        ? JSON.parse(JSON.stringify(existingSeed.state)) : {};
+      updateSeedState(baseState, mode, gameType, elapsed, endedAt);
+
+      const { error: upsertErr } = await supabase
+        .from('user_seeds')
+        .upsert({
+          user_id: currentUser.id,
+          seed: seed,
+          username: username,
+          state: baseState,
+          updated_at: endedIso
+        }, { onConflict: 'user_id,seed' });
+      if (upsertErr) throw upsertErr;
+
+      // 3. 读取 profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('total_wins, bw_wins, num_wins, streak_bw, streak_num, records_bw, records_num')
@@ -2562,81 +2775,67 @@
       let localStreakNum = (profile && Array.isArray(profile.streak_num)) ? profile.streak_num.slice() : [];
       let bwWins = (profile && profile.bw_wins) || 0;
       let numWins = (profile && profile.num_wins) || 0;
-      const recordsBw = (profile && profile.records_bw) || null;
-      const recordsNum = (profile && profile.records_num) || null;
+      let recordsBw = (profile && profile.records_bw) || null;
+      let recordsNum = (profile && profile.records_num) || null;
+      const totalWins = ((profile && profile.total_wins) || 0) + 1;
 
-      if (mode === 'bw') {
-        localStreakBw.push(elapsed);
-        if (localStreakBw.length > STREAK_MAX) localStreakBw = localStreakBw.slice(-STREAK_MAX);
-        bwWins += 1;
-      } else {
-        localStreakNum.push(elapsed);
-        if (localStreakNum.length > STREAK_MAX) localStreakNum = localStreakNum.slice(-STREAK_MAX);
-        numWins += 1;
-      }
+      if (isChallenge) {
+        if (mode === 'bw') {
+          localStreakBw.push(elapsed);
+          if (localStreakBw.length > STREAK_MAX) localStreakBw = localStreakBw.slice(-STREAK_MAX);
+          bwWins += 1;
+        } else {
+          localStreakNum.push(elapsed);
+          if (localStreakNum.length > STREAK_MAX) localStreakNum = localStreakNum.slice(-STREAK_MAX);
+          numWins += 1;
+        }
 
-      const curStreak = mode === 'bw' ? localStreakBw : localStreakNum;
-      const curStats = {
-        best: calcBest(curStreak),
-        mo3: calcMO3(curStreak),
-        ao5: calcAO5(curStreak),
-        ao12: calcAO12(curStreak)
-      };
+        // 只统计挑战模式的记录
+        const { data: history } = await supabase
+          .from('records')
+          .select('elapsed, seed, ended_at')
+          .eq('user_id', currentUser.id)
+          .eq('mode', mode)
+          .eq('is_challenge', true)
+          .order('ended_at', { ascending: true });
 
-      let curRecords = (mode === 'bw' ? recordsBw : recordsNum) || {};
-      if (typeof curRecords !== 'object' || Array.isArray(curRecords)) curRecords = {};
-      const newRecords = Object.assign({}, curRecords);
+        const stats = computeStatsFromHistory(history || []);
 
-      const storedBest = curRecords.best;
-      const storedBestVal = (storedBest && typeof storedBest === 'object' && storedBest.elapsed != null)
-        ? storedBest.elapsed : null;
+        const oldRecords = (mode === 'bw' ? recordsBw : recordsNum) || {};
+        const oldObj = (oldRecords && typeof oldRecords === 'object' && !Array.isArray(oldRecords)) ? oldRecords : {};
+        const newRecords = Object.assign({}, oldObj);
 
-      // ⭐ 核心：只在本次成绩严格优于历史最佳时替换
-      if (storedBestVal == null || elapsed < storedBestVal) {
-        newRecords.best = {
-          elapsed: elapsed,
-          seed: seed,
-          ended_at: endedIso
-        };
-      }
-
-      // MO3 / AO5 / AO12 同样只在更优时替换
-      ['mo3', 'ao5', 'ao12'].forEach(k => {
-        const v = curStats[k];
-        if (v == null) return;
-        const prev = (typeof curRecords[k] === 'number') ? curRecords[k] : null;
-        if (prev == null || v < prev) newRecords[k] = v;
-      });
-
-      // 边界：如果有更早的更好成绩但记录缺失，从 records 兜底取
-      if (storedBestVal == null && curStats.best != null && curStats.best < elapsed) {
-        try {
-          const { data: bestRec } = await supabase
-            .from('records')
-            .select('seed, elapsed, ended_at')
-            .eq('user_id', currentUser.id)
-            .eq('mode', mode)
-            .order('elapsed', { ascending: true })
-            .limit(1)
-            .maybeSingle();
-          if (bestRec && bestRec.elapsed < elapsed) {
+        if (stats.best != null && stats.bestSeed != null) {
+          const prevBest = (oldObj.best && typeof oldObj.best === 'object' && oldObj.best.elapsed != null)
+            ? oldObj.best.elapsed : null;
+          if (prevBest == null || stats.best < prevBest) {
             newRecords.best = {
-              elapsed: bestRec.elapsed,
-              seed: bestRec.seed,
-              ended_at: bestRec.ended_at
+              elapsed: stats.best,
+              seed: stats.bestSeed,
+              ended_at: stats.bestEndedAt
             };
           }
-        } catch (e) {}
+        }
+
+        ['mo3', 'ao5', 'ao12'].forEach(k => {
+          const v = stats[k];
+          if (v == null) return;
+          const prev = (typeof oldObj[k] === 'number') ? oldObj[k] : null;
+          if (prev == null || v < prev) newRecords[k] = v;
+        });
+
+        if (mode === 'bw') recordsBw = newRecords;
+        else recordsNum = newRecords;
       }
 
       const updateData = {
-        total_wins: ((profile && profile.total_wins) || 0) + 1,
+        total_wins: totalWins,
         bw_wins: bwWins,
         num_wins: numWins,
         streak_bw: localStreakBw,
         streak_num: localStreakNum,
-        records_bw: mode === 'bw' ? newRecords : (recordsBw || null),
-        records_num: mode === 'num' ? newRecords : (recordsNum || null),
+        records_bw: recordsBw,
+        records_num: recordsNum,
         updated_at: new Date().toISOString()
       };
 
@@ -2653,7 +2852,6 @@
       streakBw = localStreakBw;
       streakNum = localStreakNum;
 
-      markUploaded(seed, mode, gameType);
       renderHistory();
       return true;
     } catch (e) {
@@ -2820,7 +3018,6 @@
     return best;
   }
 
-  // ⭐ 排行榜：Best 用 records_bw.records_num.best，且显示 seed 与时间
   async function loadRanking(tab) {
     if (!supabase) { rankList.innerHTML = '<div class="rank-empty">服务尚未就绪</div>'; return; }
     rankList.innerHTML = '<div class="rank-empty">加载中...</div>';
@@ -2856,7 +3053,7 @@
         const ao12 = (typeof records.ao12 === 'number') ? records.ao12 : calcAO12(arr);
         const amount = isNum ? (prof.num_wins || 0) : (prof.bw_wins || 0);
 
-        if (best == null && amount === 0) return;
+        if (best == null && mo3 == null && ao5 == null && ao12 == null && amount === 0) return;
 
         items.push({
           username: prof.username,
@@ -2903,7 +3100,6 @@
             '<span class="rank-name">' + (item.username || '匿名') + '</span>' +
             '<span class="rank-score">' + scoreFn(item) + '</span>' +
           '</div>';
-        // ⭐ Best 榜额外显示 seed 与结束时间
         if (tab === 'best' && item.bestSeed != null) {
           const t = item.bestEndedAt ? formatDateShort(new Date(item.bestEndedAt).getTime()) : '—';
           html += '<div class="rank-meta">' +
@@ -2920,7 +3116,6 @@
     }
   }
 
-  // ⭐ 个人纪录弹窗
   async function loadMyRecords(mode) {
     if (!supabase) { myRecordsContent.innerHTML = '<div class="records-empty">服务尚未就绪</div>'; return; }
     if (!currentUser) { myRecordsContent.innerHTML = '<div class="records-empty">请先登录查看个人纪录</div>'; return; }
@@ -3056,20 +3251,11 @@
       homeScreen.classList.add('hidden');
       gameScreen.classList.add('active');
       if (!loadProgressForCurrentMode()) {
-        showInputModal('').then(v => {
-          if (v === null) {
+        promptSeedAndStart().then(started => {
+          if (!started) {
             gameScreen.classList.remove('active');
             homeScreen.classList.remove('hidden');
-            return;
           }
-          const n = Number(String(v).trim());
-          if (!Number.isInteger(n) || n < 1 || n > 100000) {
-            alert('编号无效，请输入 1 ~ 100000 之间的整数。');
-            gameScreen.classList.remove('active');
-            homeScreen.classList.remove('hidden');
-            return;
-          }
-          generateChallenge(n, false, false);
         });
       } else {
         updateUndoButton(); updateRedoButton();
@@ -3161,14 +3347,7 @@
       if (gameTypeKey === 'practice-random') {
         generateChallenge(pickNewSeed(), false, true);
       } else {
-        const input = await showInputModal('');
-        if (input === null) return;
-        const n = Number(String(input).trim());
-        if (!Number.isInteger(n) || n < 1 || n > 100000) {
-          alert('编号无效，请输入 1 ~ 100000 之间的整数。');
-          return;
-        }
-        generateChallenge(n, false, false);
+        await promptSeedAndStart();
       }
     }
   });
@@ -3186,7 +3365,7 @@
     if (solvedElapsed == null) { alert('无法获取用时'); return; }
     const mode = digitalMode ? 'num' : 'bw';
     const endedAt = Date.now();
-    const ok = await uploadScore(currentSeed, mode, solvedElapsed, endedAt, gameTypeKey);
+    const ok = await uploadScore(currentSeed, mode, gameTypeKey, solvedElapsed, endedAt);
     showToast(ok ? '成绩上传成功！' : '上传失败，请检查网络');
     updateUploadButton();
   });
