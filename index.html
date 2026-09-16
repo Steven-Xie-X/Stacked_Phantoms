@@ -135,8 +135,24 @@
   .mode-label {
     font-weight: 600; letter-spacing: 1px;
     display: flex; align-items: center; gap: 6px;
+    flex: 1; min-width: 0;
   }
   .mode-label .hint { font-size: 10px; font-weight: 500; color: #94a3b8; }
+  .valid-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #ccc;
+    flex-shrink: 0;
+  }
+  .valid-dot.valid {
+    background: #16a34a;
+    box-shadow: 0 0 6px rgba(22,163,74,.6);
+  }
+  .valid-dot.invalid {
+    background: #dc2626;
+    box-shadow: 0 0 6px rgba(220,38,38,.6);
+  }
   .switch {
     position: relative;
     width: 50px; height: 28px;
@@ -403,7 +419,7 @@
     background: #2563eb; color: #fff; border-color: #2563eb;
   }
   .rank-list {
-    max-height: 48vh; overflow-y: auto; margin-bottom: 12px;
+    max-height: 55vh; overflow-y: auto; margin-bottom: 12px;
     -webkit-overflow-scrolling: touch;
   }
   .rank-item {
@@ -413,7 +429,7 @@
   .rank-item:nth-child(odd) { background: #f8fafc; }
   .rank-main {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
   }
   .rank-no {
     width: 28px; font-weight: 700; color: #64748b; text-align: center;
@@ -434,12 +450,22 @@
     font-variant-numeric: tabular-nums;
     flex-shrink: 0;
   }
-  .rank-sub {
-    display: flex; justify-content: space-between;
+  .rank-metrics {
+    display: flex;
     padding-left: 34px;
-    font-size: 10px; color: #94a3b8;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 10px;
   }
-  .rank-sub .seed-tag { color: #7c3aed; font-weight: 600; }
+  .rank-metrics .metric {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .rank-metrics .metric.na { background: #f1f5f9; color: #94a3b8; }
   .rank-empty { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 13px; }
 
   .rules-content {
@@ -502,7 +528,7 @@
   </div>
 
   <div class="meta">
-    <span>挑战编号：<b id="seedShow">—</b></span>
+    <span>题号：<b id="seedShow">—</b></span>
     <span id="progress">已放置 0 / 16</span>
   </div>
 
@@ -511,7 +537,11 @@
   </div>
 
   <div class="mode-row" id="challengeModeRow" style="display:none;">
-    <span class="mode-label">挑战模式 <span class="hint" id="challengeModeHint">关闭后方可查看答案</span></span>
+    <span class="mode-label">
+      挑战模式
+      <span class="valid-dot" id="validDot"></span>
+      <span class="hint" id="challengeModeHint">关闭后方可查看答案</span>
+    </span>
     <button id="challengeModeSwitch" class="switch challenge-on" role="switch" aria-pressed="true">
       <span class="switch-knob"></span>
     </button>
@@ -604,7 +634,7 @@
     <div class="modal-title">历史记录</div>
     <div class="history-list" id="historyList"></div>
     <div class="modal-actions">
-      <button class="btn ghost-btn" id="historyClear">清空记录</button>
+      <button class="btn ghost-btn" id="historyClear">清空本地记录</button>
       <button class="btn primary" id="historyClose">关闭</button>
     </div>
   </div>
@@ -616,10 +646,10 @@
     <div class="rules-content">
       <span class="tip-line"><b>操作方式：</b>拖动 → 碎片可在操作盘面和碎片池之间交替移动，也能在操作盘面内任意移动 · 单击碎片顺时针方向旋转90° · 右键单击碎片（触屏：一指按住，另一指点击）逆时针旋转90° · 连续双击碎片左右镜像</span>
       <span class="tip-line"><b>叠加规则：</b>同一格被覆盖奇数次为黑、偶数次为白</span>
-      <span class="tip-line" style="color:#b45309;font-weight:600;">参考答案：由于不是唯一解，答案仅供参考。所有碎片都是先旋转对应次数，再考虑是否镜像。单击盘面放置下一块，双击或右键盘面撤回至上一步。随机关卡下挑战模式开启时禁止查看答案。</span>
+      <span class="tip-line" style="color:#b45309;font-weight:600;">参考答案：由于不是唯一解，答案仅供参考。所有碎片都是先旋转对应次数，再考虑是否镜像。单击盘面放置下一块，双击或右键盘面撤回至上一步。随机关卡下挑战模式开启且成绩有效时禁止查看答案。</span>
       <span class="tip-line" style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示）。</span>
       <span class="tip-line" style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span>
-      <span class="tip-line" style="color:#7c3aed;font-weight:600;">排行榜上传条件：① 由"随机生成"按钮创建的关卡；② 挑战模式从始至终保持开启，中途从未关闭过。</span>
+      <span class="tip-line" style="color:#7c3aed;font-weight:600;">排行榜上传条件：① 随机生成的关卡；② 挑战模式始终开启；③ 数字显示开关全程未被切换过。成绩无效后可以立即查看答案。</span>
       <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片；若开启数字显示，数字也必须完全匹配。</span>
     </div>
     <div class="modal-actions" style="margin-top: 14px;">
@@ -663,18 +693,12 @@
 (function () {
   'use strict';
 
-  // ====================================================
-  // Supabase 配置
-  // ====================================================
   const SUPABASE_URL = 'https://ajhksehpyofzeiirgilk.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqaGtzZWhweW9memVpaXJnaWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0ODE5MjgsImV4cCI6MjEwNTA1NzkyOH0.LQ17_lxAP0COx1hcs5MNGlnRbu73hbLSJ2cAUkuiGE8';
 
   let supabase = null;
   let currentUser = null;
 
-  // ====================================================
-  // 游戏常量
-  // ====================================================
   const N = 8;
   const PIECE_COUNT = 16;
   const TAP_DELAY = 280;
@@ -682,9 +706,11 @@
   const BLACK_FILL = '#1e293b';
   const WHITE_FILL = '#ffffff';
   const MAX_UNDO = 50;
+  const STREAK_MAX = 12;
 
-  const STORAGE_SUCCESS = 'sm_success_v4';
-  const STORAGE_PROGRESS = 'sm_progress_v4';
+  const STORAGE_SUCCESS = 'sm_success_v5';
+  const STORAGE_PROGRESS = 'sm_progress_v5';
+  const STORAGE_STREAK = 'sm_streak_v1';
 
   let BOARD_CELL = 44;
   let POOL_SLOT = 78;
@@ -708,6 +734,8 @@
   let isRandomChallenge = false;
   let challengeModeEnabled = true;
   let challengeModeEverDisabled = false;
+  let digitalModeEverToggled = false;
+  let previouslyValid = true;
   let challengeStartTime = null;
   let solvedElapsed = null;
   let timerInterval = null;
@@ -715,6 +743,9 @@
   let colorMode = false;
   let pending = null;
   let drag = null;
+
+  let streakBw = [];
+  let streakNum = [];
 
   let undoStack = [];
   let redoStack = [];
@@ -763,6 +794,7 @@
   const challengeModeRow = $('challengeModeRow');
   const challengeModeSwitch = $('challengeModeSwitch');
   const challengeModeHint = $('challengeModeHint');
+  const validDot = $('validDot');
   const inputModal = $('inputModal');
   const seedInput = $('seedInput');
   const seedCancel = $('seedCancel');
@@ -793,16 +825,6 @@
   const rankTabs = document.querySelectorAll('.rank-tab');
   let currentRankTab = 'bw';
 
-  // ====================================================
-  // 工具函数
-  // ====================================================
-  function hexToRgba(hex, alpha) {
-    const h = hex.replace('#', '');
-    const r = parseInt(h.slice(0, 2), 16);
-    const g = parseInt(h.slice(2, 4), 16);
-    const b = parseInt(h.slice(4, 6), 16);
-    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-  }
   function getPieceColor(id) { return PIECE_COLORS[id % PIECE_COLORS.length]; }
   function formatDate(ts) {
     const d = new Date(ts);
@@ -866,17 +888,27 @@
     poolEl.style.gridTemplateColumns = 'repeat(4, ' + POOL_SLOT + 'px)';
   }
 
+  // 答案阻止条件：随机 + 成绩有效
   function isAnswerBlocked() {
-    return isRandomChallenge && challengeModeEnabled;
+    return isRandomChallenge && isValidForRank();
   }
 
   function isValidForRank() {
-    return isRandomChallenge && challengeModeEnabled && !challengeModeEverDisabled;
+    return isRandomChallenge
+      && challengeModeEnabled
+      && !challengeModeEverDisabled
+      && !digitalModeEverToggled;
   }
 
-  // ====================================================
-  // 用户 UI
-  // ====================================================
+  // 有效性变化检测：true → false 时提示
+  function checkValidityChange() {
+    const currentlyValid = isValidForRank();
+    if (previouslyValid === true && currentlyValid === false) {
+      showToast('挑战模式有变动，本局成绩不计入排行榜', 3000);
+    }
+    previouslyValid = currentlyValid;
+  }
+
   function updateUserUI() {
     if (currentUser) {
       const name = (currentUser.username)
@@ -914,9 +946,19 @@
     btnUpload.disabled = false;
   }
 
-  // ====================================================
-  // 本地历史记录
-  // ====================================================
+  function updateValidDot() {
+    if (!isRandomChallenge) {
+      validDot.style.display = 'none';
+      return;
+    }
+    validDot.style.display = 'inline-block';
+    if (isValidForRank()) {
+      validDot.className = 'valid-dot valid';
+    } else {
+      validDot.className = 'valid-dot invalid';
+    }
+  }
+
   function getSuccessList() {
     try {
       const raw = localStorage.getItem(STORAGE_SUCCESS);
@@ -955,9 +997,31 @@
     if (item) { item.uploaded = true; saveSuccessList(list); }
   }
 
-  // ====================================================
-  // 进度保存
-  // ====================================================
+  function getLocalStreak() {
+    try {
+      const raw = localStorage.getItem(STORAGE_STREAK);
+      if (!raw) return { bw: [], num: [] };
+      const data = JSON.parse(raw);
+      return {
+        bw: Array.isArray(data.bw) ? data.bw : [],
+        num: Array.isArray(data.num) ? data.num : []
+      };
+    } catch (e) { return { bw: [], num: [] }; }
+  }
+  function saveLocalStreak() {
+    try {
+      localStorage.setItem(STORAGE_STREAK, JSON.stringify({
+        bw: streakBw,
+        num: streakNum
+      }));
+    } catch (e) {}
+  }
+  function loadLocalStreak() {
+    const s = getLocalStreak();
+    streakBw = s.bw;
+    streakNum = s.num;
+  }
+
   function getProgressData() {
     try {
       const raw = localStorage.getItem(STORAGE_PROGRESS);
@@ -983,6 +1047,7 @@
         isRandom: isRandomChallenge,
         challengeMode: challengeModeEnabled,
         challengeModeEverDisabled: challengeModeEverDisabled,
+        digitalModeEverToggled: digitalModeEverToggled,
         startTime: challengeStartTime,
         solved: solved,
         solvedElapsed: solvedElapsed,
@@ -1025,6 +1090,10 @@
       if (typeof data.challengeModeEverDisabled === 'boolean') {
         challengeModeEverDisabled = data.challengeModeEverDisabled;
       }
+      if (typeof data.digitalModeEverToggled === 'boolean') {
+        digitalModeEverToggled = data.digitalModeEverToggled;
+      }
+      previouslyValid = isValidForRank();
       undoStack = sanitizeSnapshot(data.undoStack).slice(-MAX_UNDO);
       redoStack = sanitizeSnapshot(data.redoStack).slice(-MAX_UNDO);
       if (data.startTime && !data.solved) {
@@ -1061,9 +1130,6 @@
     return seed;
   }
 
-  // ====================================================
-  // 随机数与形状
-  // ====================================================
   function mulberry32(a) {
     return function () {
       a |= 0; a = a + 0x6D2B79F5 | 0;
@@ -1128,9 +1194,6 @@
     };
   }
 
-  // ====================================================
-  // 叠加计算
-  // ====================================================
   function computeGrid(list) {
     const g = Array.from({ length: N }, () => new Array(N).fill(0));
     for (const p of list) {
@@ -1180,9 +1243,6 @@
     return g;
   }
 
-  // ====================================================
-  // 撤回 / 前进
-  // ====================================================
   function snapshotPieces() {
     return pieces.map(p => ({
       cells: p.cells.map(c => [c[0], c[1]]),
@@ -1233,9 +1293,6 @@
   function updateUndoButton() { btnUndo.disabled = (undoStack.length === 0) || answerMode; }
   function updateRedoButton() { btnRedo.disabled = (redoStack.length === 0) || answerMode; }
 
-  // ====================================================
-  // 单击 / 双击 / 逆时针
-  // ====================================================
   function cancelPendingTap() {
     if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; }
     pendingRotatePiece = null;
@@ -1294,9 +1351,6 @@
     drag = null;
   }
 
-  // ====================================================
-  // 生成挑战
-  // ====================================================
   function generateChallenge(seed, skipSave, isRandom) {
     cancelPendingTap();
     resetAnswerTapState();
@@ -1340,10 +1394,13 @@
     if (isRandom) {
       challengeModeEnabled = true;
       challengeModeEverDisabled = false;
+      digitalModeEverToggled = false;
     } else {
       challengeModeEnabled = false;
       challengeModeEverDisabled = false;
+      digitalModeEverToggled = false;
     }
+    previouslyValid = isValidForRank();
     solved = false;
     solvedElapsed = null;
     showingTarget = false;
@@ -1357,9 +1414,6 @@
     if (!skipSave) { startTimer(); scheduleSaveProgress(); }
   }
 
-  // ====================================================
-  // 棋盘构建
-  // ====================================================
   function buildBoard() {
     boardEl.innerHTML = '';
     boardEl.style.width = (N * BOARD_CELL) + 'px';
@@ -1385,9 +1439,6 @@
     boardEl.appendChild(numbersLayer);
   }
 
-  // ====================================================
-  // 渲染
-  // ====================================================
   function renderAll() {
     renderPool(); renderPiecesLayer(); updateBoardView();
     updateProgressText(); updateButtonStates(); updateModeUI();
@@ -1400,7 +1451,11 @@
 
     challengeModeRow.style.display = isRandomChallenge ? 'flex' : 'none';
     challengeModeSwitch.setAttribute('aria-pressed', String(challengeModeEnabled));
-    challengeModeHint.textContent = challengeModeEnabled ? '关闭后方可查看答案' : '当前可查看答案';
+    challengeModeHint.textContent = isAnswerBlocked()
+      ? '关闭后方可查看答案'
+      : '当前可查看答案';
+
+    updateValidDot();
 
     digitSwitch.setAttribute('aria-pressed', String(digitalMode));
     modeHint.textContent = digitalMode ? '数字已开启' : '无数字';
@@ -1688,9 +1743,6 @@
     }
   }
 
-  // ====================================================
-  // 指针交互
-  // ====================================================
   function onPiecePointerDown(ev, piece, el, source) {
     if (showingTarget || answerMode || !targetGrid) return;
     if (ev.button !== 0 && ev.button !== 2) return;
@@ -1813,9 +1865,6 @@
     }
   }
 
-  // ====================================================
-  // 参考答案
-  // ====================================================
   function resetAnswerTapState() {
     if (answerSingleTapTimer) { clearTimeout(answerSingleTapTimer); answerSingleTapTimer = null; }
     answerLastTapTime = 0;
@@ -1847,7 +1896,7 @@
   function toggleAnswerMode() {
     if (!targetGrid) return;
     if (isAnswerBlocked()) {
-      showToast('挑战模式下无法查看答案，请先关闭挑战模式');
+      showToast('挑战模式开启且成绩有效时，无法查看答案', 2000);
       return;
     }
     cancelPendingTap(); abortDrag(); activePointerIds.clear(); resetAnswerTapState();
@@ -1856,9 +1905,6 @@
     renderAll();
   }
 
-  // ====================================================
-  // 重置
-  // ====================================================
   function resetBoard() {
     if (drag || answerMode || !targetGrid) return;
     cancelPendingTap(); activePointerIds.clear(); resetAnswerTapState();
@@ -1875,14 +1921,12 @@
     renderAll(); scheduleSaveProgress();
   }
 
-  // ====================================================
-  // 胜利判定
-  // ====================================================
   function checkWin() {
     if (!targetGrid || answerMode) return;
     if (pieces.some(p => !p.placed)) {
       solved = false;
       updateUploadButton();
+      updateValidDot();
       return;
     }
     const g = computeGrid(pieces);
@@ -1928,17 +1972,16 @@
         }
 
         updateUploadButton();
+        updateValidDot();
         scheduleSaveProgress();
       }
     } else {
       solved = false;
       updateUploadButton();
+      updateValidDot();
     }
   }
 
-  // ====================================================
-  // 输入框
-  // ====================================================
   function showInputModal(defaultValue) {
     return new Promise(resolve => {
       seedInput.value = defaultValue || '';
@@ -1965,9 +2008,6 @@
     });
   }
 
-  // ====================================================
-  // 历史记录显示
-  // ====================================================
   function renderHistory() {
     const successes = getSuccessList();
     const progress = getProgressData();
@@ -2028,28 +2068,32 @@
   function openRules() { rulesModal.classList.add('show'); }
   function closeRules() { rulesModal.classList.remove('show'); }
 
-  // ====================================================
-  // Supabase 初始化
-  // ====================================================
-  // 从 profiles 表查询当前用户的 uid 与用户名
   async function loadUserUid() {
     if (!supabase || !currentUser) return;
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('uid, username')
+        .select('uid, username, streak_bw, streak_num')
         .eq('id', currentUser.id)
         .maybeSingle();
       if (error && error.code !== 'PGRST116') throw error;
       if (data) {
         currentUser.uid = data.uid;
         currentUser.username = data.username;
+        streakBw = Array.isArray(data.streak_bw) ? data.streak_bw : [];
+        streakNum = Array.isArray(data.streak_num) ? data.streak_num : [];
+        saveLocalStreak();
       } else {
-        // 没有 profile 记录，尝试创建
         const username = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
         const { data: created } = await supabase
           .from('profiles')
-          .insert({ id: currentUser.id, username: username, total_wins: 0 })
+          .insert({
+            id: currentUser.id,
+            username: username,
+            total_wins: 0,
+            streak_bw: [],
+            streak_num: []
+          })
           .select('uid')
           .single();
         if (created) {
@@ -2117,9 +2161,6 @@
     });
   }
 
-  // ====================================================
-  // 与云端同步历史记录
-  // ====================================================
   async function syncRecordsFromCloud() {
     if (!supabase || !currentUser) return;
     try {
@@ -2167,15 +2208,13 @@
     }
   }
 
-  // ====================================================
-  // 上传成绩
-  // ====================================================
   async function uploadScore(seed, mode, elapsed, endedAt) {
     if (!supabase || !currentUser) return false;
     try {
       const username = currentUser.username
         || (currentUser.user_metadata && currentUser.user_metadata.username)
         || currentUser.email;
+
       const { error: recErr } = await supabase.from('records').insert({
         user_id: currentUser.id,
         username: username,
@@ -2189,22 +2228,45 @@
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('total_wins')
+        .select('total_wins, streak_bw, streak_num')
         .eq('id', currentUser.id)
         .single();
 
+      let localStreakBw = Array.isArray(profile && profile.streak_bw) ? profile.streak_bw.slice() : [];
+      let localStreakNum = Array.isArray(profile && profile.streak_num) ? profile.streak_num.slice() : [];
+
+      if (mode === 'bw') {
+        localStreakBw.push(elapsed);
+        if (localStreakBw.length > STREAK_MAX) {
+          localStreakBw = localStreakBw.slice(-STREAK_MAX);
+        }
+      } else {
+        localStreakNum.push(elapsed);
+        if (localStreakNum.length > STREAK_MAX) {
+          localStreakNum = localStreakNum.slice(-STREAK_MAX);
+        }
+      }
+
+      const updateData = {
+        total_wins: ((profile && profile.total_wins) || 0) + 1,
+        streak_bw: localStreakBw,
+        streak_num: localStreakNum,
+        updated_at: new Date().toISOString()
+      };
+
       if (profile) {
-        await supabase.from('profiles').update({
-          total_wins: (profile.total_wins || 0) + 1,
-          updated_at: new Date().toISOString()
-        }).eq('id', currentUser.id);
+        await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
       } else {
         await supabase.from('profiles').insert({
           id: currentUser.id,
           username: username,
-          total_wins: 1
+          ...updateData
         });
       }
+
+      streakBw = localStreakBw;
+      streakNum = localStreakNum;
+      saveLocalStreak();
 
       markUploaded(seed, mode);
       return true;
@@ -2219,6 +2281,7 @@
     const list = getSuccessList();
     const pending = list.filter(s => s.isRandom && !s.uploaded && s.validForRank);
     if (pending.length === 0) return;
+    pending.sort((a, b) => (a.time || 0) - (b.time || 0));
     let successCount = 0;
     for (const item of pending) {
       const ok = await uploadScore(item.seed, item.mode, item.elapsed, item.time || Date.now());
@@ -2230,9 +2293,21 @@
     }
   }
 
-  // ====================================================
-  // 认证相关
-  // ====================================================
+  async function clearStreakOnServer(mode) {
+    if (!supabase || !currentUser) return;
+    try {
+      const field = mode === 'bw' ? 'streak_bw' : 'streak_num';
+      const updateData = {};
+      updateData[field] = [];
+      await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
+      if (mode === 'bw') streakBw = [];
+      else streakNum = [];
+      saveLocalStreak();
+    } catch (e) {
+      console.warn('清空 streak 失败:', e);
+    }
+  }
+
   let authMode = 'login';
   function showAuthModal(mode) {
     if (!supabase) { alert('服务尚未就绪，请稍候重试'); return; }
@@ -2266,9 +2341,6 @@
         authModal.classList.remove('show');
         showToast('登录成功');
       } else {
-        // ============ 注册流程 ============
-
-        // ① 检查用户名是否已存在
         try {
           const { data: existing } = await supabase
             .from('profiles')
@@ -2276,30 +2348,39 @@
             .eq('username', username)
             .maybeSingle();
           if (existing) {
-            throw new Error('该用户名「' + username + '」已被占用，请更换其他用户名');
+            throw new Error('USERNAME_TAKEN');
           }
         } catch (e) {
-          if (e && e.message && e.message.indexOf('已被占用') >= 0) throw e;
+          if (e && e.message === 'USERNAME_TAKEN') {
+            alert('该用户名「' + username + '」已被占用，请更换其他用户名');
+            authSubmit.disabled = false;
+            return;
+          }
           console.warn('用户名检查失败:', e);
         }
 
-        // ② 创建 auth 用户
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: { data: { username } }
         });
         if (error) throw error;
 
-        // ③ 插入 profiles 记录（UNIQUE 兜底）
         if (data.user) {
           const { error: insertErr } = await supabase
             .from('profiles')
-            .insert({ id: data.user.id, username: username, total_wins: 0 });
-
+            .insert({
+              id: data.user.id,
+              username: username,
+              total_wins: 0,
+              streak_bw: [],
+              streak_num: []
+            });
           if (insertErr) {
             if (insertErr.code === '23505' ||
                 (insertErr.message && insertErr.message.toLowerCase().indexOf('duplicate') >= 0)) {
-              throw new Error('该用户名「' + username + '」已被占用，请更换其他用户名');
+              alert('该用户名「' + username + '」已被占用，请更换其他用户名');
+              authSubmit.disabled = false;
+              return;
             }
             console.warn('插入 profiles 失败:', insertErr);
           }
@@ -2313,16 +2394,67 @@
         );
       }
     } catch (e) {
-      alert(e.message || '操作失败');
+      const msg = (e.message || '').toLowerCase();
+      if (msg.includes('email rate limit') || msg.includes('rate limit')) {
+        alert(
+          '注册过于频繁，请稍后再试。\n\n' +
+          '（这是 Supabase 免费版的邮件发送限制。\n' +
+          '如需立刻注册，请联系管理员关闭邮箱验证功能。）'
+        );
+      } else if (msg.includes('user already registered') || msg.includes('already registered')) {
+        alert('该邮箱已被注册，请直接登录或更换邮箱');
+      } else if (msg.includes('已被占用')) {
+        alert(e.message);
+      } else if (msg.includes('password') && msg.includes('at least')) {
+        alert('密码至少需要 6 位，请重新设置');
+      } else {
+        alert(e.message || '操作失败，请稍后重试');
+      }
     } finally {
       authSubmit.disabled = false;
     }
   });
 
-  // ====================================================
-  // 排行榜
-  // ====================================================
+  // ============ 滑动窗口（速拧标准） ============
+  function calcBest(arr) {
+    if (!arr || arr.length === 0) return null;
+    return Math.min(...arr);
+  }
+  function calcMO3(arr) {
+    if (!arr || arr.length < 3) return null;
+    let best = Infinity;
+    for (let i = 0; i <= arr.length - 3; i++) {
+      const group = arr.slice(i, i + 3);
+      const avg = group.reduce((a, b) => a + b, 0) / 3;
+      if (avg < best) best = avg;
+    }
+    return best;
+  }
+  function calcAO5(arr) {
+    if (!arr || arr.length < 5) return null;
+    let best = Infinity;
+    for (let i = 0; i <= arr.length - 5; i++) {
+      const group = arr.slice(i, i + 5).sort((a, b) => a - b);
+      const trimmed = group.slice(1, 4);
+      const avg = trimmed.reduce((a, b) => a + b, 0) / 3;
+      if (avg < best) best = avg;
+    }
+    return best;
+  }
+  function calcAO12(arr) {
+    if (!arr || arr.length < 12) return null;
+    let best = Infinity;
+    for (let i = 0; i <= arr.length - 12; i++) {
+      const group = arr.slice(i, i + 12).sort((a, b) => a - b);
+      const trimmed = group.slice(1, 11);
+      const avg = trimmed.reduce((a, b) => a + b, 0) / 10;
+      if (avg < best) best = avg;
+    }
+    return best;
+  }
+
   function formatDuration(seconds) {
+    if (seconds == null) return '—';
     const s = Math.max(0, Math.floor(seconds));
     const d = Math.floor(s / 86400);
     const h = Math.floor((s % 86400) / 3600);
@@ -2335,57 +2467,80 @@
     parts.push(sec + 's');
     return parts.join(' ');
   }
+
   async function loadRanking(tab) {
     if (!supabase) { rankList.innerHTML = '<div class="rank-empty">服务尚未就绪</div>'; return; }
     rankList.innerHTML = '<div class="rank-empty">加载中...</div>';
     try {
       if (tab === 'bw' || tab === 'num') {
-        let query = supabase
-          .from('records')
-          .select('username, elapsed, seed, ended_at, user_id')
-          .eq('mode', tab === 'bw' ? 'bw' : 'num')
-          .eq('is_random', true)
-          .order('elapsed', { ascending: true })
-          .limit(100);
-        const { data, error } = await query;
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('uid, username, streak_bw, streak_num, total_wins')
+          .limit(500);
         if (error) throw error;
         if (!data || data.length === 0) {
           rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
           return;
         }
-        // 批量查询 profiles 拿 uid
-        const userIds = [...new Set(data.map(d => d.user_id))];
-        let uidMap = {};
-        if (userIds.length > 0) {
-          const { data: profs } = await supabase
-            .from('profiles')
-            .select('id, uid')
-            .in('id', userIds);
-          if (profs) profs.forEach(p => { uidMap[p.id] = p.uid; });
+
+        const items = [];
+        data.forEach(prof => {
+          const arr = tab === 'bw'
+            ? (Array.isArray(prof.streak_bw) ? prof.streak_bw : [])
+            : (Array.isArray(prof.streak_num) ? prof.streak_num : []);
+          if (arr.length === 0) return;
+          const best = calcBest(arr);
+          const mo3 = calcMO3(arr);
+          const ao5 = calcAO5(arr);
+          const ao12 = calcAO12(arr);
+          if (best == null) return;
+          items.push({
+            uid: prof.uid,
+            username: prof.username,
+            best: best,
+            mo3: mo3,
+            ao5: ao5,
+            ao12: ao12
+          });
+        });
+
+        if (items.length === 0) {
+          rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
+          return;
         }
+
+        items.sort((a, b) => a.best - b.best);
+        const top = items.slice(0, 100);
+
         let html = '';
-        data.forEach((item, index) => {
-          const timeStr = formatDate(new Date(item.ended_at).getTime());
-          const uid = uidMap[item.user_id];
-          const uidTag = uid ? '<span class="uid-tag">#' + uid + '</span> ' : '';
+        top.forEach((item, index) => {
+          const uidTag = item.uid ? '<span class="uid-tag">#' + item.uid + '</span> ' : '';
+          const bestStr = formatDuration(item.best);
+          const mo3Str = item.mo3 == null ? '—' : formatDuration(item.mo3);
+          const ao5Str = item.ao5 == null ? '—' : formatDuration(item.ao5);
+          const ao12Str = item.ao12 == null ? '—' : formatDuration(item.ao12);
+          const mo3Cls = item.mo3 == null ? 'metric na' : 'metric';
+          const ao5Cls = item.ao5 == null ? 'metric na' : 'metric';
+          const ao12Cls = item.ao12 == null ? 'metric na' : 'metric';
           html += '<div class="rank-item">' +
             '<div class="rank-main">' +
               '<span class="rank-no">' + (index + 1) + '</span>' +
               '<span class="rank-name">' + uidTag + (item.username || '匿名') + '</span>' +
-              '<span class="rank-score">' + formatDuration(item.elapsed) + '</span>' +
+              '<span class="rank-score">Best ' + bestStr + '</span>' +
             '</div>' +
-            '<div class="rank-sub">' +
-              '<span class="seed-tag">#' + item.seed + '</span>' +
-              '<span>' + timeStr + '</span>' +
+            '<div class="rank-metrics">' +
+              '<span class="' + mo3Cls + '">MO3: ' + mo3Str + '</span>' +
+              '<span class="' + ao5Cls + '">AO5: ' + ao5Str + '</span>' +
+              '<span class="' + ao12Cls + '">AO12: ' + ao12Str + '</span>' +
             '</div>' +
           '</div>';
         });
         rankList.innerHTML = html;
+
       } else {
         const { data, error } = await supabase
           .from('profiles')
           .select('uid, username, total_wins')
-          .gt('total_wins', 0)
           .order('total_wins', { ascending: false })
           .limit(100);
         if (error) throw error;
@@ -2393,8 +2548,13 @@
           rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
           return;
         }
+        const filtered = data.filter(d => (d.total_wins || 0) > 0);
+        if (filtered.length === 0) {
+          rankList.innerHTML = '<div class="rank-empty">暂无数据</div>';
+          return;
+        }
         let html = '';
-        data.forEach((item, index) => {
+        filtered.forEach((item, index) => {
           const uidTag = item.uid ? '<span class="uid-tag">#' + item.uid + '</span> ' : '';
           html += '<div class="rank-item">' +
             '<div class="rank-main">' +
@@ -2411,6 +2571,7 @@
       rankList.innerHTML = '<div class="rank-empty">加载失败</div>';
     }
   }
+
   btnLeaderboard.addEventListener('click', () => {
     leaderboardModal.classList.add('show');
     loadRanking(currentRankTab);
@@ -2425,14 +2586,27 @@
     });
   });
 
-  // ====================================================
-  // 按钮事件
-  // ====================================================
   btnHelp.addEventListener('click', openRules);
   rulesClose.addEventListener('click', closeRules);
   rulesModal.addEventListener('click', (e) => { if (e.target === rulesModal) closeRules(); });
 
-  btnRandom.addEventListener('click', () => generateChallenge(pickNewSeed(), false, true));
+  btnRandom.addEventListener('click', async () => {
+    if (isRandomChallenge && currentSeed != null && !solved) {
+      const mode = digitalMode ? 'num' : 'bw';
+      const arr = mode === 'bw' ? streakBw : streakNum;
+      if (arr.length > 0) {
+        const modeText = digitalMode ? '有数字' : '无数字';
+        const ok = confirm(
+          '当前题目尚未通关，直接开始新题会打断你在「' + modeText + '」模式下的连续成绩记录（当前连续 ' + arr.length + ' 次）。\n\n' +
+          '确定要放弃本局并开始新题吗？'
+        );
+        if (!ok) return;
+        await clearStreakOnServer(mode);
+      }
+    }
+    generateChallenge(pickNewSeed(), false, true);
+  });
+
   btnSpecify.addEventListener('click', async () => {
     const input = await showInputModal('');
     if (input === null) return;
@@ -2453,7 +2627,7 @@
     if (!currentUser) { alert('请先登录账号'); return; }
     if (!solved) { alert('请先完成挑战'); return; }
     if (!isRandomChallenge) { alert('指定编号的关卡不能上传成绩'); return; }
-    if (!isValidForRank()) { alert('挑战模式曾被关闭，该成绩不计入排行榜'); return; }
+    if (!isValidForRank()) { alert('成绩无效（挑战模式关闭或数字开关被切换），不计入排行榜'); return; }
     if (solvedElapsed == null) { alert('无法获取用时'); return; }
     const mode = digitalMode ? 'num' : 'bw';
     const endedAt = Date.now();
@@ -2478,7 +2652,6 @@
   boardEl.addEventListener('pointerdown', onBoardPointerDown);
   boardEl.addEventListener('contextmenu', (e) => e.preventDefault());
 
-  // 挑战模式开关
   challengeModeSwitch.addEventListener('click', () => {
     if (!isRandomChallenge) return;
     challengeModeEnabled = !challengeModeEnabled;
@@ -2486,21 +2659,22 @@
       challengeModeEverDisabled = true;
       if (answerMode) answerMode = false;
     }
+    checkValidityChange();
     updateModeUI();
     if (answerMode) renderPiecesLayer();
     scheduleSaveProgress();
-    showToast(challengeModeEnabled
-      ? '挑战模式已开启，无法查看答案'
-      : '挑战模式已关闭，本局成绩不计入排行榜');
   });
 
   digitSwitch.addEventListener('click', () => {
     digitalMode = !digitalMode;
+    digitalModeEverToggled = true;
     solved = false;
+    checkValidityChange();
     updateModeUI(); renderPool(); updateBoardView();
     if (answerMode) renderPiecesLayer();
     checkWin(); scheduleSaveProgress();
   });
+
   colorSwitch.addEventListener('click', () => {
     colorMode = !colorMode;
     updateModeUI(); renderPool(); updateBoardView();
@@ -2514,9 +2688,6 @@
     updateBoardView(); renderPiecesLayer(); updateModeUI();
   });
 
-  // ====================================================
-  // 窗口尺寸
-  // ====================================================
   let resizeTimer = null;
   window.addEventListener('resize', () => {
     if (resizeTimer) clearTimeout(resizeTimer);
@@ -2528,13 +2699,11 @@
     }, 160);
   });
 
-  // ====================================================
-  // 启动
-  // ====================================================
   function initGame() {
     computeSizes();
     buildBoard();
     renderAll();
+    loadLocalStreak();
     updateUserUI();
     updateUploadButton();
     poolEl.addEventListener('contextmenu', e => e.preventDefault());
