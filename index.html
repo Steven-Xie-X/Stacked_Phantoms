@@ -389,7 +389,7 @@
   .history-state { color: #7c3aed; font-weight: 700; font-size: 11px; margin-top: 4px; }
   .history-duration { margin-top: 2px; font-size: 11px; font-weight: 700; color: #2563eb; }
   .history-uid {
-    margin-top: 4px; padding-top: 4px; border-top: 1px dashed #e2e8f0;
+    margin-top: 6px; padding-top: 5px; border-top: 1px dashed #e2e8f0;
     font-size: 10px; color: #7c3aed; font-weight: 700; letter-spacing: .5px;
   }
   .history-empty { text-align: center; color: #94a3b8; padding: 24px 0; font-size: 13px; }
@@ -801,9 +801,11 @@
   let resetStreakOnNextSolve = false;
   let pendingUploadPromise = null;
 
-  // ⭐ 秒级云同步相关
+  // 云同步相关
   let cloudSyncIntervalId = null;
   let lastUploadedHash = '';
+  let lastRenderedCompletedCount = -1;
+  let lastRenderedProgressCount = -1;
 
   let streakBw = [];
   let streakNum = [];
@@ -1155,7 +1157,6 @@
     saveTimer = setTimeout(saveProgress, 250);
   }
 
-  // ⭐ 计算进度数据指纹，用于判断是否需要上传
   function hashProgress(data) {
     if (!data) return '';
     try {
@@ -1173,7 +1174,6 @@
     }
   }
 
-  // ⭐ 立即上传当前进度到云端（不防抖）
   async function uploadProgressNow() {
     if (!currentUser || !supabase || !currentSeed) return;
     const data = getProgressForMode(gameTypeKey);
@@ -1196,18 +1196,126 @@
     }
   }
 
-  // ⭐ 启动秒级云同步（每 1 秒检查一次，数据变化时才上传）
+  // ⭐ 从云端拉取历史记录（合并到本地，不覆盖）
+  async function pullRecordsFromCloud(renderAfter) {
+    if (!supabase || !currentUser) return false;
+    try {
+      const { data, error } = await supabase
+        .from('user_seeds')
+        .select('seed, state, updated_at')
+        .eq('user_id', currentUser.id);
+      if (error) {
+        console.warn('[sync] 拉取 user_seeds 失败:', error.message);
+        return false;
+      }
+      if (!data || data.length === 0) return false;
+
+      const localList = getCompletedSeeds();
+      const map = new Map();
+      localList.forEach(item => { if (item && item.seed != null) map.set(item.seed, item); });
+
+      let changed = false;
+      data.forEach(rec => {
+        const recTime = new Date(rec.updated_at).getTime();
+        const existing = map.get(rec.seed);
+        if (!existing) {
+          map.set(rec.seed, {
+            seed: rec.seed,
+            state: rec.state || {},
+            updatedAt: recTime
+          });
+          changed = true;
+        } else {
+          if (rec.state && typeof rec.state === 'object') {
+            if (!existing.state) existing.state = {};
+            Object.keys(rec.state).forEach(m => {
+              const merged = Object.assign({}, existing.state[m] || {}, rec.state[m] || {});
+              if (JSON.stringify(merged) !== JSON.stringify(existing.state[m] || {})) {
+                existing.state[m] = merged;
+                changed = true;
+              }
+            });
+          }
+          if (recTime > (existing.updatedAt || 0)) {
+            existing.updatedAt = recTime;
+          }
+        }
+      });
+
+      if (changed) {
+        saveCompletedSeeds(Array.from(map.values()));
+        if (renderAfter) renderHistory();
+      }
+      return changed;
+    } catch (e) {
+      console.warn('[sync] 拉取 user_seeds 异常:', e);
+      return false;
+    }
+  }
+
+  // ⭐ 从云端拉取进度（合并到本地，不覆盖正在玩的进度）
+  async function pullProgressFromCloud() {
+    if (!supabase || !currentUser) return false;
+    try {
+      const { data, error } = await supabase
+        .from('user_progress')
+        .select('game_type, data, updated_at')
+        .eq('user_id', currentUser.id);
+      if (error) {
+        console.warn('[sync] 拉取 user_progress 失败:', error.message);
+        return false;
+      }
+      if (!data || data.length === 0) return false;
+
+      let changed = false;
+      data.forEach(row => {
+        if (!row.data) return;
+        // 正在玩的模式跳过，避免覆盖当前进度
+        if (gameScreen.classList.contains('active') && currentSeed && row.game_type === gameTypeKey) {
+          return;
+        }
+        const cloudTime = new Date(row.updated_at).getTime();
+        const local = getProgressForMode(row.game_type);
+        const localTime = local ? (local.saved || 0) : 0;
+        if (cloudTime > localTime) {
+          setProgressForMode(row.game_type, row.data);
+          changed = true;
+        }
+      });
+      return changed;
+    } catch (e) {
+      console.warn('[sync] 拉取 user_progress 异常:', e);
+      return false;
+    }
+  }
+
+  // ⭐ 启动云同步定时器（1 秒上传，3 秒拉取）
   function startCloudSync() {
     if (cloudSyncIntervalId) clearInterval(cloudSyncIntervalId);
-    cloudSyncIntervalId = setInterval(() => {
+    let tickCount = 0;
+    cloudSyncIntervalId = setInterval(async () => {
       if (!currentUser || !supabase) return;
-      if (!gameScreen.classList.contains('active')) return;
-      if (!currentSeed) return;
-      uploadProgressNow();
+      tickCount++;
+
+      // 1 秒：上传当前进度
+      if (gameScreen.classList.contains('active') && currentSeed) {
+        uploadProgressNow();
+      }
+
+      // 3 秒：拉取云端更新
+      if (tickCount >= 3) {
+        tickCount = 0;
+        // 历史记录（已完成关卡）总是可以拉取并合并
+        await pullRecordsFromCloud(true);
+        // 进行中进度：只在不在游戏屏幕时拉取
+        if (!gameScreen.classList.contains('active') || !currentSeed) {
+          await pullProgressFromCloud();
+          renderHistory();
+        }
+      }
     }, 1000);
   }
 
-  // ⭐ 停止云同步
   function stopCloudSync() {
     if (cloudSyncIntervalId) {
       clearInterval(cloudSyncIntervalId);
@@ -1216,33 +1324,16 @@
     lastUploadedHash = '';
   }
 
-  // ⭐ 从云端拉取所有进度（已登录）。云端有数据的直接覆盖本地。
+  // ⭐ 兼容旧调用（进入模式 / 登录时使用）
   async function syncAllProgressFromCloud() {
-    if (!supabase || !currentUser) return;
-    try {
-      const { data, error } = await supabase
-        .from('user_progress')
-        .select('game_type, data, updated_at')
-        .eq('user_id', currentUser.id);
-      if (error) {
-        console.warn('拉取云端进度失败:', error.message);
-        return;
-      }
-      if (!data || data.length === 0) return;
-      data.forEach(row => {
-        if (!row.data) return;
-        const cloudTime = new Date(row.updated_at).getTime();
-        const local = getProgressForMode(row.game_type);
-        const localTime = local ? (local.saved || 0) : 0;
-        if (cloudTime > localTime) {
-          setProgressForMode(row.game_type, row.data);
-        }
-      });
-      const activeData = getProgressForMode(gameTypeKey);
-      if (activeData) lastUploadedHash = hashProgress(activeData);
-    } catch (e) {
-      console.warn('同步云端进度异常:', e);
-    }
+    await pullProgressFromCloud();
+    const activeData = getProgressForMode(gameTypeKey);
+    if (activeData) lastUploadedHash = hashProgress(activeData);
+  }
+
+  // ⭐ 兼容旧调用
+  async function syncRecordsFromCloud() {
+    await pullRecordsFromCloud(true);
   }
 
   function loadProgressForCurrentMode() {
@@ -2293,7 +2384,6 @@
     const allProgress = getAllProgressMap();
     const items = [];
 
-    // 已登录显示当前用户 uid；未登录显示 0
     const displayUid = currentUser && currentUser.uid ? currentUser.uid : 0;
 
     Object.keys(allProgress).forEach(key => {
@@ -2357,7 +2447,12 @@
 
     historyList.innerHTML = html;
   }
-  function openHistory() { renderHistory(); historyModal.classList.add('show'); }
+  function openHistory() {
+    renderHistory();
+    historyModal.classList.add('show');
+    // 打开时也拉取云端并刷新
+    pullRecordsFromCloud(true).then(() => pullProgressFromCloud().then(() => renderHistory()));
+  }
   function closeHistory() { historyModal.classList.remove('show'); }
   function openRules() { rulesModal.classList.add('show'); }
   function closeRules() { rulesModal.classList.remove('show'); }
@@ -2411,8 +2506,8 @@
         currentUser = session ? session.user : null;
         if (currentUser) {
           await loadUserUid();
-          await syncRecordsFromCloud();
-          await syncAllProgressFromCloud();
+          await pullRecordsFromCloud(true);
+          await pullProgressFromCloud();
           startCloudSync();
         } else {
           streakBw = [];
@@ -2427,8 +2522,8 @@
         currentUser = data.user || null;
         if (currentUser) {
           await loadUserUid();
-          await syncRecordsFromCloud();
-          await syncAllProgressFromCloud();
+          await pullRecordsFromCloud(true);
+          await pullProgressFromCloud();
           startCloudSync();
         }
         updateUserUI();
@@ -2457,50 +2552,6 @@
       };
       check();
     });
-  }
-
-  async function syncRecordsFromCloud() {
-    if (!supabase || !currentUser) return;
-    try {
-      const { data, error } = await supabase
-        .from('user_seeds')
-        .select('seed, state, updated_at')
-        .eq('user_id', currentUser.id)
-        .order('updated_at', { ascending: false });
-      if (error) {
-        console.warn('user_seeds 同步失败:', error.message);
-        return;
-      }
-      if (!data) return;
-
-      const localList = getCompletedSeeds();
-      const map = new Map();
-      localList.forEach(item => { if (item && item.seed != null) map.set(item.seed, item); });
-
-      data.forEach(rec => {
-        const recTime = new Date(rec.updated_at).getTime();
-        const existing = map.get(rec.seed);
-        if (!existing) {
-          map.set(rec.seed, {
-            seed: rec.seed,
-            state: rec.state || {},
-            updatedAt: recTime
-          });
-        } else {
-          if (rec.state && typeof rec.state === 'object') {
-            if (!existing.state) existing.state = {};
-            Object.keys(rec.state).forEach(m => {
-              existing.state[m] = Object.assign({}, existing.state[m] || {}, rec.state[m] || {});
-            });
-          }
-          if (recTime > existing.updatedAt) existing.updatedAt = recTime;
-        }
-      });
-      saveCompletedSeeds(Array.from(map.values()));
-      renderHistory();
-    } catch (e) {
-      console.warn('同步云端记录失败:', e);
-    }
   }
 
   function computeStatsFromHistory(historyList) {
@@ -3088,9 +3139,8 @@
       saveProgress();
     }
 
-    // ⭐ 已登录：先拉取云端进度
     if (currentUser && supabase) {
-      await syncAllProgressFromCloud();
+      await pullProgressFromCloud();
     }
 
     if (action === 'practice-random') {
@@ -3223,7 +3273,7 @@
       localStorage.removeItem(getStorageKey(STORAGE_SUCCESS));
       localStorage.removeItem(getStorageKey(STORAGE_PROGRESS));
     } catch (e) {}
-    if (currentUser) syncRecordsFromCloud();
+    if (currentUser) pullRecordsFromCloud(true);
     else renderHistory();
   });
   historyModal.addEventListener('click', (e) => { if (e.target === historyModal) closeHistory(); });
