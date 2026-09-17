@@ -152,7 +152,6 @@
   .mode-btn .mode-desc {
     font-size: 11px; color: var(--page-text-dimmer); line-height: 1.4; text-align: center;
   }
-  /* 练习模式：蓝色系 */
   .mode-btn.practice { border-color: #bfdbfe; }
   .mode-btn.practice .mode-icon { background: #eff6ff; }
   .mode-btn.practice:hover {
@@ -164,7 +163,6 @@
   .mode-btn.practice:hover .mode-icon { background: #bfdbfe; }
   .mode-btn.practice .mode-title { color: #2563eb; }
   html.dark-mode .mode-btn.practice:hover { background: #1e3a8a; }
-  /* 挑战模式：橙色系 */
   .mode-btn.challenge { border-color: #fed7aa; }
   .mode-btn.challenge .mode-icon { background: #fffbeb; }
   .mode-btn.challenge:hover {
@@ -174,7 +172,6 @@
   }
   .mode-btn.challenge:hover .mode-icon { background: #fde68a; }
   .mode-btn.challenge .mode-title { color: #b45309; }
-  /* 多色模式：红色系 */
   .mode-btn.multi { border-color: #fecaca; }
   .mode-btn.multi .mode-icon { background: #fef2f2; }
   .mode-btn.multi:hover {
@@ -251,7 +248,7 @@
   }
   @media (max-width: 360px) {
     .controls { gap: 4px; }
-    .controls .btn { font-size: 11px; padding: 0 6px; height: 38px; }
+    .controls .btn { font-size: 11px; padding: 0 5px; height: 38px; }
     .controls .btn.icon-btn { width: 34px; }
     .controls .btn svg { width: 15px; height: 15px; }
   }
@@ -460,7 +457,14 @@
     flex-direction: column;
   }
   @keyframes modalIn { from { transform: scale(.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .modal-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--title-color); letter-spacing: 1px; }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--title-color);
+    letter-spacing: 1px;
+    text-align: center;
+  }
   .modal-input {
     width: 100%; padding: 10px 12px; font-size: 15px; border: 1px solid var(--card-border-2);
     border-radius: 8px; font-family: inherit; outline: none; margin-bottom: 12px;
@@ -495,7 +499,6 @@
     font-size: 10px; color: #7c3aed; font-weight: 700; letter-spacing: .5px;
   }
   .history-empty { text-align: center; color: var(--page-text-dimmer); padding: 24px 0; font-size: 13px; }
-  /* 排行榜 */
   .rank-mode-tabs {
     display: flex;
     gap: 5px;
@@ -522,10 +525,6 @@
   }
   .rank-mode-tab:hover:not(.active) {
     background: var(--card-bg-2);
-  }
-  .rank-mode-tab.multi-tab.active {
-    background: #ef4444;
-    border-color: #ef4444;
   }
   .rank-subtabs {
     display: flex;
@@ -599,11 +598,35 @@
   }
   .rules-content .tip-line { display: block; }
   .rules-content .tip-line + .tip-line { margin-top: 4px; }
-  .rules-content b { color: var(--page-text); }
+  .rules-content b { color: var(--page-text); font-weight: 700; }
   .rules-content .win-rule {
     display: block; margin-top: 6px; color: #b45309; font-weight: 700;
     padding-top: 6px; border-top: 1px dashed var(--card-border);
   }
+  .mf-line {
+    display: block;
+    margin-top: 4px;
+    line-height: 1.9;
+  }
+  .mf-box {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+    vertical-align: -2px;
+    border: 1px solid rgba(15,23,42,.25);
+    margin: 0 1px;
+  }
+  html.dark-mode .mf-box { border-color: rgba(255,255,255,.25); }
+  .mf-op { margin: 0 4px; font-weight: 700; color: var(--page-text-dim); }
+  .mf-r { background: #ef4444; }
+  .mf-g { background: #22c55e; }
+  .mf-b { background: #3b82f6; }
+  .mf-y { background: #eab308; }
+  .mf-m { background: #d946ef; }
+  .mf-c { background: #14b8a6; }
+  .mf-k { background: #1e293b; }
+  .mf-w { background: #ffffff; }
   .records-grid {
     display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 1px;
     background: var(--card-border); border-radius: 8px; overflow: hidden;
@@ -642,9 +665,6 @@
   }
   .rank-tab.active {
     background: var(--accent); color: #fff; border-color: var(--accent);
-  }
-  .rank-tab.multi.active {
-    background: #ef4444; border-color: #ef4444;
   }
 </style>
 </head>
@@ -712,46 +732,39 @@
     </div>
 
     <div class="mode-list">
-      <button class="mode-btn practice" data-action="practice-random">
+      <button class="mode-btn practice" data-action="practice-basic">
         <div class="mode-icon">🎲</div>
         <div class="mode-content">
-          <div class="mode-title">练习模式 · 随机选择</div>
-          <div class="mode-desc">随机生成关卡 · 无排行榜</div>
+          <div class="mode-title">练习模式 · 单色</div>
+          <div class="mode-desc">黑白叠加 · 随机生成 / 指定编号</div>
         </div>
       </button>
-      <button class="mode-btn practice" data-action="practice-specify">
-        <div class="mode-icon">🔢</div>
+      <button class="mode-btn multi" data-action="practice-ternary">
+        <div class="mode-icon">🎨</div>
         <div class="mode-content">
-          <div class="mode-title">练习模式 · 指定编号</div>
-          <div class="mode-desc">指定编号关卡 · 无排行榜</div>
+          <div class="mode-title">练习模式 · 三色</div>
+          <div class="mode-desc">红绿蓝叠加 · 随机生成 / 指定编号</div>
         </div>
       </button>
       <button class="mode-btn challenge" data-action="challenge-bw">
         <div class="mode-icon">⚪</div>
         <div class="mode-content">
-          <div class="mode-title">挑战模式 · 无数字</div>
+          <div class="mode-title">单色模式 · 无数字</div>
           <div class="mode-desc">随机关卡 · 计入无数字排行榜</div>
         </div>
       </button>
       <button class="mode-btn challenge" data-action="challenge-num">
         <div class="mode-icon">🔵</div>
         <div class="mode-content">
-          <div class="mode-title">挑战模式 · 有数字</div>
+          <div class="mode-title">单色模式 · 有数字</div>
           <div class="mode-desc">随机关卡 · 计入有数字排行榜</div>
         </div>
       </button>
-      <button class="mode-btn multi" data-action="practice-multi">
-        <div class="mode-icon">🎨</div>
-        <div class="mode-content">
-          <div class="mode-title">多色模式 · 练习</div>
-          <div class="mode-desc">红绿蓝三原色叠加 · 8 色目标</div>
-        </div>
-      </button>
-      <button class="mode-btn multi" data-action="challenge-multi">
+      <button class="mode-btn multi" data-action="challenge-ternary">
         <div class="mode-icon">🌈</div>
         <div class="mode-content">
-          <div class="mode-title">多色模式 · 挑战</div>
-          <div class="mode-desc">随机关卡 · 计入多色排行榜</div>
+          <div class="mode-title">三色模式 · 无数字</div>
+          <div class="mode-desc">随机关卡 · 计入三色排行榜</div>
         </div>
       </button>
     </div>
@@ -766,7 +779,7 @@
         返回
       </button>
       <div class="mode-badge" id="modeBadge">
-        <span id="modeBadgeText">挑战 · 无数字</span>
+        <span id="modeBadgeText">单色 · 无数字</span>
       </div>
     </div>
 
@@ -791,6 +804,8 @@
       <button id="btnMainAction" class="btn main-action">
         <span id="btnMainActionText">新游戏</span>
       </button>
+      <button id="btnRandomNew" class="btn main-action" style="display:none;">随机生成</button>
+      <button id="btnSpecifyNew" class="btn main-action" style="display:none;">指定编号</button>
 
       <button id="btnAnswer" class="btn icon-btn answer" title="参考答案">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -800,7 +815,7 @@
         </svg>
       </button>
 
-      <button id="btnLeaderboard" class="btn icon-btn" title="排行榜" style="display:none;">
+      <button id="btnLeaderboard" class="btn icon-btn" title="排行榜">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 20V10"/>
           <path d="M18 20V4"/>
@@ -837,8 +852,8 @@
       </button>
     </div>
     <div class="mode-row" id="targetRow">
-      <span class="mode-label">目标图案 <span class="hint" id="targetHint">打开来查看目标图案</span></span>
-      <button id="targetSwitch" class="switch" role="switch" aria-pressed="false">
+      <span class="mode-label">目标图案 <span class="hint" id="targetHint">已显示目标图案</span></span>
+      <button id="targetSwitch" class="switch" role="switch" aria-pressed="true">
         <span class="switch-knob"></span>
       </button>
     </div>
@@ -915,15 +930,21 @@
   <div class="modal-box">
     <div class="modal-title">游戏规则</div>
     <div class="rules-content">
-      <span class="tip-line"><b>操作方式：</b>拖动 → 碎片可在操作盘面和碎片池之间交替移动 · 单击碎片顺时针旋转90° · 右键单击（触屏：一指按住，另一指点击）逆时针旋转90° · 连续双击碎片左右镜像</span>
-      <span class="tip-line"><b>叠加规则：</b>同一格被覆盖奇数次为黑、偶数次为白</span>
-      <span class="tip-line" style="color:#b45309;font-weight:600;">参考答案：单击盘面放置下一块，双击或右键盘面撤回至上一步。挑战模式进行中查看答案会作废本局成绩。</span>
+      <span class="tip-line"><b>操作方式：拖动 → 碎片可在操作盘面和碎片池之间交替移动 · 单击碎片顺时针旋转90° · 右键单击（触屏：一指按住，另一指点击）逆时针旋转90° · 连续双击碎片左右镜像</b></span>
+      <span class="tip-line"><b>叠加规则：同一格被覆盖奇数次为黑、偶数次为白</b></span>
+      <span class="tip-line" style="color:#b45309;font-weight:600;">参考答案：单击盘面放置下一块，双击或右键盘面撤回至上一步。</span>
       <span class="tip-line" style="color:#dc2626;font-weight:600;">数字显示：每块碎片带一个 0~9 数字，盘面格子显示覆盖它的碎片数字之和（0 不显示）。</span>
       <span class="tip-line" style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span>
-      <span class="tip-line" style="color:#7c3aed;font-weight:600;">挑战模式：进行中查看答案或点击"新游戏"都会作废本局成绩并打断连续记录。放弃后重新开始的第一局通关会作为新的连续起点（连续 1 次）。</span>
-      <span class="tip-line" style="color:#4338ca;font-weight:600;">每日挑战：编号为当日 8 位日期（如 20260917），固定为有数字模式，所有玩家当天面对同一关卡。</span>
-      <span class="tip-line" style="color:#b91c1c;font-weight:600;">多色模式：每块碎片随机为红/绿/蓝（各 5 块，共 15 块）。每个格子在红、绿、蓝三个通道上独立做奇偶判定：奇数次覆盖为 1，偶数为 0，三个通道组合成 8 种颜色（黑/红/绿/蓝/黄/品红/青/白）。目标图案同样按此规则生成。</span>
-      <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片；若开启数字显示，数字也必须完全匹配。多色模式要求三通道颜色完全一致。</span>
+      <span class="tip-line" style="color:#7c3aed;font-weight:600;">单色模式：进行中查看答案或点击"新游戏"都会作废本局成绩并打断连续记录。放弃后重新开始的第一局通关会作为新的连续起点（连续 1 次）。</span>
+      <span class="tip-line" style="color:#b91c1c;font-weight:600;">三色模式：每块碎片随机为红/绿/蓝（各 5 块，共 15 块）。每个格子在红、绿、蓝三个通道上独立做奇偶判定：奇数次覆盖为 1，偶数为 0。</span>
+      <span class="tip-line" style="margin-top:6px;">
+        <b>颜色合成：</b>
+        <span class="mf-line"><span class="mf-box mf-r"></span>红<span class="mf-op">+</span><span class="mf-box mf-g"></span>绿<span class="mf-op">=</span><span class="mf-box mf-y"></span>黄</span>
+        <span class="mf-line"><span class="mf-box mf-r"></span>红<span class="mf-op">+</span><span class="mf-box mf-b"></span>蓝<span class="mf-op">=</span><span class="mf-box mf-m"></span>品红</span>
+        <span class="mf-line"><span class="mf-box mf-g"></span>绿<span class="mf-op">+</span><span class="mf-box mf-b"></span>蓝<span class="mf-op">=</span><span class="mf-box mf-c"></span>青</span>
+        <span class="mf-line"><span class="mf-box mf-r"></span>红<span class="mf-op">+</span><span class="mf-box mf-g"></span>绿<span class="mf-op">+</span><span class="mf-box mf-b"></span>蓝<span class="mf-op">=</span><span class="mf-box mf-k"></span>黑</span>
+      </span>
+      <span class="win-rule">🏆 通关条件：①用完所有碎片 ②无数字模式下，每个格子的颜色要与目标图案一致。有数字模式下，数字也必须完全匹配。</span>
     </div>
     <div class="modal-actions" style="margin-top: 14px;">
       <button class="btn primary" id="rulesClose">知道了</button>
@@ -949,11 +970,11 @@
 
 <div id="leaderboardModal" class="modal-mask">
   <div class="modal-box" style="max-width:400px;">
-    <div class="modal-title" style="text-align:center;font-size:16px;margin-bottom:10px;">排行榜</div>
+    <div class="modal-title">排行榜</div>
     <div class="rank-mode-tabs">
       <button class="rank-mode-tab active" data-mode="bw">无数字</button>
       <button class="rank-mode-tab" data-mode="num">有数字</button>
-      <button class="rank-mode-tab multi-tab" data-mode="multi">多色</button>
+      <button class="rank-mode-tab" data-mode="multi">三色</button>
     </div>
     <div class="rank-subtabs">
       <button class="rank-subtab active" data-rank="best">Best</button>
@@ -975,7 +996,7 @@
     <div class="rank-tabs">
       <button class="rank-tab active" data-recordtab="bw">无数字</button>
       <button class="rank-tab" data-recordtab="num">有数字</button>
-      <button class="rank-tab multi" data-recordtab="multi">多色</button>
+      <button class="rank-tab" data-recordtab="multi">三色</button>
     </div>
     <div id="myRecordsContent"></div>
     <div class="modal-actions">
@@ -1019,21 +1040,20 @@
     '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'
   ];
 
-  // ⭐ 多色模式常量
   const MULTI_PIECE_COLORS = {
     r: { fill: '#ef4444', border: '#b91c1c', light: '#fecaca' },
     g: { fill: '#22c55e', border: '#15803d', light: '#bbf7d0' },
     b: { fill: '#3b82f6', border: '#1d4ed8', light: '#bfdbfe' }
   };
   const MULTI_COLOR_MAP = {
-    '0,0,0': '#1e293b',
+    '0,0,0': '#ffffff',
     '1,0,0': '#ef4444',
     '0,1,0': '#22c55e',
     '0,0,1': '#3b82f6',
     '1,1,0': '#eab308',
     '1,0,1': '#d946ef',
-    '0,1,1': '#06b6d4',
-    '1,1,1': '#f8fafc'
+    '0,1,1': '#14b8a6',
+    '1,1,1': '#1e293b'
   };
 
   let gameMode = 'practice';
@@ -1043,7 +1063,7 @@
   let pieces = [];
   let targetGrid = null;
   let answerPlacements = [];
-  let showingTarget = false;
+  let showingTarget = true;
   let answerMode = false;
   let answerIndex = 0;
   let solved = false;
@@ -1077,7 +1097,6 @@
   let answerSingleTapTimer = null;
   let answerLastTapTime = 0;
 
-  // 排行榜状态
   let currentRankMode = 'bw';
   let currentRankTabBw = 'best';
   let currentRankTabNum = 'best';
@@ -1111,6 +1130,8 @@
   const btnLeaderboard = $('btnLeaderboard');
   const btnMainAction = $('btnMainAction');
   const btnMainActionText = $('btnMainActionText');
+  const btnRandomNew = $('btnRandomNew');
+  const btnSpecifyNew = $('btnSpecifyNew');
   const btnReset = $('btnReset');
   const btnAnswer = $('btnAnswer');
   const btnUndo = $('btnUndo');
@@ -1192,12 +1213,21 @@
   }
   function modeLabel(mode) {
     if (mode === 'num') return '有数字';
-    if (mode === 'multi') return '多色';
+    if (mode === 'multi') return '三色';
     return '无数字';
   }
 
+  function isPracticeBasic() {
+    return gameTypeKey === 'practice-random' || gameTypeKey === 'practice-specify';
+  }
+  function isPracticeMulti() {
+    return gameTypeKey === 'practice-multi' || gameTypeKey === 'practice-multi-specify';
+  }
+  function isPracticeMode() {
+    return isPracticeBasic() || isPracticeMulti();
+  }
   function isMultiColorMode() {
-    return gameTypeKey === 'practice-multi' || gameTypeKey === 'challenge-multi';
+    return isPracticeMulti() || gameTypeKey === 'challenge-multi';
   }
   function getPieceCount() {
     return isMultiColorMode() ? MULTI_PIECE_COUNT : PIECE_COUNT;
@@ -1227,7 +1257,6 @@
     return formatTimer(seconds);
   }
 
-  // 主题
   function applyTheme(theme) {
     const isDark = theme === 'dark';
     document.documentElement.classList.toggle('dark-mode', isDark);
@@ -1258,7 +1287,6 @@
     applyTheme(next);
   }
 
-  // 全屏
   function isFullscreen() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
   }
@@ -1365,7 +1393,7 @@
     const isChallenge = gameType === 'challenge-bw' || gameType === 'challenge-num'
                      || gameType === 'daily' || gameType === 'challenge-multi';
     const isPractice = gameType === 'practice-random' || gameType === 'practice-specify'
-                    || gameType === 'practice-multi';
+                    || gameType === 'practice-multi' || gameType === 'practice-multi-specify';
 
     if (isChallenge) {
       m.challenge = true;
@@ -1381,7 +1409,7 @@
         m.practiceBestAt = endedAt;
       }
     }
-    if (gameType === 'practice-specify') m.specify = true;
+    if (gameType === 'practice-specify' || gameType === 'practice-multi-specify') m.specify = true;
     else m.random = true;
 
     state[mode] = m;
@@ -1846,7 +1874,6 @@
     return g;
   }
 
-  // ⭐ 多色网格
   function computeMultiGridPlayer() {
     const grid = Array.from({ length: N }, () =>
       Array.from({ length: N }, () => ({ r: 0, g: 0, b: 0 }))
@@ -1888,7 +1915,7 @@
 
   function multiGridToColor(cell) {
     const key = cell.r + ',' + cell.g + ',' + cell.b;
-    return MULTI_COLOR_MAP[key] || '#f8fafc';
+    return MULTI_COLOR_MAP[key] || '#ffffff';
   }
 
   function multiGridEquals(a, b) {
@@ -2054,7 +2081,6 @@
       placements.push({ cells: targetCells, row, col, rot, flip });
     }
 
-    // ⭐ 多色模式：均分三色后洗牌
     if (isMultiColorMode()) {
       const colorPool = [];
       for (let i = 0; i < pieceCount; i++) colorPool.push(['r', 'g', 'b'][i % 3]);
@@ -2095,12 +2121,13 @@
 
     solved = false;
     solvedElapsed = null;
-    showingTarget = false;
+    // ⭐ 目标图案默认打开
+    showingTarget = true;
     answerMode = false;
     answerIndex = 0;
     messageEl.classList.remove('show');
 
-    if (gameMode === 'practice' || gameTypeKey === 'daily') {
+    if (isPracticeMode() || gameTypeKey === 'daily') {
       seedShow.textContent = seed;
     } else {
       seedShow.textContent = '？？？';
@@ -2146,12 +2173,10 @@
     poolHead.textContent = answerMode ? '备选碎片池（答案标注）' : '备选碎片池';
     btnAnswer.classList.toggle('active', answerMode);
 
-    // 进度条名
-    colorProgressName.textContent = isMultiColorMode() ? '多色匹配度' : '黑白匹配度';
+    colorProgressName.textContent = isMultiColorMode() ? '三色匹配度' : '黑白匹配度';
     progressFill.classList.toggle('multi-fill', isMultiColorMode());
     progressLabel.classList.toggle('multi-label', isMultiColorMode());
 
-    // 徽章
     if (gameTypeKey === 'daily') {
       modeBadge.classList.remove('challenge-badge');
       modeBadge.classList.remove('multi-badge');
@@ -2161,29 +2186,52 @@
       modeBadge.classList.remove('challenge-badge');
       modeBadge.classList.remove('daily-badge');
       modeBadge.classList.add('multi-badge');
-      modeBadgeText.textContent = '多色模式 · 练习';
+      modeBadgeText.textContent = '练习模式 · 三色 · 随机';
+    } else if (gameTypeKey === 'practice-multi-specify') {
+      modeBadge.classList.remove('challenge-badge');
+      modeBadge.classList.remove('daily-badge');
+      modeBadge.classList.add('multi-badge');
+      modeBadgeText.textContent = '练习模式 · 三色 · 指定';
     } else if (gameTypeKey === 'challenge-multi') {
       modeBadge.classList.remove('daily-badge');
       modeBadge.classList.remove('multi-badge');
       modeBadge.classList.add('challenge-badge');
-      modeBadgeText.textContent = '多色模式 · 挑战';
-    } else if (gameMode === 'challenge') {
+      modeBadgeText.textContent = '三色模式 · 无数字';
+    } else if (gameTypeKey === 'challenge-bw') {
       modeBadge.classList.remove('daily-badge');
       modeBadge.classList.remove('multi-badge');
       modeBadge.classList.add('challenge-badge');
-      modeBadgeText.textContent = '挑战模式 · ' + (challengeSubMode === 'num' ? '有数字' : '无数字');
+      modeBadgeText.textContent = '单色模式 · 无数字';
+    } else if (gameTypeKey === 'challenge-num') {
+      modeBadge.classList.remove('daily-badge');
+      modeBadge.classList.remove('multi-badge');
+      modeBadge.classList.add('challenge-badge');
+      modeBadgeText.textContent = '单色模式 · 有数字';
+    } else if (gameTypeKey === 'practice-specify') {
+      modeBadge.classList.remove('challenge-badge');
+      modeBadge.classList.remove('daily-badge');
+      modeBadge.classList.remove('multi-badge');
+      modeBadgeText.textContent = '练习模式 · 单色 · 指定';
+    } else if (gameTypeKey === 'practice-random') {
+      modeBadge.classList.remove('challenge-badge');
+      modeBadge.classList.remove('daily-badge');
+      modeBadge.classList.remove('multi-badge');
+      modeBadgeText.textContent = '练习模式 · 单色 · 随机';
     } else {
       modeBadge.classList.remove('challenge-badge');
       modeBadge.classList.remove('daily-badge');
       modeBadge.classList.remove('multi-badge');
-      const sub = (gameTypeKey === 'practice-specify' ? '指定编号' : '随机选择');
-      modeBadgeText.textContent = '练习模式 · ' + sub;
+      modeBadgeText.textContent = '练习模式';
     }
 
+    const practice = isPracticeMode();
+    btnMainAction.style.display = practice ? 'none' : '';
+    btnRandomNew.style.display = practice ? '' : 'none';
+    btnSpecifyNew.style.display = practice ? '' : 'none';
     btnMainActionText.textContent = '新游戏';
-    btnLeaderboard.style.display = (gameMode === 'challenge' || gameTypeKey === 'daily') ? 'inline-flex' : 'none';
 
-    // 多色模式下隐藏数字 / 颜色开关
+    btnLeaderboard.style.display = 'inline-flex';
+
     const multi = isMultiColorMode();
     digitRow.style.display = (gameMode === 'practice' && !multi && gameTypeKey !== 'daily') ? 'flex' : 'none';
     colorRow.style.display = multi ? 'none' : '';
@@ -2423,7 +2471,6 @@
       el.style.height = POOL_SLOT + 'px';
       el.dataset.ox = ox; el.dataset.oy = oy;
 
-      // 碎片颜色
       const multi = isMultiColorMode();
       let pieceColor, pieceBorder;
       if (multi && p.multiColor) {
@@ -2698,7 +2745,6 @@
   async function toggleAnswerMode() {
     if (!targetGrid) return;
 
-    // 多色挑战作废逻辑（不进连续记录，但仍需作废本局）
     if (isMultiColorMode() && gameMode === 'challenge' && !solved && !abandoned) {
       const ok = confirm(
         '当前挑战尚未完成。\n\n' +
@@ -2710,13 +2756,12 @@
       stopTimer();
       scheduleSaveProgress();
     }
-    // 常规挑战作废逻辑
-    else if (!isMultiColorMode() && (gameMode === 'challenge' || gameTypeKey === 'daily') && !solved && !abandoned) {
+    else if (!isMultiColorMode() && gameMode === 'challenge' && !solved && !abandoned) {
       const curStreak = getCurrentStreakArr();
       const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
 
       if (hasStreak) {
-        const modeText = gameTypeKey === 'daily' ? '每日挑战' : (digitalMode ? '有数字' : '无数字');
+        const modeText = digitalMode ? '有数字' : '无数字';
         const ok = confirm(
           '当前挑战尚未完成。\n\n' +
           '查看答案会导致本局成绩作废，并打断你在「' + modeText + '」模式下的连续成绩记录。\n\n' +
@@ -2729,6 +2774,27 @@
         resetStreakOnNextSolve = true;
         scheduleSaveProgress();
         showToast('本局成绩已作废，连续记录已重置', 2500);
+      } else {
+        abandoned = true;
+        stopTimer();
+        scheduleSaveProgress();
+      }
+    }
+    else if (gameTypeKey === 'daily' && !solved && !abandoned) {
+      const curStreak = getCurrentStreakArr();
+      const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
+      if (hasStreak) {
+        const ok = confirm(
+          '当前挑战尚未完成。\n\n' +
+          '查看答案会导致本局成绩作废，并打断你在「每日挑战」模式下的连续成绩记录。\n\n' +
+          '确定要查看答案吗？'
+        );
+        if (!ok) return;
+        abandoned = true;
+        stopTimer();
+        await clearStreakOnServer('num');
+        resetStreakOnNextSolve = true;
+        scheduleSaveProgress();
       } else {
         abandoned = true;
         stopTimer();
@@ -2762,7 +2828,6 @@
     if (!targetGrid || answerMode) return;
     if (abandoned) return;
 
-    // 多色模式判定
     if (isMultiColorMode()) {
       if (pieces.some(p => !p.placed)) {
         solved = false;
@@ -2802,7 +2867,6 @@
       return;
     }
 
-    // 黑白 / 数字模式
     if (pieces.some(p => !p.placed)) {
       solved = false;
       updateModeUI();
@@ -2882,6 +2946,22 @@
     });
   }
 
+  function checkSeedAlreadySolved(n) {
+    const entry = getSeedEntry(n);
+    if (!entry || !entry.state) return true;
+    const s = entry.state;
+    const hasBw = !!(s.bw && s.bw.done);
+    const hasNum = !!(s.num && s.num.done);
+    const hasMulti = !!(s.multi && s.multi.done);
+    if (!hasBw && !hasNum && !hasMulti) return true;
+    const doneList = [];
+    if (hasBw) doneList.push('无数字');
+    if (hasNum) doneList.push('有数字');
+    if (hasMulti) doneList.push('三色');
+    const msg = '你已经挑战过该关卡的「' + doneList.join('」「') + '」模式';
+    return confirm('关卡 #' + n + '：' + msg + '。\n\n确定要再次挑战吗？');
+  }
+
   async function promptSeedAndStart() {
     const input = await showInputModal('');
     if (input === null) return false;
@@ -2890,23 +2970,7 @@
       alert('编号无效，请输入 1 ~ 100000 之间的整数。');
       return false;
     }
-    const entry = getSeedEntry(n);
-    if (entry && entry.state) {
-      const s = entry.state;
-      const hasBw = !!(s.bw && s.bw.done);
-      const hasNum = !!(s.num && s.num.done);
-      const hasMulti = !!(s.multi && s.multi.done);
-      if (hasBw || hasNum || hasMulti) {
-        let msg;
-        const doneList = [];
-        if (hasBw) doneList.push('无数字');
-        if (hasNum) doneList.push('有数字');
-        if (hasMulti) doneList.push('多色');
-        msg = '你已经挑战过该关卡的「' + doneList.join('」「') + '」模式';
-        const ok = confirm('关卡 #' + n + '：' + msg + '。\n\n确定要再次挑战吗？');
-        if (!ok) return false;
-      }
-    }
+    if (!checkSeedAlreadySolved(n)) return false;
     generateChallenge(n, false, false);
     return true;
   }
@@ -2931,7 +2995,7 @@
       if (state.num.specify) specify = true;
     }
     if (state.multi && state.multi.done) {
-      modes.push('多色');
+      modes.push('三色');
       if (state.multi.practice) practice = true;
       if (state.multi.challenge) challenge = true;
       if (state.multi.random) random = true;
@@ -2994,11 +3058,27 @@
 
     items.forEach(it => {
       const isDaily = it.gameType === 'daily';
-      const isMulti = it.gameType === 'practice-multi' || it.gameType === 'challenge-multi';
-      const modeText = modeLabel(it.mode);
-      const isPractice = (it.gameType === 'practice-random' || it.gameType === 'practice-specify');
-      const gameText = isDaily ? '每日' : (isMulti ? '多色' : (isPractice ? '练习' : '挑战'));
-      const typeText = (it.gameType === 'practice-specify') ? '指定' : '随机';
+      const isMultiPractice = it.gameType === 'practice-multi' || it.gameType === 'practice-multi-specify';
+      const isMultiChallenge = it.gameType === 'challenge-multi';
+      const isMulti = isMultiPractice || isMultiChallenge;
+      const isPractice = it.gameType === 'practice-random' || it.gameType === 'practice-specify' || isMultiPractice;
+
+      let gameText, modeText;
+      if (isDaily) {
+        gameText = '每日';
+        modeText = modeLabel(it.mode);
+      } else if (isMulti) {
+        gameText = '三色';
+        modeText = '无数字';
+      } else if (isPractice) {
+        gameText = '练习';
+        modeText = modeLabel(it.mode);
+      } else {
+        gameText = '单色';
+        modeText = modeLabel(it.mode);
+      }
+
+      const typeText = (it.gameType === 'practice-specify' || it.gameType === 'practice-multi-specify') ? '指定' : '随机';
       const timeText = it.time ? formatDateShort(it.time) : '—';
       const seedText = isPractice ? ('#' + it.seed) : '？？？';
       html += '<div class="history-item">' +
@@ -3169,7 +3249,7 @@
     if (!supabase || !currentUser) return false;
     const isChallenge = (gameType === 'challenge-bw' || gameType === 'challenge-num'
                       || gameType === 'daily' || gameType === 'challenge-multi');
-    const isRandom = (gameType === 'practice-random') || isChallenge;
+    const isRandom = (gameType === 'practice-random' || gameType === 'practice-multi') || isChallenge;
 
     try {
       const username = currentUser.username
@@ -3500,7 +3580,6 @@
     return best;
   }
 
-  // 排行榜
   async function loadRankingAll() {
     if (!supabase) {
       rankList.innerHTML = '<div class="rank-empty">服务尚未就绪</div>';
@@ -3602,7 +3681,6 @@
     rankList.innerHTML = html;
   }
 
-  // 排行榜模式切换
   document.querySelectorAll('.rank-mode-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.rank-mode-tab').forEach(b => b.classList.remove('active'));
@@ -3777,35 +3855,32 @@
       await pullProgressFromCloud();
     }
 
-    if (action === 'practice-random') {
+    if (action === 'practice-basic') {
+      const r = getProgressForMode('practice-random');
+      const s = getProgressForMode('practice-specify');
+      let key = 'practice-random';
+      if (r && s) key = (s.saved || 0) > (r.saved || 0) ? 'practice-specify' : 'practice-random';
+      else if (s) key = 'practice-specify';
       gameMode = 'practice';
       challengeSubMode = 'bw';
-      gameTypeKey = 'practice-random';
+      gameTypeKey = key;
       digitalMode = false;
       colorMode = false;
-      isRandomChallenge = true;
+      isRandomChallenge = key === 'practice-random';
       enterGameAndStart();
-    } else if (action === 'practice-specify') {
+    } else if (action === 'practice-ternary') {
+      const r = getProgressForMode('practice-multi');
+      const s = getProgressForMode('practice-multi-specify');
+      let key = 'practice-multi';
+      if (r && s) key = (s.saved || 0) > (r.saved || 0) ? 'practice-multi-specify' : 'practice-multi';
+      else if (s) key = 'practice-multi-specify';
       gameMode = 'practice';
       challengeSubMode = 'bw';
-      gameTypeKey = 'practice-specify';
+      gameTypeKey = key;
       digitalMode = false;
       colorMode = false;
-      isRandomChallenge = false;
-      homeScreen.classList.add('hidden');
-      gameScreen.classList.add('active');
-      if (!loadProgressForCurrentMode()) {
-        promptSeedAndStart().then(started => {
-          if (!started) {
-            gameScreen.classList.remove('active');
-            homeScreen.classList.remove('hidden');
-          }
-        });
-      } else {
-        updateUndoButton(); updateRedoButton();
-      }
-      updateModeUI();
-      return;
+      isRandomChallenge = key === 'practice-multi';
+      enterGameAndStart();
     } else if (action === 'challenge-bw') {
       gameMode = 'challenge';
       challengeSubMode = 'bw';
@@ -3822,15 +3897,7 @@
       colorMode = false;
       isRandomChallenge = true;
       enterGameAndStart();
-    } else if (action === 'practice-multi') {
-      gameMode = 'practice';
-      challengeSubMode = 'bw';
-      gameTypeKey = 'practice-multi';
-      digitalMode = false;
-      colorMode = false;
-      isRandomChallenge = true;
-      enterGameAndStart();
-    } else if (action === 'challenge-multi') {
+    } else if (action === 'challenge-ternary') {
       gameMode = 'challenge';
       challengeSubMode = 'bw';
       gameTypeKey = 'challenge-multi';
@@ -3916,7 +3983,6 @@
   });
 
   btnLeaderboard.addEventListener('click', () => {
-    if (gameMode !== 'challenge' && gameTypeKey !== 'daily') return;
     currentRankMode = 'bw';
     currentRankTabBw = 'best';
     currentRankTabNum = 'best';
@@ -3965,7 +4031,6 @@
     }
 
     if (gameMode === 'challenge') {
-      // 多色挑战
       if (isMultiColorMode()) {
         if (currentSeed && !solved && !abandoned) {
           const ok = confirm(
@@ -3981,7 +4046,6 @@
         generateChallenge(pickNewSeed(), false, true);
         return;
       }
-      // 经典挑战
       const curStreak = getCurrentStreakArr();
       const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
 
@@ -4004,13 +4068,35 @@
         scheduleSaveProgress();
       }
       generateChallenge(pickNewSeed(), false, true);
-    } else {
-      if (gameTypeKey === 'practice-random' || gameTypeKey === 'practice-multi') {
-        generateChallenge(pickNewSeed(), false, true);
-      } else {
-        await promptSeedAndStart();
-      }
     }
+  });
+
+  // ⭐ 随机生成：切换为随机模式并生成新随机关卡
+  btnRandomNew.addEventListener('click', () => {
+    // 不保存当前进度，直接跳转
+    if (gameTypeKey === 'practice-specify') gameTypeKey = 'practice-random';
+    else if (gameTypeKey === 'practice-multi-specify') gameTypeKey = 'practice-multi';
+    isRandomChallenge = true;
+    updateModeUI();
+    generateChallenge(pickNewSeed(), false, true);
+  });
+
+  // ⭐ 指定编号：输入编号后直接跳转新关卡（不记录当前进度）
+  btnSpecifyNew.addEventListener('click', async () => {
+    const input = await showInputModal('');
+    if (input === null) return;
+    const n = Number(String(input).trim());
+    if (!Number.isInteger(n) || n < 1 || n > 100000) {
+      alert('编号无效，请输入 1 ~ 100000 之间的整数。');
+      return;
+    }
+    if (!checkSeedAlreadySolved(n)) return;
+    // 不保存当前进度，直接切换到指定模式
+    if (gameTypeKey === 'practice-random') gameTypeKey = 'practice-specify';
+    else if (gameTypeKey === 'practice-multi') gameTypeKey = 'practice-multi-specify';
+    isRandomChallenge = false;
+    updateModeUI();
+    generateChallenge(n, false, false);
   });
 
   btnReset.addEventListener('click', resetBoard);
