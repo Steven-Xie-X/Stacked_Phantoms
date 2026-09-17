@@ -58,11 +58,11 @@
   #homeScreen.hidden { display: none; }
   .home-header {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: auto 1fr auto;
     gap: 6px;
     align-items: center;
     margin-bottom: 18px;
-    padding: 0 2px;
+    padding: 0;
   }
   .home-header-left, .home-header-right {
     display: flex;
@@ -72,8 +72,8 @@
   .home-header-left { justify-content: flex-start; }
   .home-header-right { justify-content: flex-end; }
   .home-header h1 {
-    font-size: 17px;
-    letter-spacing: 4px;
+    font-size: 21px;
+    letter-spacing: 5px;
     text-align: center;
     margin: 0;
     color: var(--title-color);
@@ -104,7 +104,7 @@
   @media (max-width: 360px) {
     .home-icon-btn { width: 30px; height: 30px; border-radius: 7px; }
     .home-icon-btn svg { width: 15px; height: 15px; }
-    .home-header h1 { font-size: 15px; letter-spacing: 3px; }
+    .home-header h1 { font-size: 18px; letter-spacing: 3px; }
   }
   .home-user-row {
     display: flex; justify-content: center; align-items: center; flex-wrap: wrap;
@@ -136,16 +136,6 @@
     transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,.14);
   }
   .mode-btn:active { transform: translateY(0); }
-  /* ⭐ 练习模式 hover 淡蓝色 */
-  .mode-btn.practice:hover {
-    border-color: #93c5fd;
-    background: #dbeafe;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(37,99,235,.16);
-  }
-  html.dark-mode .mode-btn.practice:hover {
-    background: #1e3a8a;
-  }
   .mode-btn .mode-icon {
     font-size: 32px; line-height: 1; flex-shrink: 0; width: 46px; height: 46px;
     display: flex; align-items: center; justify-content: center;
@@ -162,15 +152,40 @@
   .mode-btn .mode-desc {
     font-size: 11px; color: var(--page-text-dimmer); line-height: 1.4; text-align: center;
   }
+  /* 练习模式：蓝色系 */
+  .mode-btn.practice { border-color: #bfdbfe; }
+  .mode-btn.practice .mode-icon { background: #eff6ff; }
+  .mode-btn.practice:hover {
+    border-color: #3b82f6;
+    background: #dbeafe;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37,99,235,.18);
+  }
+  .mode-btn.practice:hover .mode-icon { background: #bfdbfe; }
+  .mode-btn.practice .mode-title { color: #2563eb; }
+  html.dark-mode .mode-btn.practice:hover { background: #1e3a8a; }
+  /* 挑战模式：橙色系 */
   .mode-btn.challenge { border-color: #fed7aa; }
   .mode-btn.challenge .mode-icon { background: #fffbeb; }
   .mode-btn.challenge:hover {
-    border-color: #f59e0b; background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
     box-shadow: 0 8px 20px rgba(245,158,11,.18);
   }
   .mode-btn.challenge:hover .mode-icon { background: #fde68a; }
   .mode-btn.challenge .mode-title { color: #b45309; }
-  .mode-btn.practice .mode-title { color: #2563eb; }
+  /* 多色模式：红色系 */
+  .mode-btn.multi { border-color: #fecaca; }
+  .mode-btn.multi .mode-icon { background: #fef2f2; }
+  .mode-btn.multi:hover {
+    border-color: #ef4444;
+    background: #fee2e2;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239,68,68,.18);
+  }
+  .mode-btn.multi:hover .mode-icon { background: #fecaca; }
+  .mode-btn.multi .mode-title { color: #b91c1c; }
+  html.dark-mode .mode-btn.multi:hover { background: #7f1d1d; }
   #gameScreen { display: none; }
   #gameScreen.active { display: block; }
   .game-header {
@@ -193,6 +208,7 @@
   }
   .mode-badge.challenge-badge { color: #b45309; background: #fffbeb; border-color: #fde68a; }
   .mode-badge.daily-badge { color: #4338ca; background: #eef2ff; border-color: #c7d2fe; }
+  .mode-badge.multi-badge { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
   .btn {
     padding: 8px 12px; border-radius: 9px; font-size: 13px; font-weight: 700;
     cursor: pointer; border: 1px solid var(--card-border-2); background: var(--card-bg); color: var(--page-text);
@@ -309,6 +325,8 @@
   .progress-fill.full { background: linear-gradient(90deg, #34d399, #16a34a); }
   .progress-fill.number-fill { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
   .progress-fill.number-fill.full { background: linear-gradient(90deg, #34d399, #16a34a); }
+  .progress-fill.multi-fill { background: linear-gradient(90deg, #ef4444, #d946ef, #3b82f6); }
+  .progress-fill.multi-fill.full { background: linear-gradient(90deg, #34d399, #16a34a); }
   .progress-label {
     font-size: 12px; font-weight: 700; color: var(--accent); min-width: 40px;
     text-align: right; font-variant-numeric: tabular-nums; letter-spacing: .5px;
@@ -316,6 +334,8 @@
   .progress-label.full { color: #16a34a; }
   .progress-label.number-label { color: #7c3aed; }
   .progress-label.number-label.full { color: #16a34a; }
+  .progress-label.multi-label { color: #d946ef; }
+  .progress-label.multi-label.full { color: #16a34a; }
   #board {
     position: relative; margin: 0 auto 16px; background: var(--card-bg); border-radius: 8px;
     box-shadow: 0 0 0 2px #94a3b8, 0 10px 26px rgba(15,23,42,.10);
@@ -466,6 +486,7 @@
   .history-tag.ongoing { background: #fef3c7; color: #d97706; }
   .history-tag.practice { background: #e0e7ff; color: #4338ca; }
   .history-tag.daily { background: #eef2ff; color: #4338ca; }
+  .history-tag.multi { background: #fef2f2; color: #b91c1c; }
   .history-row2 { display: flex; justify-content: space-between; color: var(--page-text-dim); font-size: 11px; }
   .history-state { color: #7c3aed; font-weight: 700; font-size: 11px; margin-top: 4px; }
   .history-duration { margin-top: 2px; font-size: 11px; font-weight: 700; color: var(--accent); }
@@ -474,17 +495,16 @@
     font-size: 10px; color: #7c3aed; font-weight: 700; letter-spacing: .5px;
   }
   .history-empty { text-align: center; color: var(--page-text-dimmer); padding: 24px 0; font-size: 13px; }
-
-  /* ============ 排行榜弹窗（切换式） ============ */
+  /* 排行榜 */
   .rank-mode-tabs {
     display: flex;
-    gap: 6px;
+    gap: 5px;
     margin-bottom: 10px;
     justify-content: center;
   }
   .rank-mode-tab {
     flex: 1;
-    padding: 8px 10px;
+    padding: 8px 6px;
     border-radius: 8px;
     border: 1px solid var(--card-border-2);
     background: var(--card-bg);
@@ -502,6 +522,10 @@
   }
   .rank-mode-tab:hover:not(.active) {
     background: var(--card-bg-2);
+  }
+  .rank-mode-tab.multi-tab.active {
+    background: #ef4444;
+    border-color: #ef4444;
   }
   .rank-subtabs {
     display: flex;
@@ -569,7 +593,6 @@
   }
   .rank-meta .rank-seed { color: var(--accent); font-weight: 700; }
   .rank-empty { text-align: center; color: var(--page-text-dimmer); padding: 30px 0; font-size: 12px; }
-
   .rules-content {
     max-height: 60vh; overflow-y: auto; font-size: 12px; line-height: 1.8;
     color: var(--page-text-dim); padding-right: 4px; -webkit-overflow-scrolling: touch;
@@ -603,7 +626,6 @@
   .records-cell.value-best { color: var(--accent); font-weight: 800; }
   .records-cell.value-rank { color: #7c3aed; font-weight: 800; }
   .records-empty { text-align: center; color: var(--page-text-dimmer); padding: 20px 0; font-size: 13px; }
-
   .rank-tabs {
     display: flex; gap: 4px; margin-bottom: 12px;
     overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -620,6 +642,9 @@
   }
   .rank-tab.active {
     background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .rank-tab.multi.active {
+    background: #ef4444; border-color: #ef4444;
   }
 </style>
 </head>
@@ -715,6 +740,20 @@
           <div class="mode-desc">随机关卡 · 计入有数字排行榜</div>
         </div>
       </button>
+      <button class="mode-btn multi" data-action="practice-multi">
+        <div class="mode-icon">🎨</div>
+        <div class="mode-content">
+          <div class="mode-title">多色模式 · 练习</div>
+          <div class="mode-desc">红绿蓝三原色叠加 · 8 色目标</div>
+        </div>
+      </button>
+      <button class="mode-btn multi" data-action="challenge-multi">
+        <div class="mode-icon">🌈</div>
+        <div class="mode-content">
+          <div class="mode-title">多色模式 · 挑战</div>
+          <div class="mode-desc">随机关卡 · 计入多色排行榜</div>
+        </div>
+      </button>
     </div>
   </div>
 
@@ -805,7 +844,7 @@
     </div>
 
     <div class="progress-row">
-      <span class="progress-name">黑白匹配度</span>
+      <span class="progress-name" id="colorProgressName">黑白匹配度</span>
       <div class="progress-track">
         <div class="progress-fill" id="progressFill"></div>
       </div>
@@ -883,7 +922,8 @@
       <span class="tip-line" style="color:#2563eb;font-weight:600;">颜色显示：开启后每块碎片显示各自颜色；关闭后按黑白叠加规则显示（奇黑偶白）。</span>
       <span class="tip-line" style="color:#7c3aed;font-weight:600;">挑战模式：进行中查看答案或点击"新游戏"都会作废本局成绩并打断连续记录。放弃后重新开始的第一局通关会作为新的连续起点（连续 1 次）。</span>
       <span class="tip-line" style="color:#4338ca;font-weight:600;">每日挑战：编号为当日 8 位日期（如 20260917），固定为有数字模式，所有玩家当天面对同一关卡。</span>
-      <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片；若开启数字显示，数字也必须完全匹配。</span>
+      <span class="tip-line" style="color:#b91c1c;font-weight:600;">多色模式：每块碎片随机为红/绿/蓝（各 5 块，共 15 块）。每个格子在红、绿、蓝三个通道上独立做奇偶判定：奇数次覆盖为 1，偶数为 0，三个通道组合成 8 种颜色（黑/红/绿/蓝/黄/品红/青/白）。目标图案同样按此规则生成。</span>
+      <span class="win-rule">🏆 通关条件：黑白格子和目标盘面一致，且用完所有碎片；若开启数字显示，数字也必须完全匹配。多色模式要求三通道颜色完全一致。</span>
     </div>
     <div class="modal-actions" style="margin-top: 14px;">
       <button class="btn primary" id="rulesClose">知道了</button>
@@ -913,6 +953,7 @@
     <div class="rank-mode-tabs">
       <button class="rank-mode-tab active" data-mode="bw">无数字</button>
       <button class="rank-mode-tab" data-mode="num">有数字</button>
+      <button class="rank-mode-tab multi-tab" data-mode="multi">多色</button>
     </div>
     <div class="rank-subtabs">
       <button class="rank-subtab active" data-rank="best">Best</button>
@@ -931,9 +972,10 @@
 <div id="myRecordsModal" class="modal-mask">
   <div class="modal-box" style="max-width:380px;">
     <div class="modal-title">个人纪录</div>
-    <div class="rank-tabs" style="margin-bottom:12px;">
+    <div class="rank-tabs">
       <button class="rank-tab active" data-recordtab="bw">无数字</button>
       <button class="rank-tab" data-recordtab="num">有数字</button>
+      <button class="rank-tab multi" data-recordtab="multi">多色</button>
     </div>
     <div id="myRecordsContent"></div>
     <div class="modal-actions">
@@ -954,6 +996,7 @@
 
   const N = 8;
   const PIECE_COUNT = 16;
+  const MULTI_PIECE_COUNT = 15;
   const TAP_DELAY = 280;
   const ANSWER_DOUBLE_TAP_MS = 260;
   const BLACK_FILL = '#1e293b';
@@ -975,6 +1018,23 @@
     '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1',
     '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'
   ];
+
+  // ⭐ 多色模式常量
+  const MULTI_PIECE_COLORS = {
+    r: { fill: '#ef4444', border: '#b91c1c', light: '#fecaca' },
+    g: { fill: '#22c55e', border: '#15803d', light: '#bbf7d0' },
+    b: { fill: '#3b82f6', border: '#1d4ed8', light: '#bfdbfe' }
+  };
+  const MULTI_COLOR_MAP = {
+    '0,0,0': '#1e293b',
+    '1,0,0': '#ef4444',
+    '0,1,0': '#22c55e',
+    '0,0,1': '#3b82f6',
+    '1,1,0': '#eab308',
+    '1,0,1': '#d946ef',
+    '0,1,1': '#06b6d4',
+    '1,1,1': '#f8fafc'
+  };
 
   let gameMode = 'practice';
   let challengeSubMode = 'bw';
@@ -1006,6 +1066,7 @@
 
   let streakBw = [];
   let streakNum = [];
+  let streakMulti = [];
 
   let undoStack = [];
   let redoStack = [];
@@ -1016,11 +1077,12 @@
   let answerSingleTapTimer = null;
   let answerLastTapTime = 0;
 
-  // 排行榜状态（切换式）
+  // 排行榜状态
   let currentRankMode = 'bw';
   let currentRankTabBw = 'best';
   let currentRankTabNum = 'best';
-  let allRankingData = { bw: [], num: [] };
+  let currentRankTabMulti = 'best';
+  let allRankingData = { bw: [], num: [], multi: [] };
 
   const activePointerIds = new Set();
 
@@ -1038,9 +1100,11 @@
   const progressEl = $('progress');
   const progressFill = $('progressFill');
   const progressLabel = $('progressLabel');
+  const colorProgressName = $('colorProgressName');
   const numberProgressRow = $('numberProgressRow');
   const numberProgressFill = $('numberProgressFill');
   const numberProgressLabel = $('numberProgressLabel');
+  const colorRow = $('colorRow');
   const btnBack = $('btnBack');
   const btnHelp = $('btnHelp');
   const btnFullscreen = $('btnFullscreen');
@@ -1126,7 +1190,18 @@
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
            ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
   }
-  function modeLabel(mode) { return mode === 'num' ? '有数字' : '无数字'; }
+  function modeLabel(mode) {
+    if (mode === 'num') return '有数字';
+    if (mode === 'multi') return '多色';
+    return '无数字';
+  }
+
+  function isMultiColorMode() {
+    return gameTypeKey === 'practice-multi' || gameTypeKey === 'challenge-multi';
+  }
+  function getPieceCount() {
+    return isMultiColorMode() ? MULTI_PIECE_COUNT : PIECE_COUNT;
+  }
 
   function showToast(msg, duration) {
     toastEl.textContent = msg;
@@ -1152,7 +1227,7 @@
     return formatTimer(seconds);
   }
 
-  // ======================== 主题切换 ========================
+  // 主题
   function applyTheme(theme) {
     const isDark = theme === 'dark';
     document.documentElement.classList.toggle('dark-mode', isDark);
@@ -1183,7 +1258,7 @@
     applyTheme(next);
   }
 
-  // ======================== 全屏 ========================
+  // 全屏
   function isFullscreen() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
   }
@@ -1287,8 +1362,10 @@
     m.done = true;
     if (!m.doneAt || endedAt > m.doneAt) m.doneAt = endedAt;
 
-    const isChallenge = gameType === 'challenge-bw' || gameType === 'challenge-num' || gameType === 'daily';
-    const isPractice = gameType === 'practice-random' || gameType === 'practice-specify';
+    const isChallenge = gameType === 'challenge-bw' || gameType === 'challenge-num'
+                     || gameType === 'daily' || gameType === 'challenge-multi';
+    const isPractice = gameType === 'practice-random' || gameType === 'practice-specify'
+                    || gameType === 'practice-multi';
 
     if (isChallenge) {
       m.challenge = true;
@@ -1390,7 +1467,8 @@
     if (!Array.isArray(snap)) return [];
     return snap.map(s => ({
       cells: Array.isArray(s.cells) ? s.cells.map(c => [c[0], c[1]]) : [],
-      h: s.h, w: s.w, placed: !!s.placed, row: s.row || 0, col: s.col || 0
+      h: s.h, w: s.w, placed: !!s.placed, row: s.row || 0, col: s.col || 0,
+      multiColor: s.multiColor || null
     }));
   }
 
@@ -1399,8 +1477,8 @@
     if (answerMode) return;
     const data = {
       seed: currentSeed,
-      mode: digitalMode ? 'num' : 'bw',
-      color: colorMode,
+      mode: isMultiColorMode() ? 'multi' : (digitalMode ? 'num' : 'bw'),
+      color: isMultiColorMode() ? false : colorMode,
       isRandom: isRandomChallenge,
       solved: solved,
       abandoned: abandoned,
@@ -1409,7 +1487,8 @@
       solvedElapsed: solvedElapsed,
       pieces: pieces.map(p => ({
         cells: p.cells.map(c => [c[0], c[1]]),
-        h: p.h, w: p.w, placed: p.placed, row: p.row, col: p.col
+        h: p.h, w: p.w, placed: p.placed, row: p.row, col: p.col,
+        multiColor: p.multiColor || null
       })),
       undoStack: undoStack.slice(-MAX_UNDO),
       redoStack: redoStack.slice(-MAX_UNDO),
@@ -1570,16 +1649,6 @@
     lastUploadedHash = '';
   }
 
-  async function syncAllProgressFromCloud() {
-    await pullProgressFromCloud();
-    const activeData = getProgressForMode(gameTypeKey);
-    if (activeData) lastUploadedHash = hashProgress(activeData);
-  }
-
-  async function syncRecordsFromCloud() {
-    await pullRecordsFromCloud(true);
-  }
-
   function loadProgressForCurrentMode() {
     const data = getProgressForMode(gameTypeKey);
     if (!data || !data.seed) return false;
@@ -1593,10 +1662,11 @@
           pieces[i].h = s.h; pieces[i].w = s.w;
           pieces[i].placed = !!s.placed;
           pieces[i].row = s.row || 0; pieces[i].col = s.col || 0;
+          pieces[i].multiColor = s.multiColor || null;
         }
       }
-      digitalMode = data.mode === 'num';
-      colorMode = !!data.color;
+      digitalMode = isMultiColorMode() ? false : (data.mode === 'num');
+      colorMode = isMultiColorMode() ? false : !!data.color;
       solved = !!data.solved;
       abandoned = !!data.abandoned;
       resetStreakOnNextSolve = !!data.pendingResetStreak;
@@ -1655,7 +1725,6 @@
     return candidates[Math.floor(Math.random() * candidates.length)];
   }
 
-  // ======================== 每日挑战种子（8 位日期）========================
   function getDailySeed() {
     const d = new Date();
     const y = d.getFullYear();
@@ -1777,10 +1846,77 @@
     return g;
   }
 
+  // ⭐ 多色网格
+  function computeMultiGridPlayer() {
+    const grid = Array.from({ length: N }, () =>
+      Array.from({ length: N }, () => ({ r: 0, g: 0, b: 0 }))
+    );
+    for (const p of pieces) {
+      if (!p.placed || !p.multiColor) continue;
+      for (const [r, c] of p.cells) {
+        const rr = p.row + r, cc = p.col + c;
+        if (rr >= 0 && rr < N && cc >= 0 && cc < N) {
+          if (p.multiColor === 'r') grid[rr][cc].r ^= 1;
+          else if (p.multiColor === 'g') grid[rr][cc].g ^= 1;
+          else if (p.multiColor === 'b') grid[rr][cc].b ^= 1;
+        }
+      }
+    }
+    return grid;
+  }
+
+  function computeMultiGridFromAnswer(count) {
+    const grid = Array.from({ length: N }, () =>
+      Array.from({ length: N }, () => ({ r: 0, g: 0, b: 0 }))
+    );
+    const lim = Math.min(count, answerPlacements.length);
+    for (let i = 0; i < lim; i++) {
+      const ap = answerPlacements[i];
+      const color = pieces[i] ? pieces[i].multiColor : null;
+      if (!color) continue;
+      for (const [r, c] of ap.cells) {
+        const rr = ap.row + r, cc = ap.col + c;
+        if (rr >= 0 && rr < N && cc >= 0 && cc < N) {
+          if (color === 'r') grid[rr][cc].r ^= 1;
+          else if (color === 'g') grid[rr][cc].g ^= 1;
+          else if (color === 'b') grid[rr][cc].b ^= 1;
+        }
+      }
+    }
+    return grid;
+  }
+
+  function multiGridToColor(cell) {
+    const key = cell.r + ',' + cell.g + ',' + cell.b;
+    return MULTI_COLOR_MAP[key] || '#f8fafc';
+  }
+
+  function multiGridEquals(a, b) {
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) {
+        const x = a[r][c], y = b[r][c];
+        if (x.r !== y.r || x.g !== y.g || x.b !== y.b) return false;
+      }
+    }
+    return true;
+  }
+
+  function multiGridMatchCount(a, b) {
+    let m = 0;
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) {
+        const x = a[r][c], y = b[r][c];
+        if (x.r === y.r && x.g === y.g && x.b === y.b) m++;
+      }
+    }
+    return m;
+  }
+
   function snapshotPieces() {
     return pieces.map(p => ({
       cells: p.cells.map(c => [c[0], c[1]]),
-      h: p.h, w: p.w, placed: p.placed, row: p.row, col: p.col
+      h: p.h, w: p.w, placed: p.placed, row: p.row, col: p.col,
+      multiColor: p.multiColor || null
     }));
   }
   function applySnapshot(snap) {
@@ -1792,6 +1928,7 @@
       pieces[i].h = s.h; pieces[i].w = s.w;
       pieces[i].placed = !!s.placed;
       pieces[i].row = s.row || 0; pieces[i].col = s.col || 0;
+      if (s.multiColor) pieces[i].multiColor = s.multiColor;
     }
   }
   function pushUndoSnapshot(snap) {
@@ -1894,7 +2031,8 @@
 
     const rng = mulberry32(seed);
     const list = [], placements = [];
-    for (let i = 0; i < PIECE_COUNT; i++) {
+    const pieceCount = isMultiColorMode() ? MULTI_PIECE_COUNT : PIECE_COUNT;
+    for (let i = 0; i < pieceCount; i++) {
       const baseCells = randomShape(rng);
       const s0 = shapeSize(baseCells);
       const rot = Math.floor(rng() * 4);
@@ -1910,10 +2048,24 @@
         cells: baseCells.map(c => [...c]),
         h: s0.h, w: s0.w,
         placed: false, row: 0, col: 0,
-        digit: digit
+        digit: digit,
+        multiColor: null
       });
       placements.push({ cells: targetCells, row, col, rot, flip });
     }
+
+    // ⭐ 多色模式：均分三色后洗牌
+    if (isMultiColorMode()) {
+      const colorPool = [];
+      for (let i = 0; i < pieceCount; i++) colorPool.push(['r', 'g', 'b'][i % 3]);
+      for (let i = colorPool.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        const tmp = colorPool[i]; colorPool[i] = colorPool[j]; colorPool[j] = tmp;
+      }
+      for (let i = 0; i < pieceCount; i++) list[i].multiColor = colorPool[i];
+    }
+
+    pieces = list;
     answerPlacements = placements;
     targetGrid = Array.from({ length: N }, () => new Array(N).fill(0));
     for (const p of placements) {
@@ -1922,7 +2074,6 @@
         if (rr >= 0 && rr < N && cc >= 0 && cc < N) targetGrid[rr][cc] ^= 1;
       }
     }
-    pieces = list;
     currentSeed = seed;
     isRandomChallenge = !!isRandom;
 
@@ -1930,10 +2081,18 @@
       abandoned = false;
       if (gameTypeKey === 'daily') {
         digitalMode = true;
+      } else if (gameTypeKey === 'challenge-multi') {
+        digitalMode = false;
+        colorMode = false;
       } else {
         digitalMode = (challengeSubMode === 'num');
       }
     }
+    if (isMultiColorMode()) {
+      digitalMode = false;
+      colorMode = false;
+    }
+
     solved = false;
     solvedElapsed = null;
     showingTarget = false;
@@ -1941,9 +2100,7 @@
     answerIndex = 0;
     messageEl.classList.remove('show');
 
-    if (gameMode === 'practice') {
-      seedShow.textContent = seed;
-    } else if (gameTypeKey === 'daily') {
+    if (gameMode === 'practice' || gameTypeKey === 'daily') {
       seedShow.textContent = seed;
     } else {
       seedShow.textContent = '？？？';
@@ -1989,24 +2146,47 @@
     poolHead.textContent = answerMode ? '备选碎片池（答案标注）' : '备选碎片池';
     btnAnswer.classList.toggle('active', answerMode);
 
+    // 进度条名
+    colorProgressName.textContent = isMultiColorMode() ? '多色匹配度' : '黑白匹配度';
+    progressFill.classList.toggle('multi-fill', isMultiColorMode());
+    progressLabel.classList.toggle('multi-label', isMultiColorMode());
+
+    // 徽章
     if (gameTypeKey === 'daily') {
       modeBadge.classList.remove('challenge-badge');
+      modeBadge.classList.remove('multi-badge');
       modeBadge.classList.add('daily-badge');
       modeBadgeText.textContent = '每日挑战';
+    } else if (gameTypeKey === 'practice-multi') {
+      modeBadge.classList.remove('challenge-badge');
+      modeBadge.classList.remove('daily-badge');
+      modeBadge.classList.add('multi-badge');
+      modeBadgeText.textContent = '多色模式 · 练习';
+    } else if (gameTypeKey === 'challenge-multi') {
+      modeBadge.classList.remove('daily-badge');
+      modeBadge.classList.remove('multi-badge');
+      modeBadge.classList.add('challenge-badge');
+      modeBadgeText.textContent = '多色模式 · 挑战';
     } else if (gameMode === 'challenge') {
       modeBadge.classList.remove('daily-badge');
+      modeBadge.classList.remove('multi-badge');
       modeBadge.classList.add('challenge-badge');
       modeBadgeText.textContent = '挑战模式 · ' + (challengeSubMode === 'num' ? '有数字' : '无数字');
     } else {
       modeBadge.classList.remove('challenge-badge');
       modeBadge.classList.remove('daily-badge');
+      modeBadge.classList.remove('multi-badge');
       const sub = (gameTypeKey === 'practice-specify' ? '指定编号' : '随机选择');
       modeBadgeText.textContent = '练习模式 · ' + sub;
     }
 
     btnMainActionText.textContent = '新游戏';
     btnLeaderboard.style.display = (gameMode === 'challenge' || gameTypeKey === 'daily') ? 'inline-flex' : 'none';
-    digitRow.style.display = (gameMode === 'practice' && gameTypeKey !== 'daily') ? 'flex' : 'none';
+
+    // 多色模式下隐藏数字 / 颜色开关
+    const multi = isMultiColorMode();
+    digitRow.style.display = (gameMode === 'practice' && !multi && gameTypeKey !== 'daily') ? 'flex' : 'none';
+    colorRow.style.display = multi ? 'none' : '';
 
     digitSwitch.setAttribute('aria-pressed', String(digitalMode));
     modeHint.textContent = digitalMode ? '数字已开启' : '无数字';
@@ -2015,7 +2195,7 @@
     targetSwitch.setAttribute('aria-pressed', String(showingTarget));
     targetHint.textContent = showingTarget ? '已显示目标图案' : '打开来查看目标图案';
     targetSwitch.disabled = answerMode;
-    numberProgressRow.style.display = digitalMode ? 'flex' : 'none';
+    numberProgressRow.style.display = (digitalMode && !multi) ? 'flex' : 'none';
 
     updateUndoButton(); updateRedoButton();
     btnAnswer.disabled = !targetGrid;
@@ -2027,6 +2207,10 @@
   }
 
   function updateBoardView() {
+    if (isMultiColorMode()) {
+      updateMultiColorBoardView();
+      return;
+    }
     let grid, matchGrid;
     if (answerMode) { grid = computeAnswerGrid(answerIndex); matchGrid = grid; }
     else {
@@ -2100,9 +2284,31 @@
     updateNumbersLayer();
   }
 
+  function updateMultiColorBoardView() {
+    let grid;
+    if (answerMode) grid = computeMultiGridFromAnswer(answerIndex);
+    else if (showingTarget && targetGrid) grid = computeMultiGridFromAnswer(answerPlacements.length);
+    else grid = computeMultiGridPlayer();
+
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) {
+        const el = cellEls[r * N + c];
+        if (!el) continue;
+        const cell = grid[r][c];
+        const bg = multiGridToColor(cell);
+        el.style.background = bg;
+        const isDark = (cell.r + cell.g + cell.b) >= 2;
+        el.classList.toggle('black', isDark);
+        el.classList.toggle('white', !isDark);
+      }
+    }
+    updateMultiMatchBars();
+    updateNumbersLayer();
+  }
+
   function updateNumbersLayer() {
     if (!numbersLayer) return;
-    if (!digitalMode) { numbersLayer.innerHTML = ''; return; }
+    if (isMultiColorMode() || !digitalMode) { numbersLayer.innerHTML = ''; return; }
     let grid;
     if (answerMode) grid = computeNumberGridAnswer(answerIndex);
     else if (showingTarget) grid = computeNumberGridAnswer(answerPlacements.length);
@@ -2172,11 +2378,28 @@
     }
   }
 
+  function updateMultiMatchBars() {
+    let matched = 0;
+    if (targetGrid && answerPlacements.length) {
+      const playerGrid = answerMode
+        ? computeMultiGridFromAnswer(answerIndex)
+        : computeMultiGridPlayer();
+      const targetMulti = computeMultiGridFromAnswer(answerPlacements.length);
+      matched = multiGridMatchCount(playerGrid, targetMulti);
+    }
+    const pct = targetGrid ? Math.round(matched / (N * N) * 100) : 0;
+    progressFill.style.width = pct + '%';
+    progressLabel.textContent = pct + '%';
+    const full = (pct === 100);
+    progressFill.classList.toggle('full', full);
+    progressLabel.classList.toggle('full', full);
+  }
+
   function updateProgressText() {
-    if (answerMode) progressEl.textContent = '答案演示 ' + answerIndex + ' / ' + PIECE_COUNT;
+    if (answerMode) progressEl.textContent = '答案演示 ' + answerIndex + ' / ' + getPieceCount();
     else {
       const n = pieces.filter(p => p.placed).length;
-      progressEl.textContent = '已放置 ' + n + ' / ' + PIECE_COUNT;
+      progressEl.textContent = '已放置 ' + n + ' / ' + getPieceCount();
     }
   }
 
@@ -2199,18 +2422,33 @@
       el.style.width = POOL_SLOT + 'px';
       el.style.height = POOL_SLOT + 'px';
       el.dataset.ox = ox; el.dataset.oy = oy;
-      const pieceColor = colorMode ? getPieceColor(p.id) : BLACK_FILL;
+
+      // 碎片颜色
+      const multi = isMultiColorMode();
+      let pieceColor, pieceBorder;
+      if (multi && p.multiColor) {
+        pieceColor = MULTI_PIECE_COLORS[p.multiColor].fill;
+        pieceBorder = MULTI_PIECE_COLORS[p.multiColor].border;
+      } else if (colorMode) {
+        pieceColor = getPieceColor(p.id);
+        pieceBorder = null;
+      } else {
+        pieceColor = BLACK_FILL;
+        pieceBorder = null;
+      }
+
       for (const [r, c] of cells) {
         const d = document.createElement('div');
         d.className = 'pcell';
         d.style.background = pieceColor;
+        if (pieceBorder) d.style.boxShadow = 'inset 0 0 0 2px ' + pieceBorder;
         d.style.left = (ox + c * POOL_CELL) + 'px';
         d.style.top = (oy + r * POOL_CELL) + 'px';
         d.style.width = POOL_CELL + 'px';
         d.style.height = POOL_CELL + 'px';
         el.appendChild(d);
       }
-      if (digitalMode) {
+      if (digitalMode && !multi) {
         const numEl = document.createElement('div');
         numEl.className = 'pool-digit';
         numEl.textContent = p.digit;
@@ -2249,14 +2487,16 @@
         el.style.top = (ap.row * BOARD_CELL) + 'px';
         el.style.width = w + 'px';
         el.style.height = h + 'px';
-        const pieceColor = getPieceColor(i);
+        const pieceColor = (isMultiColorMode() && pieces[i] && pieces[i].multiColor)
+          ? MULTI_PIECE_COLORS[pieces[i].multiColor].border
+          : getPieceColor(i);
         const isLatest = (i === answerIndex - 1);
         const useColor = colorMode;
         for (const [r, c] of ap.cells) {
           const d = document.createElement('div');
           d.className = 'answer-cell';
           if (isLatest) d.classList.add('latest');
-          if (useColor) {
+          if (useColor || isMultiColorMode()) {
             d.style.background = 'transparent';
             d.style.borderColor = pieceColor;
           }
@@ -2282,6 +2522,9 @@
       for (const [r, c] of p.cells) {
         const d = document.createElement('div');
         d.className = 'bcell';
+        if (isMultiColorMode() && p.multiColor) {
+          d.style.borderColor = MULTI_PIECE_COLORS[p.multiColor].border;
+        }
         d.style.left = (c * BOARD_CELL) + 'px';
         d.style.top = (r * BOARD_CELL) + 'px';
         d.style.width = BOARD_CELL + 'px';
@@ -2352,6 +2595,9 @@
     for (const [r, c] of piece.cells) {
       const d = document.createElement('div');
       d.className = 'bcell';
+      if (isMultiColorMode() && piece.multiColor) {
+        d.style.borderColor = MULTI_PIECE_COLORS[piece.multiColor].border;
+      }
       d.style.left = (c * BOARD_CELL) + 'px';
       d.style.top = (r * BOARD_CELL) + 'px';
       d.style.width = BOARD_CELL + 'px';
@@ -2445,33 +2691,49 @@
   }
 
   function getCurrentStreakArr() {
+    if (isMultiColorMode()) return streakMulti;
     return digitalMode ? streakNum : streakBw;
   }
 
   async function toggleAnswerMode() {
     if (!targetGrid) return;
 
-    const curStreak = getCurrentStreakArr();
-    const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
-
-    if ((gameMode === 'challenge' || gameTypeKey === 'daily') && !solved && !abandoned && hasStreak) {
-      const modeText = gameTypeKey === 'daily' ? '每日挑战' : (digitalMode ? '有数字' : '无数字');
+    // 多色挑战作废逻辑（不进连续记录，但仍需作废本局）
+    if (isMultiColorMode() && gameMode === 'challenge' && !solved && !abandoned) {
       const ok = confirm(
         '当前挑战尚未完成。\n\n' +
-        '查看答案会导致本局成绩作废，并打断你在「' + modeText + '」模式下的连续成绩记录。\n\n' +
+        '查看答案会导致本局成绩作废。\n\n' +
         '确定要查看答案吗？'
       );
       if (!ok) return;
       abandoned = true;
       stopTimer();
-      await clearStreakOnServer(digitalMode ? 'num' : 'bw');
-      resetStreakOnNextSolve = true;
       scheduleSaveProgress();
-      showToast('本局成绩已作废，连续记录已重置', 2500);
-    } else if ((gameMode === 'challenge' || gameTypeKey === 'daily') && !solved && !abandoned) {
-      abandoned = true;
-      stopTimer();
-      scheduleSaveProgress();
+    }
+    // 常规挑战作废逻辑
+    else if (!isMultiColorMode() && (gameMode === 'challenge' || gameTypeKey === 'daily') && !solved && !abandoned) {
+      const curStreak = getCurrentStreakArr();
+      const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
+
+      if (hasStreak) {
+        const modeText = gameTypeKey === 'daily' ? '每日挑战' : (digitalMode ? '有数字' : '无数字');
+        const ok = confirm(
+          '当前挑战尚未完成。\n\n' +
+          '查看答案会导致本局成绩作废，并打断你在「' + modeText + '」模式下的连续成绩记录。\n\n' +
+          '确定要查看答案吗？'
+        );
+        if (!ok) return;
+        abandoned = true;
+        stopTimer();
+        await clearStreakOnServer(digitalMode ? 'num' : 'bw');
+        resetStreakOnNextSolve = true;
+        scheduleSaveProgress();
+        showToast('本局成绩已作废，连续记录已重置', 2500);
+      } else {
+        abandoned = true;
+        stopTimer();
+        scheduleSaveProgress();
+      }
     }
 
     cancelPendingTap(); abortDrag(); activePointerIds.clear(); resetAnswerTapState();
@@ -2499,6 +2761,48 @@
   function checkWin() {
     if (!targetGrid || answerMode) return;
     if (abandoned) return;
+
+    // 多色模式判定
+    if (isMultiColorMode()) {
+      if (pieces.some(p => !p.placed)) {
+        solved = false;
+        updateModeUI();
+        return;
+      }
+      const playerGrid = computeMultiGridPlayer();
+      const targetMulti = computeMultiGridFromAnswer(answerPlacements.length);
+      const ok = multiGridEquals(playerGrid, targetMulti);
+      if (ok) {
+        if (!solved) {
+          solved = true;
+          messageEl.classList.add('show');
+          setTimeout(() => messageEl.classList.remove('show'), 2600);
+          if (gameMode === 'challenge') seedShow.textContent = currentSeed;
+          stopTimer();
+          const endTime = Date.now();
+          solvedElapsed = challengeStartTime
+            ? Math.floor((endTime - challengeStartTime) / 1000)
+            : 0;
+          recordSuccess(currentSeed, 'multi', gameTypeKey, solvedElapsed, endTime);
+          if (currentUser && supabase) {
+            pendingUploadPromise = uploadScore(currentSeed, 'multi', gameTypeKey, solvedElapsed, endTime);
+          }
+          if (myRecordsModal && myRecordsModal.classList.contains('show')) {
+            setTimeout(() => {
+              if (myRecordsModal.classList.contains('show')) loadMyRecords(currentRecordTab);
+            }, 600);
+          }
+          updateModeUI();
+          scheduleSaveProgress();
+        }
+      } else {
+        solved = false;
+        updateModeUI();
+      }
+      return;
+    }
+
+    // 黑白 / 数字模式
     if (pieces.some(p => !p.placed)) {
       solved = false;
       updateModeUI();
@@ -2525,33 +2829,24 @@
         solved = true;
         messageEl.classList.add('show');
         setTimeout(() => messageEl.classList.remove('show'), 2600);
-
         if (gameMode === 'challenge' || gameTypeKey === 'daily') {
           seedShow.textContent = currentSeed;
         }
-
         stopTimer();
         const endTime = Date.now();
         solvedElapsed = challengeStartTime
           ? Math.floor((endTime - challengeStartTime) / 1000)
           : 0;
-
         const mode = digitalMode ? 'num' : 'bw';
-
         recordSuccess(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
-
         if (currentUser && supabase) {
           pendingUploadPromise = uploadScore(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
         }
-
         if (myRecordsModal && myRecordsModal.classList.contains('show')) {
           setTimeout(() => {
-            if (myRecordsModal.classList.contains('show')) {
-              loadMyRecords(currentRecordTab);
-            }
+            if (myRecordsModal.classList.contains('show')) loadMyRecords(currentRecordTab);
           }, 600);
         }
-
         updateModeUI();
         scheduleSaveProgress();
       }
@@ -2600,11 +2895,14 @@
       const s = entry.state;
       const hasBw = !!(s.bw && s.bw.done);
       const hasNum = !!(s.num && s.num.done);
-      if (hasBw || hasNum) {
+      const hasMulti = !!(s.multi && s.multi.done);
+      if (hasBw || hasNum || hasMulti) {
         let msg;
-        if (hasBw && hasNum) msg = '你已经挑战过该关卡的「有数字」和「无数字」2 种模式';
-        else if (hasBw) msg = '你已经挑战过该关卡的「无数字」模式';
-        else msg = '你已经挑战过该关卡的「有数字」模式';
+        const doneList = [];
+        if (hasBw) doneList.push('无数字');
+        if (hasNum) doneList.push('有数字');
+        if (hasMulti) doneList.push('多色');
+        msg = '你已经挑战过该关卡的「' + doneList.join('」「') + '」模式';
         const ok = confirm('关卡 #' + n + '：' + msg + '。\n\n确定要再次挑战吗？');
         if (!ok) return false;
       }
@@ -2632,6 +2930,13 @@
       if (state.num.random) random = true;
       if (state.num.specify) specify = true;
     }
+    if (state.multi && state.multi.done) {
+      modes.push('多色');
+      if (state.multi.practice) practice = true;
+      if (state.multi.challenge) challenge = true;
+      if (state.multi.random) random = true;
+      if (state.multi.specify) specify = true;
+    }
     const game = [];
     if (practice) game.push('练习');
     if (challenge) game.push('挑战');
@@ -2648,7 +2953,7 @@
   function getBestElapsedFromState(state) {
     if (!state) return null;
     let best = null;
-    ['bw', 'num'].forEach(m => {
+    ['bw', 'num', 'multi'].forEach(m => {
       if (state[m] && state[m].challengeBest != null) {
         if (best == null || state[m].challengeBest < best) best = state[m].challengeBest;
       }
@@ -2689,9 +2994,10 @@
 
     items.forEach(it => {
       const isDaily = it.gameType === 'daily';
+      const isMulti = it.gameType === 'practice-multi' || it.gameType === 'challenge-multi';
       const modeText = modeLabel(it.mode);
       const isPractice = (it.gameType === 'practice-random' || it.gameType === 'practice-specify');
-      const gameText = isDaily ? '每日' : (isPractice ? '练习' : '挑战');
+      const gameText = isDaily ? '每日' : (isMulti ? '多色' : (isPractice ? '练习' : '挑战'));
       const typeText = (it.gameType === 'practice-specify') ? '指定' : '随机';
       const timeText = it.time ? formatDateShort(it.time) : '—';
       const seedText = isPractice ? ('#' + it.seed) : '？？？';
@@ -2739,7 +3045,7 @@
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('uid, username, streak_bw, streak_num, max_streak_bw, max_streak_num')
+        .select('uid, username, streak_bw, streak_num, streak_multi, max_streak_bw, max_streak_num, max_streak_multi')
         .eq('id', currentUser.id)
         .maybeSingle();
       if (error && error.code !== 'PGRST116') throw error;
@@ -2748,6 +3054,7 @@
         currentUser.username = data.username;
         streakBw = Array.isArray(data.streak_bw) ? data.streak_bw : [];
         streakNum = Array.isArray(data.streak_num) ? data.streak_num : [];
+        streakMulti = Array.isArray(data.streak_multi) ? data.streak_multi : [];
       } else {
         const username = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
         const { data: created } = await supabase
@@ -2755,10 +3062,10 @@
           .insert({
             id: currentUser.id,
             username: username,
-            total_wins: 0, bw_wins: 0, num_wins: 0,
-            streak_bw: [], streak_num: [],
-            max_streak_bw: 0, max_streak_num: 0,
-            records_bw: null, records_num: null
+            total_wins: 0, bw_wins: 0, num_wins: 0, multi_wins: 0,
+            streak_bw: [], streak_num: [], streak_multi: [],
+            max_streak_bw: 0, max_streak_num: 0, max_streak_multi: 0,
+            records_bw: null, records_num: null, records_multi: null
           })
           .select('uid')
           .single();
@@ -2789,6 +3096,7 @@
         } else {
           streakBw = [];
           streakNum = [];
+          streakMulti = [];
           stopCloudSync();
           updateUserUI();
         }
@@ -2841,17 +3149,14 @@
       .map(r => r.elapsed)
       .filter(v => typeof v === 'number' && isFinite(v));
     if (arr.length === 0) return empty;
-
     const bestVal = calcBest(arr);
     const mo3 = calcMO3(arr);
     const ao5 = calcAO5(arr);
     const ao12 = calcAO12(arr);
-
     let bestRec = null;
     for (const r of sorted) {
       if (bestRec == null || r.elapsed < bestRec.elapsed) bestRec = r;
     }
-
     return {
       best: bestVal,
       bestSeed: bestRec ? bestRec.seed : null,
@@ -2862,7 +3167,8 @@
 
   async function uploadScore(seed, mode, gameType, elapsed, endedAt) {
     if (!supabase || !currentUser) return false;
-    const isChallenge = (gameType === 'challenge-bw' || gameType === 'challenge-num' || gameType === 'daily');
+    const isChallenge = (gameType === 'challenge-bw' || gameType === 'challenge-num'
+                      || gameType === 'daily' || gameType === 'challenge-multi');
     const isRandom = (gameType === 'practice-random') || isChallenge;
 
     try {
@@ -2912,42 +3218,52 @@
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('total_wins, bw_wins, num_wins, streak_bw, streak_num, records_bw, records_num, max_streak_bw, max_streak_num')
+        .select('total_wins, bw_wins, num_wins, multi_wins, streak_bw, streak_num, streak_multi, records_bw, records_num, records_multi, max_streak_bw, max_streak_num, max_streak_multi')
         .eq('id', currentUser.id)
         .maybeSingle();
 
       let localStreakBw = (profile && Array.isArray(profile.streak_bw)) ? profile.streak_bw.slice() : [];
       let localStreakNum = (profile && Array.isArray(profile.streak_num)) ? profile.streak_num.slice() : [];
+      let localStreakMulti = (profile && Array.isArray(profile.streak_multi)) ? profile.streak_multi.slice() : [];
       let bwWins = (profile && profile.bw_wins) || 0;
       let numWins = (profile && profile.num_wins) || 0;
+      let multiWins = (profile && profile.multi_wins) || 0;
       let recordsBw = (profile && profile.records_bw) || null;
       let recordsNum = (profile && profile.records_num) || null;
+      let recordsMulti = (profile && profile.records_multi) || null;
       let maxStreakBw = (profile && profile.max_streak_bw) || 0;
       let maxStreakNum = (profile && profile.max_streak_num) || 0;
+      let maxStreakMulti = (profile && profile.max_streak_multi) || 0;
       const totalWins = ((profile && profile.total_wins) || 0) + 1;
 
-      if (isChallenge) {
+      if (isChallenge && (mode === 'bw' || mode === 'num' || mode === 'multi')) {
         const doReset = resetStreakOnNextSolve;
         resetStreakOnNextSolve = false;
 
         if (mode === 'bw') {
-          if (doReset) {
-            localStreakBw = [elapsed];
-          } else {
+          if (doReset) localStreakBw = [elapsed];
+          else {
             localStreakBw.push(elapsed);
             if (localStreakBw.length > STREAK_MAX) localStreakBw = localStreakBw.slice(-STREAK_MAX);
           }
           bwWins += 1;
           if (localStreakBw.length > maxStreakBw) maxStreakBw = localStreakBw.length;
-        } else {
-          if (doReset) {
-            localStreakNum = [elapsed];
-          } else {
+        } else if (mode === 'num') {
+          if (doReset) localStreakNum = [elapsed];
+          else {
             localStreakNum.push(elapsed);
             if (localStreakNum.length > STREAK_MAX) localStreakNum = localStreakNum.slice(-STREAK_MAX);
           }
           numWins += 1;
           if (localStreakNum.length > maxStreakNum) maxStreakNum = localStreakNum.length;
+        } else if (mode === 'multi') {
+          if (doReset) localStreakMulti = [elapsed];
+          else {
+            localStreakMulti.push(elapsed);
+            if (localStreakMulti.length > STREAK_MAX) localStreakMulti = localStreakMulti.slice(-STREAK_MAX);
+          }
+          multiWins += 1;
+          if (localStreakMulti.length > maxStreakMulti) maxStreakMulti = localStreakMulti.length;
         }
 
         const { data: history } = await supabase
@@ -2959,8 +3275,7 @@
           .order('ended_at', { ascending: true });
 
         const stats = computeStatsFromHistory(history || []);
-
-        const oldRecords = (mode === 'bw' ? recordsBw : recordsNum) || {};
+        const oldRecords = (mode === 'multi' ? recordsMulti : (mode === 'num' ? recordsNum : recordsBw)) || {};
         const oldObj = (oldRecords && typeof oldRecords === 'object' && !Array.isArray(oldRecords)) ? oldRecords : {};
         const newRecords = Object.assign({}, oldObj);
 
@@ -2975,7 +3290,6 @@
             };
           }
         }
-
         ['mo3', 'ao5', 'ao12'].forEach(k => {
           const v = stats[k];
           if (v == null) return;
@@ -2984,19 +3298,24 @@
         });
 
         if (mode === 'bw') recordsBw = newRecords;
-        else recordsNum = newRecords;
+        else if (mode === 'num') recordsNum = newRecords;
+        else recordsMulti = newRecords;
       }
 
       const updateData = {
         total_wins: totalWins,
         bw_wins: bwWins,
         num_wins: numWins,
+        multi_wins: multiWins,
         streak_bw: localStreakBw,
         streak_num: localStreakNum,
+        streak_multi: localStreakMulti,
         max_streak_bw: maxStreakBw,
         max_streak_num: maxStreakNum,
+        max_streak_multi: maxStreakMulti,
         records_bw: recordsBw,
         records_num: recordsNum,
+        records_multi: recordsMulti,
         updated_at: new Date().toISOString()
       };
 
@@ -3014,6 +3333,7 @@
 
       streakBw = localStreakBw;
       streakNum = localStreakNum;
+      streakMulti = localStreakMulti;
 
       renderHistory();
       return true;
@@ -3026,16 +3346,18 @@
   async function clearStreakOnServer(mode) {
     if (!supabase || !currentUser) {
       if (mode === 'bw') streakBw = [];
-      else streakNum = [];
+      else if (mode === 'num') streakNum = [];
+      else streakMulti = [];
       return;
     }
     try {
-      const field = mode === 'bw' ? 'streak_bw' : 'streak_num';
+      const field = mode === 'bw' ? 'streak_bw' : (mode === 'num' ? 'streak_num' : 'streak_multi');
       const updateData = {};
       updateData[field] = [];
       await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
       if (mode === 'bw') streakBw = [];
-      else streakNum = [];
+      else if (mode === 'num') streakNum = [];
+      else streakMulti = [];
     } catch (e) {
       console.warn('清空 streak 失败:', e);
     }
@@ -3101,10 +3423,10 @@
             .insert({
               id: data.user.id,
               username: username,
-              total_wins: 0, bw_wins: 0, num_wins: 0,
-              streak_bw: [], streak_num: [],
-              max_streak_bw: 0, max_streak_num: 0,
-              records_bw: null, records_num: null
+              total_wins: 0, bw_wins: 0, num_wins: 0, multi_wins: 0,
+              streak_bw: [], streak_num: [], streak_multi: [],
+              max_streak_bw: 0, max_streak_num: 0, max_streak_multi: 0,
+              records_bw: null, records_num: null, records_multi: null
             });
           if (insertErr) {
             if (insertErr.code === '23505' ||
@@ -3178,7 +3500,7 @@
     return best;
   }
 
-  // ==================== 排行榜（切换式）====================
+  // 排行榜
   async function loadRankingAll() {
     if (!supabase) {
       rankList.innerHTML = '<div class="rank-empty">服务尚未就绪</div>';
@@ -3189,32 +3511,29 @@
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('username, streak_bw, streak_num, bw_wins, num_wins, records_bw, records_num')
+        .select('username, streak_bw, streak_num, streak_multi, bw_wins, num_wins, multi_wins, records_bw, records_num, records_multi')
         .limit(500);
       if (error) throw error;
 
-      const byMode = { bw: [], num: [] };
+      const byMode = { bw: [], num: [], multi: [] };
       if (data && data.length > 0) {
         data.forEach(prof => {
-          ['bw', 'num'].forEach(m => {
-            const arrRaw = m === 'num' ? prof.streak_num : prof.streak_bw;
+          ['bw', 'num', 'multi'].forEach(m => {
+            const arrRaw = m === 'multi' ? prof.streak_multi : (m === 'num' ? prof.streak_num : prof.streak_bw);
             const arr = Array.isArray(arrRaw) ? arrRaw : [];
-            const recordsRaw = m === 'num' ? prof.records_num : prof.records_bw;
+            const recordsRaw = m === 'multi' ? prof.records_multi : (m === 'num' ? prof.records_num : prof.records_bw);
             const records = (recordsRaw && typeof recordsRaw === 'object' && !Array.isArray(recordsRaw)) ? recordsRaw : {};
-
             const storedBest = (records.best && typeof records.best === 'object' && records.best.elapsed != null)
               ? records.best : null;
             const best = storedBest ? storedBest.elapsed : calcBest(arr);
             const bestSeed = storedBest ? storedBest.seed : null;
             const bestEndedAt = storedBest ? storedBest.ended_at : null;
-
             const mo3 = (typeof records.mo3 === 'number') ? records.mo3 : calcMO3(arr);
             const ao5 = (typeof records.ao5 === 'number') ? records.ao5 : calcAO5(arr);
             const ao12 = (typeof records.ao12 === 'number') ? records.ao12 : calcAO12(arr);
-            const amount = m === 'num' ? (prof.num_wins || 0) : (prof.bw_wins || 0);
-
+            const amount = m === 'multi' ? (prof.multi_wins || 0)
+                        : (m === 'num' ? (prof.num_wins || 0) : (prof.bw_wins || 0));
             if (best == null && mo3 == null && ao5 == null && ao12 == null && amount === 0) return;
-
             byMode[m].push({
               username: prof.username,
               best, bestSeed, bestEndedAt,
@@ -3235,7 +3554,8 @@
 
   function renderRanking() {
     const mode = currentRankMode;
-    const tab = mode === 'bw' ? currentRankTabBw : currentRankTabNum;
+    const tab = mode === 'bw' ? currentRankTabBw
+              : (mode === 'num' ? currentRankTabNum : currentRankTabMulti);
     const items = (allRankingData[mode] || []).slice();
 
     let sorted, scoreFn;
@@ -3282,14 +3602,14 @@
     rankList.innerHTML = html;
   }
 
-  // 排行榜模式切换（无数字 / 有数字）
+  // 排行榜模式切换
   document.querySelectorAll('.rank-mode-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.rank-mode-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentRankMode = btn.dataset.mode;
-      // 恢复该模式对应的子标签状态
-      const activeRank = currentRankMode === 'bw' ? currentRankTabBw : currentRankTabNum;
+      const activeRank = currentRankMode === 'bw' ? currentRankTabBw
+                      : (currentRankMode === 'num' ? currentRankTabNum : currentRankTabMulti);
       document.querySelectorAll('.rank-subtab').forEach(b => {
         b.classList.toggle('active', b.dataset.rank === activeRank);
       });
@@ -3297,13 +3617,13 @@
     });
   });
 
-  // 排行榜子标签切换（Best / MO3 / AO5 / AO12 / Amount）
   document.querySelectorAll('.rank-subtab').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.rank-subtab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       if (currentRankMode === 'bw') currentRankTabBw = btn.dataset.rank;
-      else currentRankTabNum = btn.dataset.rank;
+      else if (currentRankMode === 'num') currentRankTabNum = btn.dataset.rank;
+      else currentRankTabMulti = btn.dataset.rank;
       renderRanking();
     });
   });
@@ -3319,11 +3639,11 @@
     }
 
     try {
-      const isNum = (mode === 'num');
+      const tab = mode;
 
       const { data: allProfiles, error } = await supabase
         .from('profiles')
-        .select('id, streak_bw, streak_num, bw_wins, num_wins, records_bw, records_num, max_streak_bw, max_streak_num')
+        .select('id, streak_bw, streak_num, streak_multi, bw_wins, num_wins, multi_wins, records_bw, records_num, records_multi, max_streak_bw, max_streak_num, max_streak_multi')
         .limit(500);
       if (error) throw error;
       if (!allProfiles) {
@@ -3338,9 +3658,11 @@
       }
 
       let myStreak;
-      const dbStreak = isNum ? myProfile.streak_num : myProfile.streak_bw;
+      const dbStreak = tab === 'multi' ? myProfile.streak_multi
+                     : (tab === 'num' ? myProfile.streak_num : myProfile.streak_bw);
       const dbStreakArr = Array.isArray(dbStreak) ? dbStreak : [];
-      const memStreak = isNum ? streakNum : streakBw;
+      const memStreak = tab === 'multi' ? streakMulti
+                     : (tab === 'num' ? streakNum : streakBw);
 
       if (Array.isArray(memStreak) && memStreak.length > 0) {
         myStreak = memStreak.slice();
@@ -3348,10 +3670,12 @@
         myStreak = dbStreakArr;
       }
 
-      const dbMaxStreak = (isNum ? myProfile.max_streak_num : myProfile.max_streak_bw) || 0;
+      const dbMaxStreak = (tab === 'multi' ? myProfile.max_streak_multi
+                       : (tab === 'num' ? myProfile.max_streak_num : myProfile.max_streak_bw)) || 0;
       const maxStreak = Math.max(dbMaxStreak, myStreak.length);
 
-      const myRecordsRaw = isNum ? myProfile.records_num : myProfile.records_bw;
+      const myRecordsRaw = tab === 'multi' ? myProfile.records_multi
+                         : (tab === 'num' ? myProfile.records_num : myProfile.records_bw);
       const myRecords = (myRecordsRaw && typeof myRecordsRaw === 'object' && !Array.isArray(myRecordsRaw)) ? myRecordsRaw : {};
 
       const curBest = calcBest(myStreak);
@@ -3376,9 +3700,9 @@
       };
 
       const allUsers = allProfiles.map(p => {
-        const arrRaw = isNum ? p.streak_num : p.streak_bw;
+        const arrRaw = tab === 'multi' ? p.streak_multi : (tab === 'num' ? p.streak_num : p.streak_bw);
         const arr = Array.isArray(arrRaw) ? arrRaw : [];
-        const recRaw = isNum ? p.records_num : p.records_bw;
+        const recRaw = tab === 'multi' ? p.records_multi : (tab === 'num' ? p.records_num : p.records_bw);
         const rec = (recRaw && typeof recRaw === 'object' && !Array.isArray(recRaw)) ? recRaw : {};
         const sb = (rec.best && typeof rec.best === 'object' && rec.best.elapsed != null)
           ? rec.best.elapsed : calcBest(arr);
@@ -3388,7 +3712,8 @@
           mo3: (typeof rec.mo3 === 'number') ? rec.mo3 : calcMO3(arr),
           ao5: (typeof rec.ao5 === 'number') ? rec.ao5 : calcAO5(arr),
           ao12: (typeof rec.ao12 === 'number') ? rec.ao12 : calcAO12(arr),
-          streak: (isNum ? p.max_streak_num : p.max_streak_bw) || 0
+          streak: (tab === 'multi' ? p.max_streak_multi
+                : (tab === 'num' ? p.max_streak_num : p.max_streak_bw)) || 0
         };
       });
 
@@ -3457,6 +3782,7 @@
       challengeSubMode = 'bw';
       gameTypeKey = 'practice-random';
       digitalMode = false;
+      colorMode = false;
       isRandomChallenge = true;
       enterGameAndStart();
     } else if (action === 'practice-specify') {
@@ -3464,6 +3790,7 @@
       challengeSubMode = 'bw';
       gameTypeKey = 'practice-specify';
       digitalMode = false;
+      colorMode = false;
       isRandomChallenge = false;
       homeScreen.classList.add('hidden');
       gameScreen.classList.add('active');
@@ -3484,6 +3811,7 @@
       challengeSubMode = 'bw';
       gameTypeKey = 'challenge-bw';
       digitalMode = false;
+      colorMode = false;
       isRandomChallenge = true;
       enterGameAndStart();
     } else if (action === 'challenge-num') {
@@ -3491,6 +3819,23 @@
       challengeSubMode = 'num';
       gameTypeKey = 'challenge-num';
       digitalMode = true;
+      colorMode = false;
+      isRandomChallenge = true;
+      enterGameAndStart();
+    } else if (action === 'practice-multi') {
+      gameMode = 'practice';
+      challengeSubMode = 'bw';
+      gameTypeKey = 'practice-multi';
+      digitalMode = false;
+      colorMode = false;
+      isRandomChallenge = true;
+      enterGameAndStart();
+    } else if (action === 'challenge-multi') {
+      gameMode = 'challenge';
+      challengeSubMode = 'bw';
+      gameTypeKey = 'challenge-multi';
+      digitalMode = false;
+      colorMode = false;
       isRandomChallenge = true;
       enterGameAndStart();
     } else if (action === 'daily') {
@@ -3498,6 +3843,7 @@
       challengeSubMode = 'num';
       gameTypeKey = 'daily';
       digitalMode = true;
+      colorMode = false;
       isRandomChallenge = false;
       enterDailyChallenge();
     }
@@ -3554,12 +3900,11 @@
   rulesClose.addEventListener('click', closeRules);
   rulesModal.addEventListener('click', (e) => { if (e.target === rulesModal) closeRules(); });
 
-  // 首页排行榜按钮
   homeBtnLeaderboard.addEventListener('click', () => {
-    // 重置到默认状态：无数字 + Best
     currentRankMode = 'bw';
     currentRankTabBw = 'best';
     currentRankTabNum = 'best';
+    currentRankTabMulti = 'best';
     document.querySelectorAll('.rank-mode-tab').forEach(b => {
       b.classList.toggle('active', b.dataset.mode === 'bw');
     });
@@ -3570,12 +3915,12 @@
     loadRankingAll();
   });
 
-  // 游戏内排行榜按钮
   btnLeaderboard.addEventListener('click', () => {
     if (gameMode !== 'challenge' && gameTypeKey !== 'daily') return;
     currentRankMode = 'bw';
     currentRankTabBw = 'best';
     currentRankTabNum = 'best';
+    currentRankTabMulti = 'best';
     document.querySelectorAll('.rank-mode-tab').forEach(b => {
       b.classList.toggle('active', b.dataset.mode === 'bw');
     });
@@ -3589,12 +3934,10 @@
   leaderboardClose.addEventListener('click', () => leaderboardModal.classList.remove('show'));
   leaderboardModal.addEventListener('click', (e) => { if (e.target === leaderboardModal) leaderboardModal.classList.remove('show'); });
 
-  // 首页每日挑战按钮
   homeBtnDaily.addEventListener('click', () => {
     startMode('daily');
   });
 
-  // 主题切换
   homeBtnTheme.addEventListener('click', toggleTheme);
 
   homeBtnMyRecords.addEventListener('click', () => {
@@ -3622,6 +3965,23 @@
     }
 
     if (gameMode === 'challenge') {
+      // 多色挑战
+      if (isMultiColorMode()) {
+        if (currentSeed && !solved && !abandoned) {
+          const ok = confirm(
+            '当前挑战尚未完成。\n\n' +
+            '开始新游戏将放弃当前挑战并作废本局成绩。\n\n' +
+            '确定要开始新游戏吗？'
+          );
+          if (!ok) return;
+          abandoned = true;
+          stopTimer();
+          scheduleSaveProgress();
+        }
+        generateChallenge(pickNewSeed(), false, true);
+        return;
+      }
+      // 经典挑战
       const curStreak = getCurrentStreakArr();
       const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
 
@@ -3645,7 +4005,7 @@
       }
       generateChallenge(pickNewSeed(), false, true);
     } else {
-      if (gameTypeKey === 'practice-random') {
+      if (gameTypeKey === 'practice-random' || gameTypeKey === 'practice-multi') {
         generateChallenge(pickNewSeed(), false, true);
       } else {
         await promptSeedAndStart();
@@ -3674,7 +4034,7 @@
   boardEl.addEventListener('contextmenu', (e) => e.preventDefault());
 
   digitSwitch.addEventListener('click', () => {
-    if (gameMode !== 'practice' || gameTypeKey === 'daily') return;
+    if (gameMode !== 'practice' || isMultiColorMode() || gameTypeKey === 'daily') return;
     digitalMode = !digitalMode;
     updateModeUI(); renderPool(); updateBoardView();
     if (answerMode) renderPiecesLayer();
@@ -3682,6 +4042,7 @@
   });
 
   colorSwitch.addEventListener('click', () => {
+    if (isMultiColorMode()) return;
     colorMode = !colorMode;
     updateModeUI(); renderPool(); updateBoardView();
     if (answerMode) renderPiecesLayer();
