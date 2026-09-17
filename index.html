@@ -388,6 +388,10 @@
   .history-row2 { display: flex; justify-content: space-between; color: #64748b; font-size: 11px; }
   .history-state { color: #7c3aed; font-weight: 700; font-size: 11px; margin-top: 4px; }
   .history-duration { margin-top: 2px; font-size: 11px; font-weight: 700; color: #2563eb; }
+  .history-uid {
+    margin-top: 4px; padding-top: 4px; border-top: 1px dashed #e2e8f0;
+    font-size: 10px; color: #7c3aed; font-weight: 700; letter-spacing: .5px;
+  }
   .history-empty { text-align: center; color: #94a3b8; padding: 24px 0; font-size: 13px; }
   .rank-subtitle { font-size: 11px; color: #94a3b8; text-align: center; margin: -6px 0 10px; letter-spacing: .5px; }
   .rank-tabs {
@@ -797,6 +801,10 @@
   let resetStreakOnNextSolve = false;
   let pendingUploadPromise = null;
 
+  // ⭐ 秒级云同步相关
+  let cloudSyncIntervalId = null;
+  let lastUploadedHash = '';
+
   let streakBw = [];
   let streakNum = [];
 
@@ -808,9 +816,6 @@
 
   let answerSingleTapTimer = null;
   let answerLastTapTime = 0;
-
-  // ⭐ 云端进度保存（防抖）
-  let cloudSaveTimer = null;
 
   const activePointerIds = new Set();
 
@@ -1143,7 +1148,6 @@
       saved: Date.now()
     };
     setProgressForMode(gameTypeKey, data);
-    scheduleCloudSave();
   }
   let saveTimer = null;
   function scheduleSaveProgress() {
@@ -1151,33 +1155,68 @@
     saveTimer = setTimeout(saveProgress, 250);
   }
 
-  // ⭐ 云端进度保存（防抖 2 秒）
-  function scheduleCloudSave() {
-    // 未登录不上传
-    if (!currentUser || !supabase) return;
-    if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
-    cloudSaveTimer = setTimeout(async () => {
-      cloudSaveTimer = null;
-      if (!currentUser || !supabase || !currentSeed) return;
-      const data = getProgressForMode(gameTypeKey);
-      if (!data) return;
-      try {
-        const { error } = await supabase
-          .from('user_progress')
-          .upsert({
-            user_id: currentUser.id,
-            game_type: gameTypeKey,
-            data: data,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'user_id,game_type' });
-        if (error) console.warn('云端进度保存失败:', error.message);
-      } catch (e) {
-        console.warn('云端进度保存异常:', e);
-      }
-    }, 2000);
+  // ⭐ 计算进度数据指纹，用于判断是否需要上传
+  function hashProgress(data) {
+    if (!data) return '';
+    try {
+      return JSON.stringify({
+        seed: data.seed,
+        mode: data.mode,
+        color: data.color,
+        solved: data.solved,
+        abandoned: data.abandoned,
+        pieces: data.pieces,
+        saved: Math.floor((data.saved || 0) / 1000)
+      });
+    } catch (e) {
+      return '';
+    }
   }
 
-  // ⭐ 从云端拉取所有进度（已登录）
+  // ⭐ 立即上传当前进度到云端（不防抖）
+  async function uploadProgressNow() {
+    if (!currentUser || !supabase || !currentSeed) return;
+    const data = getProgressForMode(gameTypeKey);
+    if (!data) return;
+    const hash = hashProgress(data);
+    if (hash === lastUploadedHash) return;
+    lastUploadedHash = hash;
+    try {
+      const { error } = await supabase
+        .from('user_progress')
+        .upsert({
+          user_id: currentUser.id,
+          game_type: gameTypeKey,
+          data: data,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,game_type' });
+      if (error) console.warn('云端进度上传失败:', error.message);
+    } catch (e) {
+      console.warn('云端进度上传异常:', e);
+    }
+  }
+
+  // ⭐ 启动秒级云同步（每 1 秒检查一次，数据变化时才上传）
+  function startCloudSync() {
+    if (cloudSyncIntervalId) clearInterval(cloudSyncIntervalId);
+    cloudSyncIntervalId = setInterval(() => {
+      if (!currentUser || !supabase) return;
+      if (!gameScreen.classList.contains('active')) return;
+      if (!currentSeed) return;
+      uploadProgressNow();
+    }, 1000);
+  }
+
+  // ⭐ 停止云同步
+  function stopCloudSync() {
+    if (cloudSyncIntervalId) {
+      clearInterval(cloudSyncIntervalId);
+      cloudSyncIntervalId = null;
+    }
+    lastUploadedHash = '';
+  }
+
+  // ⭐ 从云端拉取所有进度（已登录）。云端有数据的直接覆盖本地。
   async function syncAllProgressFromCloud() {
     if (!supabase || !currentUser) return;
     try {
@@ -1195,11 +1234,12 @@
         const cloudTime = new Date(row.updated_at).getTime();
         const local = getProgressForMode(row.game_type);
         const localTime = local ? (local.saved || 0) : 0;
-        // 云端更新则覆盖本地
         if (cloudTime > localTime) {
           setProgressForMode(row.game_type, row.data);
         }
       });
+      const activeData = getProgressForMode(gameTypeKey);
+      if (activeData) lastUploadedHash = hashProgress(activeData);
     } catch (e) {
       console.warn('同步云端进度异常:', e);
     }
@@ -2253,6 +2293,9 @@
     const allProgress = getAllProgressMap();
     const items = [];
 
+    // 已登录显示当前用户 uid；未登录显示 0
+    const displayUid = currentUser && currentUser.uid ? currentUser.uid : 0;
+
     Object.keys(allProgress).forEach(key => {
       const p = allProgress[key];
       if (p && p.seed && !p.solved && !p.abandoned) {
@@ -2289,6 +2332,7 @@
         '<span class="history-tag ongoing">进行中</span></div>' +
         '<div class="history-row2"><span>' + gameText + ' · ' + modeText + ' · ' + typeText + '</span>' +
         '<span>' + timeText + '</span></div>' +
+        '<div class="history-uid">UID: ' + displayUid + '</div>' +
       '</div>';
     });
 
@@ -2307,6 +2351,7 @@
         '<div class="history-state">' + stateTag + '</div>' +
         '<div class="history-row2"><span></span><span>' + timeText + '</span></div>' +
         durationHtml +
+        '<div class="history-uid">UID: ' + displayUid + '</div>' +
       '</div>';
     });
 
@@ -2367,13 +2412,12 @@
         if (currentUser) {
           await loadUserUid();
           await syncRecordsFromCloud();
-          // ⭐ 登录后立即拉取云端进度
           await syncAllProgressFromCloud();
+          startCloudSync();
         } else {
-          // ⭐ 登出时清空内存缓存
           streakBw = [];
           streakNum = [];
-          if (cloudSaveTimer) { clearTimeout(cloudSaveTimer); cloudSaveTimer = null; }
+          stopCloudSync();
           updateUserUI();
         }
         renderHistory();
@@ -2385,6 +2429,7 @@
           await loadUserUid();
           await syncRecordsFromCloud();
           await syncAllProgressFromCloud();
+          startCloudSync();
         }
         updateUserUI();
         renderHistory();
@@ -2683,10 +2728,7 @@
   homeBtnRegister.addEventListener('click', () => showAuthModal('register'));
   gameBtnLogin.addEventListener('click', () => showAuthModal('login'));
   gameBtnRegister.addEventListener('click', () => showAuthModal('register'));
-  homeBtnLogout.addEventListener('click', async () => {
-    if (supabase) await supabase.auth.signOut();
-    // onAuthStateChange 会处理 currentUser = null 及清空缓存
-  });
+  homeBtnLogout.addEventListener('click', async () => { if (supabase) await supabase.auth.signOut(); });
   authSwitch.addEventListener('click', () => showAuthModal(authMode === 'login' ? 'register' : 'login'));
   authCancel.addEventListener('click', () => authModal.classList.remove('show'));
   authSubmit.addEventListener('click', async () => {
@@ -3041,13 +3083,12 @@
     myRecordsContent.innerHTML = html;
   }
 
-  // ⭐ startMode 改 async，先同步云端进度
   async function startMode(action) {
     if (currentSeed && gameScreen.classList.contains('active')) {
       saveProgress();
     }
 
-    // ⭐ 已登录：先拉取云端进度（决定该模式下是恢复云端的还是本地的）
+    // ⭐ 已登录：先拉取云端进度
     if (currentUser && supabase) {
       await syncAllProgressFromCloud();
     }
