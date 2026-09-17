@@ -795,7 +795,6 @@
   let drag = null;
 
   let resetStreakOnNextSolve = false;
-  // ⭐ 新增：追踪正在进行的成绩上传，避免个人纪录读到旧数据
   let pendingUploadPromise = null;
 
   let streakBw = [];
@@ -809,6 +808,9 @@
 
   let answerSingleTapTimer = null;
   let answerLastTapTime = 0;
+
+  // ⭐ 云端进度保存（防抖）
+  let cloudSaveTimer = null;
 
   const activePointerIds = new Set();
 
@@ -1141,11 +1143,66 @@
       saved: Date.now()
     };
     setProgressForMode(gameTypeKey, data);
+    scheduleCloudSave();
   }
   let saveTimer = null;
   function scheduleSaveProgress() {
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(saveProgress, 250);
+  }
+
+  // ⭐ 云端进度保存（防抖 2 秒）
+  function scheduleCloudSave() {
+    // 未登录不上传
+    if (!currentUser || !supabase) return;
+    if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = setTimeout(async () => {
+      cloudSaveTimer = null;
+      if (!currentUser || !supabase || !currentSeed) return;
+      const data = getProgressForMode(gameTypeKey);
+      if (!data) return;
+      try {
+        const { error } = await supabase
+          .from('user_progress')
+          .upsert({
+            user_id: currentUser.id,
+            game_type: gameTypeKey,
+            data: data,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id,game_type' });
+        if (error) console.warn('云端进度保存失败:', error.message);
+      } catch (e) {
+        console.warn('云端进度保存异常:', e);
+      }
+    }, 2000);
+  }
+
+  // ⭐ 从云端拉取所有进度（已登录）
+  async function syncAllProgressFromCloud() {
+    if (!supabase || !currentUser) return;
+    try {
+      const { data, error } = await supabase
+        .from('user_progress')
+        .select('game_type, data, updated_at')
+        .eq('user_id', currentUser.id);
+      if (error) {
+        console.warn('拉取云端进度失败:', error.message);
+        return;
+      }
+      if (!data || data.length === 0) return;
+      data.forEach(row => {
+        if (!row.data) return;
+        const cloudTime = new Date(row.updated_at).getTime();
+        const local = getProgressForMode(row.game_type);
+        const localTime = local ? (local.saved || 0) : 0;
+        // 云端更新则覆盖本地
+        if (cloudTime > localTime) {
+          setProgressForMode(row.game_type, row.data);
+        }
+      });
+    } catch (e) {
+      console.warn('同步云端进度异常:', e);
+    }
   }
 
   function loadProgressForCurrentMode() {
@@ -2073,16 +2130,12 @@
 
         const mode = digitalMode ? 'num' : 'bw';
 
-        // ⭐ 本地记录（所有模式）
         recordSuccess(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
 
-        // ⭐ 云端上传（已登录时，所有模式都上传）
         if (currentUser && supabase) {
-          // ⭐ 关键修复：保留上传的 promise，供个人纪录弹窗 await
           pendingUploadPromise = uploadScore(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
         }
 
-        // ⭐ 若个人纪录弹窗正打开着，等上传完成后自动刷新
         if (myRecordsModal && myRecordsModal.classList.contains('show')) {
           setTimeout(() => {
             if (myRecordsModal.classList.contains('show')) {
@@ -2314,7 +2367,13 @@
         if (currentUser) {
           await loadUserUid();
           await syncRecordsFromCloud();
+          // ⭐ 登录后立即拉取云端进度
+          await syncAllProgressFromCloud();
         } else {
+          // ⭐ 登出时清空内存缓存
+          streakBw = [];
+          streakNum = [];
+          if (cloudSaveTimer) { clearTimeout(cloudSaveTimer); cloudSaveTimer = null; }
           updateUserUI();
         }
         renderHistory();
@@ -2325,6 +2384,7 @@
         if (currentUser) {
           await loadUserUid();
           await syncRecordsFromCloud();
+          await syncAllProgressFromCloud();
         }
         updateUserUI();
         renderHistory();
@@ -2363,7 +2423,6 @@
         .eq('user_id', currentUser.id)
         .order('updated_at', { ascending: false });
       if (error) {
-        // 表不存在等错误不阻塞其他功能
         console.warn('user_seeds 同步失败:', error.message);
         return;
       }
@@ -2428,9 +2487,6 @@
     };
   }
 
-  // ⭐ 上传成绩：所有模式都写 records + upsert user_seeds
-  //    只有挑战模式才更新 profiles 的 records/streak/wins
-  //    ⭐ 关键修复：user_seeds 操作包裹 try-catch，避免因表缺失导致整个流程中断
   async function uploadScore(seed, mode, gameType, elapsed, endedAt) {
     if (!supabase || !currentUser) return false;
     const isChallenge = (gameType === 'challenge-bw' || gameType === 'challenge-num');
@@ -2443,7 +2499,6 @@
 
       const endedIso = new Date(endedAt).toISOString();
 
-      // 1. 插入 records 流水（失败则抛出，整个上传失败）
       const { error: recErr } = await supabase.from('records').insert({
         user_id: currentUser.id,
         username: username,
@@ -2456,7 +2511,6 @@
       });
       if (recErr) throw recErr;
 
-      // 2. ⭐ upsert user_seeds（失败不阻塞后续 profile 更新）
       try {
         const { data: existingSeed } = await supabase
           .from('user_seeds')
@@ -2483,7 +2537,6 @@
         console.warn('user_seeds 更新失败（不影响 streak）:', seedErr);
       }
 
-      // 3. ⭐ 更新 profile（核心：streak / records / wins）
       const { data: profile } = await supabase
         .from('profiles')
         .select('total_wins, bw_wins, num_wins, streak_bw, streak_num, records_bw, records_num, max_streak_bw, max_streak_num')
@@ -2586,7 +2639,6 @@
         if (insErr) throw insErr;
       }
 
-      // ⭐ 更新内存缓存，让个人纪录能立即读到最新值
       streakBw = localStreakBw;
       streakNum = localStreakNum;
 
@@ -2631,7 +2683,10 @@
   homeBtnRegister.addEventListener('click', () => showAuthModal('register'));
   gameBtnLogin.addEventListener('click', () => showAuthModal('login'));
   gameBtnRegister.addEventListener('click', () => showAuthModal('register'));
-  homeBtnLogout.addEventListener('click', async () => { if (supabase) await supabase.auth.signOut(); });
+  homeBtnLogout.addEventListener('click', async () => {
+    if (supabase) await supabase.auth.signOut();
+    // onAuthStateChange 会处理 currentUser = null 及清空缓存
+  });
   authSwitch.addEventListener('click', () => showAuthModal(authMode === 'login' ? 'register' : 'login'));
   authCancel.addEventListener('click', () => authModal.classList.remove('show'));
   authSubmit.addEventListener('click', async () => {
@@ -2856,7 +2911,6 @@
     if (!currentUser) { myRecordsContent.innerHTML = '<div class="records-empty">请先登录查看个人纪录</div>'; return; }
     myRecordsContent.innerHTML = '<div class="records-empty">加载中...</div>';
 
-    // ⭐ 关键修复：如果有正在进行的成绩上传，先等它完成，确保读到最新 streak
     if (pendingUploadPromise) {
       try { await pendingUploadPromise; } catch (e) {}
       pendingUploadPromise = null;
@@ -2881,13 +2935,11 @@
         return;
       }
 
-      // ⭐ 优先使用内存中的 streak（刚通关时已更新，比数据库更新）
-      let myStreak, maxStreak;
+      let myStreak;
       const dbStreak = isNum ? myProfile.streak_num : myProfile.streak_bw;
       const dbStreakArr = Array.isArray(dbStreak) ? dbStreak : [];
       const memStreak = isNum ? streakNum : streakBw;
 
-      // 内存优先：如果内存非空，用内存的；否则用数据库的
       if (Array.isArray(memStreak) && memStreak.length > 0) {
         myStreak = memStreak.slice();
       } else {
@@ -2895,7 +2947,7 @@
       }
 
       const dbMaxStreak = (isNum ? myProfile.max_streak_num : myProfile.max_streak_bw) || 0;
-      maxStreak = Math.max(dbMaxStreak, myStreak.length);
+      const maxStreak = Math.max(dbMaxStreak, myStreak.length);
 
       const myRecordsRaw = isNum ? myProfile.records_num : myProfile.records_bw;
       const myRecords = (myRecordsRaw && typeof myRecordsRaw === 'object' && !Array.isArray(myRecordsRaw)) ? myRecordsRaw : {};
@@ -2989,9 +3041,15 @@
     myRecordsContent.innerHTML = html;
   }
 
-  function startMode(action) {
+  // ⭐ startMode 改 async，先同步云端进度
+  async function startMode(action) {
     if (currentSeed && gameScreen.classList.contains('active')) {
       saveProgress();
+    }
+
+    // ⭐ 已登录：先拉取云端进度（决定该模式下是恢复云端的还是本地的）
+    if (currentUser && supabase) {
+      await syncAllProgressFromCloud();
     }
 
     if (action === 'practice-random') {
