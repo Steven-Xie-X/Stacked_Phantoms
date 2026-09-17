@@ -132,10 +132,10 @@
   .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
   .btn.icon-btn { padding: 8px 10px; }
   .btn.icon-btn svg { display: block; }
-  .controls { display: flex; justify-content: center; align-items: stretch; gap: 8px; margin-bottom: 10px; }
+  .controls { display: flex; justify-content: center; align-items: stretch; gap: 6px; margin-bottom: 10px; }
   .controls .btn {
     background: #fff; color: #1e293b; font-weight: 700; font-size: 13px;
-    border: 1px solid #cbd5e1; height: 42px; padding: 0 12px;
+    border: 1px solid #cbd5e1; height: 42px; padding: 0 10px;
     box-sizing: border-box; box-shadow: 0 1px 2px rgba(15,23,42,.05); flex-shrink: 0;
   }
   .controls .btn.icon-btn { width: 42px; padding: 0; }
@@ -154,14 +154,16 @@
   .controls .btn:disabled { opacity: .4; }
   .controls .btn svg { width: 18px; height: 18px; display: block; flex-shrink: 0; }
   @media (max-width: 420px) {
-    .controls { gap: 6px; }
-    .controls .btn { font-size: 12px; padding: 0 10px; height: 40px; }
-    .controls .btn.icon-btn { width: 40px; }
+    .controls { gap: 5px; }
+    .controls .btn { font-size: 12px; padding: 0 8px; height: 40px; }
+    .controls .btn.icon-btn { width: 38px; }
     .controls .btn svg { width: 16px; height: 16px; }
   }
   @media (max-width: 360px) {
-    .controls .btn { font-size: 11px; padding: 0 8px; height: 38px; }
-    .controls .btn.icon-btn { width: 36px; }
+    .controls { gap: 4px; }
+    .controls .btn { font-size: 11px; padding: 0 6px; height: 38px; }
+    .controls .btn.icon-btn { width: 34px; }
+    .controls .btn svg { width: 15px; height: 15px; }
   }
   .user-row {
     display: flex; justify-content: flex-end; align-items: center; gap: 8px;
@@ -556,9 +558,20 @@
           <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </button>
+
+      <button id="btnFullscreen" class="btn icon-btn" title="全屏">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+          <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+        </svg>
+      </button>
+
       <button id="btnMainAction" class="btn main-action">
         <span id="btnMainActionText">新游戏</span>
       </button>
+
       <button id="btnAnswer" class="btn icon-btn answer" title="参考答案">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 18h6"/>
@@ -566,6 +579,7 @@
           <path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17h8v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7z"/>
         </svg>
       </button>
+
       <button id="btnLeaderboard" class="btn icon-btn" title="排行榜" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 20V10"/>
@@ -801,11 +815,8 @@
   let resetStreakOnNextSolve = false;
   let pendingUploadPromise = null;
 
-  // 云同步相关
   let cloudSyncIntervalId = null;
   let lastUploadedHash = '';
-  let lastRenderedCompletedCount = -1;
-  let lastRenderedProgressCount = -1;
 
   let streakBw = [];
   let streakNum = [];
@@ -840,6 +851,7 @@
   const numberProgressLabel = $('numberProgressLabel');
   const btnBack = $('btnBack');
   const btnHelp = $('btnHelp');
+  const btnFullscreen = $('btnFullscreen');
   const btnLeaderboard = $('btnLeaderboard');
   const btnMainAction = $('btnMainAction');
   const btnMainActionText = $('btnMainActionText');
@@ -946,6 +958,37 @@
   function formatDuration(seconds) {
     if (seconds == null) return '—';
     return formatTimer(seconds);
+  }
+
+  // ⭐ 全屏相关
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  }
+  function updateFullscreenIcon() {
+    const full = isFullscreen();
+    if (full) {
+      btnFullscreen.title = '退出全屏';
+      btnFullscreen.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>';
+    } else {
+      btnFullscreen.title = '全屏';
+      btnFullscreen.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+    }
+  }
+  async function toggleFullscreen() {
+    try {
+      if (isFullscreen()) {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        else if (document.msExitFullscreen) document.msExitFullscreen();
+      } else {
+        const el = document.documentElement;
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.msRequestFullscreen) el.msRequestFullscreen();
+      }
+    } catch (e) {
+      console.warn('全屏切换失败:', e);
+    }
   }
 
   function startTimer() {
@@ -1196,7 +1239,6 @@
     }
   }
 
-  // ⭐ 从云端拉取历史记录（合并到本地，不覆盖）
   async function pullRecordsFromCloud(renderAfter) {
     if (!supabase || !currentUser) return false;
     try {
@@ -1204,10 +1246,7 @@
         .from('user_seeds')
         .select('seed, state, updated_at')
         .eq('user_id', currentUser.id);
-      if (error) {
-        console.warn('[sync] 拉取 user_seeds 失败:', error.message);
-        return false;
-      }
+      if (error) { console.warn('[sync] 拉取 user_seeds 失败:', error.message); return false; }
       if (!data || data.length === 0) return false;
 
       const localList = getCompletedSeeds();
@@ -1219,11 +1258,7 @@
         const recTime = new Date(rec.updated_at).getTime();
         const existing = map.get(rec.seed);
         if (!existing) {
-          map.set(rec.seed, {
-            seed: rec.seed,
-            state: rec.state || {},
-            updatedAt: recTime
-          });
+          map.set(rec.seed, { seed: rec.seed, state: rec.state || {}, updatedAt: recTime });
           changed = true;
         } else {
           if (rec.state && typeof rec.state === 'object') {
@@ -1236,9 +1271,7 @@
               }
             });
           }
-          if (recTime > (existing.updatedAt || 0)) {
-            existing.updatedAt = recTime;
-          }
+          if (recTime > (existing.updatedAt || 0)) existing.updatedAt = recTime;
         }
       });
 
@@ -1253,7 +1286,6 @@
     }
   }
 
-  // ⭐ 从云端拉取进度（合并到本地，不覆盖正在玩的进度）
   async function pullProgressFromCloud() {
     if (!supabase || !currentUser) return false;
     try {
@@ -1261,16 +1293,12 @@
         .from('user_progress')
         .select('game_type, data, updated_at')
         .eq('user_id', currentUser.id);
-      if (error) {
-        console.warn('[sync] 拉取 user_progress 失败:', error.message);
-        return false;
-      }
+      if (error) { console.warn('[sync] 拉取 user_progress 失败:', error.message); return false; }
       if (!data || data.length === 0) return false;
 
       let changed = false;
       data.forEach(row => {
         if (!row.data) return;
-        // 正在玩的模式跳过，避免覆盖当前进度
         if (gameScreen.classList.contains('active') && currentSeed && row.game_type === gameTypeKey) {
           return;
         }
@@ -1289,7 +1317,6 @@
     }
   }
 
-  // ⭐ 启动云同步定时器（1 秒上传，3 秒拉取）
   function startCloudSync() {
     if (cloudSyncIntervalId) clearInterval(cloudSyncIntervalId);
     let tickCount = 0;
@@ -1297,17 +1324,13 @@
       if (!currentUser || !supabase) return;
       tickCount++;
 
-      // 1 秒：上传当前进度
       if (gameScreen.classList.contains('active') && currentSeed) {
         uploadProgressNow();
       }
 
-      // 3 秒：拉取云端更新
       if (tickCount >= 3) {
         tickCount = 0;
-        // 历史记录（已完成关卡）总是可以拉取并合并
         await pullRecordsFromCloud(true);
-        // 进行中进度：只在不在游戏屏幕时拉取
         if (!gameScreen.classList.contains('active') || !currentSeed) {
           await pullProgressFromCloud();
           renderHistory();
@@ -1324,14 +1347,12 @@
     lastUploadedHash = '';
   }
 
-  // ⭐ 兼容旧调用（进入模式 / 登录时使用）
   async function syncAllProgressFromCloud() {
     await pullProgressFromCloud();
     const activeData = getProgressForMode(gameTypeKey);
     if (activeData) lastUploadedHash = hashProgress(activeData);
   }
 
-  // ⭐ 兼容旧调用
   async function syncRecordsFromCloud() {
     await pullRecordsFromCloud(true);
   }
@@ -2178,10 +2199,19 @@
     }, ANSWER_DOUBLE_TAP_MS);
   }
 
+  // ⭐ 获取当前模式的连胜数组
+  function getCurrentStreakArr() {
+    return digitalMode ? streakNum : streakBw;
+  }
+
   async function toggleAnswerMode() {
     if (!targetGrid) return;
 
-    if (gameMode === 'challenge' && !solved && !abandoned) {
+    // ⭐ 只有在连胜 > 0 时才需要弹窗确认
+    const curStreak = getCurrentStreakArr();
+    const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
+
+    if (gameMode === 'challenge' && !solved && !abandoned && hasStreak) {
       const modeText = digitalMode ? '有数字' : '无数字';
       const ok = confirm(
         '当前挑战尚未完成。\n\n' +
@@ -2195,6 +2225,11 @@
       resetStreakOnNextSolve = true;
       scheduleSaveProgress();
       showToast('本局成绩已作废，连续记录已重置', 2500);
+    } else if (gameMode === 'challenge' && !solved && !abandoned) {
+      // 连胜=0：直接进入答案模式，无需弹窗、无需打断
+      abandoned = true;
+      stopTimer();
+      scheduleSaveProgress();
     }
 
     cancelPendingTap(); abortDrag(); activePointerIds.clear(); resetAnswerTapState();
@@ -2450,7 +2485,6 @@
   function openHistory() {
     renderHistory();
     historyModal.classList.add('show');
-    // 打开时也拉取云端并刷新
     pullRecordsFromCloud(true).then(() => pullProgressFromCloud().then(() => renderHistory()));
   }
   function closeHistory() { historyModal.classList.remove('show'); }
@@ -3214,6 +3248,10 @@
   homeBtnHistory.addEventListener('click', openHistory);
   homeBtnHelp.addEventListener('click', openRules);
   btnHelp.addEventListener('click', openRules);
+  btnFullscreen.addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', updateFullscreenIcon);
+  document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+  document.addEventListener('msfullscreenchange', updateFullscreenIcon);
   rulesClose.addEventListener('click', closeRules);
   rulesModal.addEventListener('click', (e) => { if (e.target === rulesModal) closeRules(); });
 
@@ -3235,9 +3273,13 @@
     });
   });
 
+  // ⭐ 新游戏按钮：连胜=0 时不弹窗
   btnMainAction.addEventListener('click', async () => {
     if (gameMode === 'challenge') {
-      if (currentSeed && !solved && !abandoned) {
+      const curStreak = getCurrentStreakArr();
+      const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
+
+      if (currentSeed && !solved && !abandoned && hasStreak) {
         const modeText = digitalMode ? '有数字' : '无数字';
         const ok = confirm(
           '当前挑战尚未完成。\n\n' +
@@ -3249,6 +3291,11 @@
         abandoned = true;
         stopTimer();
         resetStreakOnNextSolve = true;
+        scheduleSaveProgress();
+      } else if (currentSeed && !solved && !abandoned) {
+        // 连胜=0：直接放弃当前关卡，不弹窗
+        abandoned = true;
+        stopTimer();
         scheduleSaveProgress();
       }
       generateChallenge(pickNewSeed(), false, true);
@@ -3334,6 +3381,7 @@
     buildBoard();
     renderAll();
     updateUserUI();
+    updateFullscreenIcon();
     poolEl.addEventListener('contextmenu', e => e.preventDefault());
   }
 
