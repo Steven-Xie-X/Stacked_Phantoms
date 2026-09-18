@@ -53,6 +53,13 @@
     -webkit-user-select: none; user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
+  /* ⭐ 全屏时为顶部空出 1 行（避免被系统菜单遮挡） */
+  html:fullscreen body {
+    padding-top: 76px;
+  }
+  html:-webkit-full-screen body {
+    padding-top: 76px;
+  }
   .wrap { width: 100%; max-width: 400px; }
   #homeScreen { display: block; }
   #homeScreen.hidden { display: none; }
@@ -126,10 +133,12 @@
   .home-user-row .link-btn:hover { background: rgba(37,99,235,.08); }
   .mode-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
   .mode-btn {
-    display: flex; flex-direction: row; align-items: center; justify-content: center;
+    display: flex; flex-direction: row; align-items: center;
+    justify-content: flex-start;                /* ⭐ 左对齐 */
     gap: 14px; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--card-border-2);
-    background: var(--card-bg); cursor: pointer; font-family: inherit; text-align: center;
+    background: var(--card-bg); cursor: pointer; font-family: inherit;
     transition: all .18s ease; box-shadow: 0 2px 6px rgba(15,23,42,.05); width: 100%;
+    text-align: left;
   }
   .mode-btn:hover {
     border-color: #93c5fd; background: linear-gradient(135deg, var(--card-bg-2), var(--card-bg));
@@ -142,15 +151,16 @@
     border-radius: 12px; background: var(--card-bg-2); transition: background .18s;
   }
   .mode-btn .mode-content {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 3px; flex: 0 1 auto; min-width: 0;
+    display: flex; flex-direction: column; align-items: flex-start;   /* ⭐ 左对齐 */
+    gap: 3px; flex: 1; min-width: 0;
   }
   .mode-btn .mode-title {
     font-size: 14px; font-weight: 700; color: var(--page-text);
-    letter-spacing: .5px; text-align: center;
+    letter-spacing: .5px; text-align: left;                          /* ⭐ 左对齐 */
   }
   .mode-btn .mode-desc {
-    font-size: 11px; color: var(--page-text-dimmer); line-height: 1.4; text-align: center;
+    font-size: 11px; color: var(--page-text-dimmer); line-height: 1.4;
+    text-align: left;                                                 /* ⭐ 左对齐 */
   }
   .mode-btn.practice { border-color: #bfdbfe; }
   .mode-btn.practice .mode-icon { background: #eff6ff; }
@@ -380,9 +390,13 @@
     min-height: 98px; transition: opacity .2s;
   }
   .pool.dim { opacity: .4; }
+  /* 空白状态：显示提示；游戏中碎片用完：显示另一提示 */
   .pool:empty::after {
-    content: '碎片已全部用尽'; margin: auto; font-size: 13px;
+    content: '点击上方按钮开始新游戏'; margin: auto; font-size: 13px;
     color: var(--page-text-dimmer); grid-column: 1 / -1;
+  }
+  .pool.playing:empty::after {
+    content: '碎片已全部用尽';
   }
   .pool-item {
     display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -501,13 +515,13 @@
   .history-empty { text-align: center; color: var(--page-text-dimmer); padding: 24px 0; font-size: 13px; }
   .rank-mode-tabs {
     display: flex;
-    gap: 5px;
+    gap: 4px;
     margin-bottom: 10px;
     justify-content: center;
   }
   .rank-mode-tab {
     flex: 1;
-    padding: 8px 6px;
+    padding: 8px 3px;
     border-radius: 8px;
     border: 1px solid var(--card-border-2);
     background: var(--card-bg);
@@ -517,6 +531,7 @@
     cursor: pointer;
     font-family: inherit;
     transition: all .15s;
+    white-space: nowrap;
   }
   .rank-mode-tab.active {
     background: var(--accent);
@@ -975,8 +990,9 @@
       <button class="rank-mode-tab active" data-mode="bw">无数字</button>
       <button class="rank-mode-tab" data-mode="num">有数字</button>
       <button class="rank-mode-tab" data-mode="multi">三色</button>
+      <button class="rank-mode-tab" data-mode="daily">每日</button>
     </div>
-    <div class="rank-subtabs">
+    <div class="rank-subtabs" id="rankSubtabs">
       <button class="rank-subtab active" data-rank="best">Best</button>
       <button class="rank-subtab" data-rank="mo3">MO3</button>
       <button class="rank-subtab" data-rank="ao5">AO5</button>
@@ -1170,6 +1186,7 @@
   const leaderboardModal = $('leaderboardModal');
   const leaderboardClose = $('leaderboardClose');
   const rankList = $('rankList');
+  const rankSubtabs = $('rankSubtabs');
 
   const myRecordsModal = $('myRecordsModal');
   const myRecordsContent = $('myRecordsContent');
@@ -1214,6 +1231,7 @@
   function modeLabel(mode) {
     if (mode === 'num') return '有数字';
     if (mode === 'multi') return '三色';
+    if (mode === 'daily') return '';
     return '无数字';
   }
 
@@ -1505,7 +1523,8 @@
     if (answerMode) return;
     const data = {
       seed: currentSeed,
-      mode: isMultiColorMode() ? 'multi' : (digitalMode ? 'num' : 'bw'),
+      mode: gameTypeKey === 'daily' ? 'daily'
+           : (isMultiColorMode() ? 'multi' : (digitalMode ? 'num' : 'bw')),
       color: isMultiColorMode() ? false : colorMode,
       isRandom: isRandomChallenge,
       solved: solved,
@@ -1693,7 +1712,8 @@
           pieces[i].multiColor = s.multiColor || null;
         }
       }
-      digitalMode = isMultiColorMode() ? false : (data.mode === 'num');
+      digitalMode = isMultiColorMode() ? false
+                  : (data.mode === 'daily' ? true : (data.mode === 'num'));
       colorMode = isMultiColorMode() ? false : !!data.color;
       solved = !!data.solved;
       abandoned = !!data.abandoned;
@@ -1988,8 +2008,8 @@
     scheduleSaveProgress();
     return true;
   }
-  function updateUndoButton() { btnUndo.disabled = (undoStack.length === 0) || answerMode; }
-  function updateRedoButton() { btnRedo.disabled = (redoStack.length === 0) || answerMode; }
+  function updateUndoButton() { btnUndo.disabled = (undoStack.length === 0) || answerMode || !currentSeed; }
+  function updateRedoButton() { btnRedo.disabled = (redoStack.length === 0) || answerMode || !currentSeed; }
 
   function cancelPendingTap() {
     if (tapTimer) { clearTimeout(tapTimer); tapTimer = null; }
@@ -2121,8 +2141,10 @@
 
     solved = false;
     solvedElapsed = null;
-    // ⭐ 目标图案默认打开
-    showingTarget = true;
+    // ⭐ 只有新关卡才强制显示目标图案
+    if (!skipSave) {
+      showingTarget = true;
+    }
     answerMode = false;
     answerIndex = 0;
     messageEl.classList.remove('show');
@@ -2167,9 +2189,39 @@
     updateProgressText(); updateButtonStates(); updateModeUI();
   }
 
+  // ⭐ 进入空白状态（未开始的关卡）
+  function showBlankState() {
+    stopTimer();
+    cancelPendingTap();
+    if (drag) abortDrag();
+    activePointerIds.clear();
+
+    currentSeed = null;
+    pieces = [];
+    targetGrid = null;
+    answerPlacements = [];
+    solved = false;
+    abandoned = false;
+    showingTarget = false;
+    answerMode = false;
+    answerIndex = 0;
+    undoStack = [];
+    redoStack = [];
+    challengeStartTime = null;
+    solvedElapsed = null;
+    resetStreakOnNextSolve = false;
+
+    timerRow.style.display = 'none';
+    timerDisplay.textContent = '0s';
+    seedShow.textContent = '—';
+    messageEl.classList.remove('show');
+
+    renderAll();
+  }
+
   function updateModeUI() {
     boardEl.classList.toggle('answer-mode', answerMode);
-    poolEl.classList.toggle('dim', showingTarget && !answerMode);
+    poolEl.classList.toggle('dim', showingTarget && !answerMode && !!currentSeed);
     poolHead.textContent = answerMode ? '备选碎片池（答案标注）' : '备选碎片池';
     btnAnswer.classList.toggle('active', answerMode);
 
@@ -2242,15 +2294,16 @@
     colorHint.textContent = colorMode ? '彩色' : '黑白';
     targetSwitch.setAttribute('aria-pressed', String(showingTarget));
     targetHint.textContent = showingTarget ? '已显示目标图案' : '打开来查看目标图案';
-    targetSwitch.disabled = answerMode;
+    targetSwitch.disabled = answerMode || !currentSeed;
     numberProgressRow.style.display = (digitalMode && !multi) ? 'flex' : 'none';
 
     updateUndoButton(); updateRedoButton();
     btnAnswer.disabled = !targetGrid;
+    btnReset.disabled = answerMode || !currentSeed;
   }
 
   function updateButtonStates() {
-    btnReset.disabled = answerMode;
+    btnReset.disabled = answerMode || !currentSeed;
     btnAnswer.disabled = !targetGrid;
   }
 
@@ -2453,6 +2506,8 @@
 
   function renderPool() {
     poolEl.innerHTML = '';
+    poolEl.classList.toggle('playing', !!currentSeed);
+    if (!currentSeed) return;
     for (const p of pieces) {
       if (!answerMode && p.placed) continue;
       const item = document.createElement('div');
@@ -2743,7 +2798,7 @@
   }
 
   async function toggleAnswerMode() {
-    if (!targetGrid) return;
+    if (!targetGrid || !currentSeed) return;
 
     if (isMultiColorMode() && gameMode === 'challenge' && !solved && !abandoned) {
       const ok = confirm(
@@ -2781,25 +2836,15 @@
       }
     }
     else if (gameTypeKey === 'daily' && !solved && !abandoned) {
-      const curStreak = getCurrentStreakArr();
-      const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
-      if (hasStreak) {
-        const ok = confirm(
-          '当前挑战尚未完成。\n\n' +
-          '查看答案会导致本局成绩作废，并打断你在「每日挑战」模式下的连续成绩记录。\n\n' +
-          '确定要查看答案吗？'
-        );
-        if (!ok) return;
-        abandoned = true;
-        stopTimer();
-        await clearStreakOnServer('num');
-        resetStreakOnNextSolve = true;
-        scheduleSaveProgress();
-      } else {
-        abandoned = true;
-        stopTimer();
-        scheduleSaveProgress();
-      }
+      const ok = confirm(
+        '当前挑战尚未完成。\n\n' +
+        '查看答案会导致本局成绩作废。\n\n' +
+        '确定要查看答案吗？'
+      );
+      if (!ok) return;
+      abandoned = true;
+      stopTimer();
+      scheduleSaveProgress();
     }
 
     cancelPendingTap(); abortDrag(); activePointerIds.clear(); resetAnswerTapState();
@@ -2901,7 +2946,8 @@
         solvedElapsed = challengeStartTime
           ? Math.floor((endTime - challengeStartTime) / 1000)
           : 0;
-        const mode = digitalMode ? 'num' : 'bw';
+        // ⭐ daily 用独立的 mode
+        const mode = gameTypeKey === 'daily' ? 'daily' : (digitalMode ? 'num' : 'bw');
         recordSuccess(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
         if (currentUser && supabase) {
           pendingUploadPromise = uploadScore(currentSeed, mode, gameTypeKey, solvedElapsed, endTime);
@@ -3001,6 +3047,11 @@
       if (state.multi.random) random = true;
       if (state.multi.specify) specify = true;
     }
+    if (state.daily && state.daily.done) {
+      modes.push('每日');
+      if (state.daily.challenge) challenge = true;
+      random = true;
+    }
     const game = [];
     if (practice) game.push('练习');
     if (challenge) game.push('挑战');
@@ -3017,7 +3068,7 @@
   function getBestElapsedFromState(state) {
     if (!state) return null;
     let best = null;
-    ['bw', 'num', 'multi'].forEach(m => {
+    ['bw', 'num', 'multi', 'daily'].forEach(m => {
       if (state[m] && state[m].challengeBest != null) {
         if (best == null || state[m].challengeBest < best) best = state[m].challengeBest;
       }
@@ -3063,28 +3114,32 @@
       const isMulti = isMultiPractice || isMultiChallenge;
       const isPractice = it.gameType === 'practice-random' || it.gameType === 'practice-specify' || isMultiPractice;
 
-      let gameText, modeText;
+      let gameText, modeText, typeText;
       if (isDaily) {
-        gameText = '每日';
-        modeText = modeLabel(it.mode);
+        gameText = '每日挑战';
+        modeText = '';
+        typeText = '';
       } else if (isMulti) {
         gameText = '三色';
         modeText = '无数字';
+        typeText = (it.gameType === 'practice-multi-specify') ? '指定' : '随机';
       } else if (isPractice) {
         gameText = '练习';
         modeText = modeLabel(it.mode);
+        typeText = (it.gameType === 'practice-specify') ? '指定' : '随机';
       } else {
         gameText = '单色';
         modeText = modeLabel(it.mode);
+        typeText = '随机';
       }
 
-      const typeText = (it.gameType === 'practice-specify' || it.gameType === 'practice-multi-specify') ? '指定' : '随机';
       const timeText = it.time ? formatDateShort(it.time) : '—';
       const seedText = isPractice ? ('#' + it.seed) : '？？？';
+      const subParts = [gameText, modeText, typeText].filter(s => s);
       html += '<div class="history-item">' +
         '<div class="history-row1"><span class="history-seed">' + seedText + '</span>' +
         '<span class="history-tag ongoing">进行中</span></div>' +
-        '<div class="history-row2"><span>' + gameText + ' · ' + modeText + ' · ' + typeText + '</span>' +
+        '<div class="history-row2"><span>' + subParts.join(' · ') + '</span>' +
         '<span>' + timeText + '</span></div>' +
         '<div class="history-uid">UID: ' + displayUid + '</div>' +
       '</div>';
@@ -3160,6 +3215,33 @@
     updateUserUI();
   }
 
+  async function switchToCurrentAccount() {
+    if (!gameScreen.classList.contains('active')) return;
+    if (!currentSeed) return;
+    await pullProgressFromCloud();
+    const data = getProgressForMode(gameTypeKey);
+    if (data && data.seed && !data.solved && !data.abandoned) {
+      try {
+        stopTimer();
+        cancelPendingTap();
+        abortDrag();
+        activePointerIds.clear();
+        if (loadProgressForCurrentMode()) {
+          showToast('已切换到当前账号的进度', 2200);
+          return;
+        }
+      } catch (e) {
+        console.warn('恢复账号进度失败:', e);
+      }
+    }
+    stopTimer();
+    cancelPendingTap();
+    abortDrag();
+    activePointerIds.clear();
+    showBlankState();
+    showToast('已切换到当前账号', 2200);
+  }
+
   function initSupabase() {
     if (supabase) return true;
     if (!window.supabase || !window.supabase.createClient) return false;
@@ -3167,7 +3249,19 @@
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       supabase.auth.onAuthStateChange(async (event, session) => {
-        currentUser = session ? session.user : null;
+        const oldUser = currentUser;
+        const oldUserId = oldUser ? oldUser.id : null;
+        const newUser = session ? session.user : null;
+        const newUserId = newUser ? newUser.id : null;
+        const isSwitching = (oldUserId !== newUserId);
+
+        if (isSwitching && oldUser && gameScreen.classList.contains('active') && currentSeed) {
+          stopTimer();
+          saveProgress();
+        }
+
+        currentUser = newUser;
+
         if (currentUser) {
           await loadUserUid();
           await pullRecordsFromCloud(true);
@@ -3180,6 +3274,11 @@
           stopCloudSync();
           updateUserUI();
         }
+
+        if (isSwitching && gameScreen.classList.contains('active')) {
+          await switchToCurrentAccount();
+        }
+
         renderHistory();
       });
 
@@ -3258,6 +3357,26 @@
 
       const endedIso = new Date(endedAt).toISOString();
 
+      // ⭐ 每日挑战：每个用户每关只上传第一次
+      if (gameType === 'daily') {
+        try {
+          const { data: existingRec } = await supabase
+            .from('records')
+            .select('id')
+            .eq('user_id', currentUser.id)
+            .eq('mode', 'daily')
+            .eq('seed', seed)
+            .limit(1)
+            .maybeSingle();
+          if (existingRec) {
+            console.log('[daily] 已上传过，跳过');
+            return true;
+          }
+        } catch (e) {
+          console.warn('[daily] 检查重复失败:', e);
+        }
+      }
+
       const { error: recErr } = await supabase.from('records').insert({
         user_id: currentUser.id,
         username: username,
@@ -3296,27 +3415,28 @@
         console.warn('user_seeds 更新失败（不影响 streak）:', seedErr);
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('total_wins, bw_wins, num_wins, multi_wins, streak_bw, streak_num, streak_multi, records_bw, records_num, records_multi, max_streak_bw, max_streak_num, max_streak_multi')
-        .eq('id', currentUser.id)
-        .maybeSingle();
-
-      let localStreakBw = (profile && Array.isArray(profile.streak_bw)) ? profile.streak_bw.slice() : [];
-      let localStreakNum = (profile && Array.isArray(profile.streak_num)) ? profile.streak_num.slice() : [];
-      let localStreakMulti = (profile && Array.isArray(profile.streak_multi)) ? profile.streak_multi.slice() : [];
-      let bwWins = (profile && profile.bw_wins) || 0;
-      let numWins = (profile && profile.num_wins) || 0;
-      let multiWins = (profile && profile.multi_wins) || 0;
-      let recordsBw = (profile && profile.records_bw) || null;
-      let recordsNum = (profile && profile.records_num) || null;
-      let recordsMulti = (profile && profile.records_multi) || null;
-      let maxStreakBw = (profile && profile.max_streak_bw) || 0;
-      let maxStreakNum = (profile && profile.max_streak_num) || 0;
-      let maxStreakMulti = (profile && profile.max_streak_multi) || 0;
-      const totalWins = ((profile && profile.total_wins) || 0) + 1;
-
+      // profiles 统计只处理 bw/num/multi（daily 不进入）
       if (isChallenge && (mode === 'bw' || mode === 'num' || mode === 'multi')) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('total_wins, bw_wins, num_wins, multi_wins, streak_bw, streak_num, streak_multi, records_bw, records_num, records_multi, max_streak_bw, max_streak_num, max_streak_multi')
+          .eq('id', currentUser.id)
+          .maybeSingle();
+
+        let localStreakBw = (profile && Array.isArray(profile.streak_bw)) ? profile.streak_bw.slice() : [];
+        let localStreakNum = (profile && Array.isArray(profile.streak_num)) ? profile.streak_num.slice() : [];
+        let localStreakMulti = (profile && Array.isArray(profile.streak_multi)) ? profile.streak_multi.slice() : [];
+        let bwWins = (profile && profile.bw_wins) || 0;
+        let numWins = (profile && profile.num_wins) || 0;
+        let multiWins = (profile && profile.multi_wins) || 0;
+        let recordsBw = (profile && profile.records_bw) || null;
+        let recordsNum = (profile && profile.records_num) || null;
+        let recordsMulti = (profile && profile.records_multi) || null;
+        let maxStreakBw = (profile && profile.max_streak_bw) || 0;
+        let maxStreakNum = (profile && profile.max_streak_num) || 0;
+        let maxStreakMulti = (profile && profile.max_streak_multi) || 0;
+        const totalWins = ((profile && profile.total_wins) || 0) + 1;
+
         const doReset = resetStreakOnNextSolve;
         resetStreakOnNextSolve = false;
 
@@ -3380,40 +3500,40 @@
         if (mode === 'bw') recordsBw = newRecords;
         else if (mode === 'num') recordsNum = newRecords;
         else recordsMulti = newRecords;
+
+        const updateData = {
+          total_wins: totalWins,
+          bw_wins: bwWins,
+          num_wins: numWins,
+          multi_wins: multiWins,
+          streak_bw: localStreakBw,
+          streak_num: localStreakNum,
+          streak_multi: localStreakMulti,
+          max_streak_bw: maxStreakBw,
+          max_streak_num: maxStreakNum,
+          max_streak_multi: maxStreakMulti,
+          records_bw: recordsBw,
+          records_num: recordsNum,
+          records_multi: recordsMulti,
+          updated_at: new Date().toISOString()
+        };
+
+        if (profile) {
+          const { error: upErr } = await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
+          if (upErr) throw upErr;
+        } else {
+          const { error: insErr } = await supabase.from('profiles').insert({
+            id: currentUser.id,
+            username: username,
+            ...updateData
+          });
+          if (insErr) throw insErr;
+        }
+
+        streakBw = localStreakBw;
+        streakNum = localStreakNum;
+        streakMulti = localStreakMulti;
       }
-
-      const updateData = {
-        total_wins: totalWins,
-        bw_wins: bwWins,
-        num_wins: numWins,
-        multi_wins: multiWins,
-        streak_bw: localStreakBw,
-        streak_num: localStreakNum,
-        streak_multi: localStreakMulti,
-        max_streak_bw: maxStreakBw,
-        max_streak_num: maxStreakNum,
-        max_streak_multi: maxStreakMulti,
-        records_bw: recordsBw,
-        records_num: recordsNum,
-        records_multi: recordsMulti,
-        updated_at: new Date().toISOString()
-      };
-
-      if (profile) {
-        const { error: upErr } = await supabase.from('profiles').update(updateData).eq('id', currentUser.id);
-        if (upErr) throw upErr;
-      } else {
-        const { error: insErr } = await supabase.from('profiles').insert({
-          id: currentUser.id,
-          username: username,
-          ...updateData
-        });
-        if (insErr) throw insErr;
-      }
-
-      streakBw = localStreakBw;
-      streakNum = localStreakNum;
-      streakMulti = localStreakMulti;
 
       renderHistory();
       return true;
@@ -3587,6 +3707,12 @@
     }
     rankList.innerHTML = '<div class="rank-empty">加载中...</div>';
 
+    // ⭐ 每日：单独查询 records 表（今日）
+    if (currentRankMode === 'daily') {
+      await loadDailyRanking();
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -3625,6 +3751,39 @@
 
       allRankingData = byMode;
       renderRanking();
+    } catch (e) {
+      console.error(e);
+      rankList.innerHTML = '<div class="rank-empty">加载失败</div>';
+    }
+  }
+
+  async function loadDailyRanking() {
+    try {
+      const todaySeed = getDailySeed();
+      const { data, error } = await supabase
+        .from('records')
+        .select('username, elapsed, seed, ended_at')
+        .eq('mode', 'daily')
+        .eq('seed', todaySeed)
+        .eq('is_challenge', true)
+        .order('elapsed', { ascending: true })
+        .limit(100);
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        rankList.innerHTML = '<div class="rank-empty">今日暂无数据</div>';
+        return;
+      }
+      let html = '';
+      data.forEach((item, index) => {
+        html += '<div class="rank-item">' +
+          '<div class="rank-main">' +
+            '<span class="rank-no">' + (index + 1) + '</span>' +
+            '<span class="rank-name">' + (item.username || '匿名') + '</span>' +
+            '<span class="rank-score">' + formatDuration(item.elapsed) + '</span>' +
+          '</div>' +
+        '</div>';
+      });
+      rankList.innerHTML = html;
     } catch (e) {
       console.error(e);
       rankList.innerHTML = '<div class="rank-empty">加载失败</div>';
@@ -3686,12 +3845,19 @@
       document.querySelectorAll('.rank-mode-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentRankMode = btn.dataset.mode;
-      const activeRank = currentRankMode === 'bw' ? currentRankTabBw
-                      : (currentRankMode === 'num' ? currentRankTabNum : currentRankTabMulti);
-      document.querySelectorAll('.rank-subtab').forEach(b => {
-        b.classList.toggle('active', b.dataset.rank === activeRank);
-      });
-      renderRanking();
+
+      // ⭐ 每日模式下隐藏子标签（只有 1 个榜单）
+      if (currentRankMode === 'daily') {
+        rankSubtabs.style.display = 'none';
+      } else {
+        rankSubtabs.style.display = '';
+        const activeRank = currentRankMode === 'bw' ? currentRankTabBw
+                        : (currentRankMode === 'num' ? currentRankTabNum : currentRankTabMulti);
+        document.querySelectorAll('.rank-subtab').forEach(b => {
+          b.classList.toggle('active', b.dataset.rank === activeRank);
+        });
+      }
+      loadRankingAll();
     });
   });
 
@@ -3846,13 +4012,56 @@
     myRecordsContent.innerHTML = html;
   }
 
+  // ⭐ 进入游戏界面（不自动生成关卡；有进度则恢复，无进度则空白）
+  async function enterGameScreen() {
+    homeScreen.classList.add('hidden');
+    gameScreen.classList.add('active');
+
+    if (currentUser && supabase) {
+      await pullProgressFromCloud();
+    }
+
+    if (!loadProgressForCurrentMode()) {
+      showBlankState();
+    }
+    updateModeUI();
+  }
+
+  // ⭐ 进入每日挑战界面（不自动生成关卡，等用户点"新游戏"）
+  async function enterDailyChallengeScreen() {
+    homeScreen.classList.add('hidden');
+    gameScreen.classList.add('active');
+
+    if (currentUser && supabase) {
+      await pullProgressFromCloud();
+    }
+
+    const todaySeed = getDailySeed();
+    const existing = getProgressForMode('daily');
+
+    if (existing && existing.seed === todaySeed && !existing.solved && !existing.abandoned) {
+      if (!loadProgressForCurrentMode()) {
+        showBlankState();
+      }
+    } else {
+      showBlankState();
+    }
+    updateModeUI();
+  }
+
   async function startMode(action) {
     if (currentSeed && gameScreen.classList.contains('active')) {
       saveProgress();
     }
 
-    if (currentUser && supabase) {
-      await pullProgressFromCloud();
+    // ⭐ 未登录提醒
+    if (!currentUser) {
+      const ok = confirm(
+        '当前未登录。\n\n' +
+        '未登录状态下，游戏数据仅保存在当前设备本地，不会上传到云端，也无法跨设备同步。\n\n' +
+        '确定要进入吗？（可稍后登录）'
+      );
+      if (!ok) return;
     }
 
     if (action === 'practice-basic') {
@@ -3867,7 +4076,7 @@
       digitalMode = false;
       colorMode = false;
       isRandomChallenge = key === 'practice-random';
-      enterGameAndStart();
+      await enterGameScreen();
     } else if (action === 'practice-ternary') {
       const r = getProgressForMode('practice-multi');
       const s = getProgressForMode('practice-multi-specify');
@@ -3880,7 +4089,7 @@
       digitalMode = false;
       colorMode = false;
       isRandomChallenge = key === 'practice-multi';
-      enterGameAndStart();
+      await enterGameScreen();
     } else if (action === 'challenge-bw') {
       gameMode = 'challenge';
       challengeSubMode = 'bw';
@@ -3888,7 +4097,7 @@
       digitalMode = false;
       colorMode = false;
       isRandomChallenge = true;
-      enterGameAndStart();
+      await enterGameScreen();
     } else if (action === 'challenge-num') {
       gameMode = 'challenge';
       challengeSubMode = 'num';
@@ -3896,7 +4105,7 @@
       digitalMode = true;
       colorMode = false;
       isRandomChallenge = true;
-      enterGameAndStart();
+      await enterGameScreen();
     } else if (action === 'challenge-ternary') {
       gameMode = 'challenge';
       challengeSubMode = 'bw';
@@ -3904,7 +4113,7 @@
       digitalMode = false;
       colorMode = false;
       isRandomChallenge = true;
-      enterGameAndStart();
+      await enterGameScreen();
     } else if (action === 'daily') {
       gameMode = 'challenge';
       challengeSubMode = 'num';
@@ -3912,37 +4121,8 @@
       digitalMode = true;
       colorMode = false;
       isRandomChallenge = false;
-      enterDailyChallenge();
+      await enterDailyChallengeScreen();
     }
-  }
-
-  async function enterDailyChallenge() {
-    homeScreen.classList.add('hidden');
-    gameScreen.classList.add('active');
-
-    const todaySeed = getDailySeed();
-    const existing = getProgressForMode('daily');
-
-    if (existing && existing.seed === todaySeed && !existing.solved && !existing.abandoned) {
-      if (!loadProgressForCurrentMode()) {
-        generateChallenge(todaySeed, false, false);
-      }
-    } else {
-      generateChallenge(todaySeed, false, false);
-    }
-    updateModeUI();
-  }
-
-  function enterGameAndStart() {
-    homeScreen.classList.add('hidden');
-    gameScreen.classList.add('active');
-    if (!loadProgressForCurrentMode()) {
-      const s = pickNewSeed();
-      generateChallenge(s, false, true);
-    } else {
-      updateUndoButton(); updateRedoButton();
-    }
-    updateModeUI();
   }
 
   function backToHome() {
@@ -3972,6 +4152,7 @@
     currentRankTabBw = 'best';
     currentRankTabNum = 'best';
     currentRankTabMulti = 'best';
+    rankSubtabs.style.display = '';
     document.querySelectorAll('.rank-mode-tab').forEach(b => {
       b.classList.toggle('active', b.dataset.mode === 'bw');
     });
@@ -3987,6 +4168,7 @@
     currentRankTabBw = 'best';
     currentRankTabNum = 'best';
     currentRankTabMulti = 'best';
+    rankSubtabs.style.display = '';
     document.querySelectorAll('.rank-mode-tab').forEach(b => {
       b.classList.toggle('active', b.dataset.mode === 'bw');
     });
@@ -4024,15 +4206,29 @@
     });
   });
 
+  // ⭐ 挑战/每日模式：新游戏按钮
   btnMainAction.addEventListener('click', async () => {
     if (gameTypeKey === 'daily') {
-      generateChallenge(getDailySeed(), false, false);
+      // 每日挑战：点击后生成当日关卡（如已有进度，确认后重新开始）
+      if (!currentSeed) {
+        generateChallenge(getDailySeed(), false, false);
+      } else {
+        const ok = confirm('每日挑战已经开始。\n\n确定要重新开始吗？\n（重新通关不会覆盖已上传的首次成绩）');
+        if (!ok) return;
+        generateChallenge(getDailySeed(), false, false);
+      }
       return;
     }
 
     if (gameMode === 'challenge') {
+      // 空白状态：直接生成新关卡
+      if (!currentSeed) {
+        generateChallenge(pickNewSeed(), false, true);
+        return;
+      }
+      // 已有进度：确认后放弃
       if (isMultiColorMode()) {
-        if (currentSeed && !solved && !abandoned) {
+        if (!solved && !abandoned) {
           const ok = confirm(
             '当前挑战尚未完成。\n\n' +
             '开始新游戏将放弃当前挑战并作废本局成绩。\n\n' +
@@ -4049,7 +4245,7 @@
       const curStreak = getCurrentStreakArr();
       const hasStreak = Array.isArray(curStreak) && curStreak.length > 0;
 
-      if (currentSeed && !solved && !abandoned && hasStreak) {
+      if (!solved && !abandoned && hasStreak) {
         const modeText = digitalMode ? '有数字' : '无数字';
         const ok = confirm(
           '当前挑战尚未完成。\n\n' +
@@ -4062,7 +4258,7 @@
         stopTimer();
         resetStreakOnNextSolve = true;
         scheduleSaveProgress();
-      } else if (currentSeed && !solved && !abandoned) {
+      } else if (!solved && !abandoned) {
         abandoned = true;
         stopTimer();
         scheduleSaveProgress();
@@ -4071,9 +4267,8 @@
     }
   });
 
-  // ⭐ 随机生成：切换为随机模式并生成新随机关卡
+  // ⭐ 练习模式：随机生成
   btnRandomNew.addEventListener('click', () => {
-    // 不保存当前进度，直接跳转
     if (gameTypeKey === 'practice-specify') gameTypeKey = 'practice-random';
     else if (gameTypeKey === 'practice-multi-specify') gameTypeKey = 'practice-multi';
     isRandomChallenge = true;
@@ -4081,7 +4276,7 @@
     generateChallenge(pickNewSeed(), false, true);
   });
 
-  // ⭐ 指定编号：输入编号后直接跳转新关卡（不记录当前进度）
+  // ⭐ 练习模式：指定编号
   btnSpecifyNew.addEventListener('click', async () => {
     const input = await showInputModal('');
     if (input === null) return;
@@ -4091,7 +4286,6 @@
       return;
     }
     if (!checkSeedAlreadySolved(n)) return;
-    // 不保存当前进度，直接切换到指定模式
     if (gameTypeKey === 'practice-random') gameTypeKey = 'practice-specify';
     else if (gameTypeKey === 'practice-multi') gameTypeKey = 'practice-multi-specify';
     isRandomChallenge = false;
@@ -4120,7 +4314,7 @@
   boardEl.addEventListener('contextmenu', (e) => e.preventDefault());
 
   digitSwitch.addEventListener('click', () => {
-    if (gameMode !== 'practice' || isMultiColorMode() || gameTypeKey === 'daily') return;
+    if (gameMode !== 'practice' || isMultiColorMode() || gameTypeKey === 'daily' || !currentSeed) return;
     digitalMode = !digitalMode;
     updateModeUI(); renderPool(); updateBoardView();
     if (answerMode) renderPiecesLayer();
@@ -4128,7 +4322,7 @@
   });
 
   colorSwitch.addEventListener('click', () => {
-    if (isMultiColorMode()) return;
+    if (isMultiColorMode() || !currentSeed) return;
     colorMode = !colorMode;
     updateModeUI(); renderPool(); updateBoardView();
     if (answerMode) renderPiecesLayer();
@@ -4136,7 +4330,7 @@
   });
 
   targetSwitch.addEventListener('click', () => {
-    if (!targetGrid || answerMode) return;
+    if (!targetGrid || answerMode || !currentSeed) return;
     cancelPendingTap();
     showingTarget = !showingTarget;
     updateBoardView(); renderPiecesLayer(); updateModeUI();
